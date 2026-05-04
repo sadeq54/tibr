@@ -49,6 +49,21 @@
     "comingSoon": "Historical OHLC chart for {year}",
     "comingSoonBody": "Daily historical pricing requires aggregated data storage. This page will display daily open/high/low/close for 24K, 21K, 18K and 14K once the historical data pipeline is wired. For live spot pricing, see the home page."
   },
+  "PriceChart": {
+    "heading": "{metal} · Daily Close",
+    "titleDynamic": "{period} {metal} Price in {currency}/{unit}",
+    "rangeStats": "range {low} – {high}",
+    "close": "Close",
+    "metal": "Metal",
+    "currency": "Currency",
+    "unit": "Unit",
+    "period": "Period",
+    "unavailable": "Historical data unavailable.",
+    "source": "Daily OHLC sourced from Yahoo Finance futures (GC=F, SI=F, PL=F, PA=F). FX from fawazahmed0/currency-api."
+  },
+  "FxNote": {
+    "label": "FX rates · {source} · {date}"
+  },
   "HeroSpot": {
     "label": "Spot Gold · XAU/USD · {exchange}",
     "perOz": "/ troy oz",

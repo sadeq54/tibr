@@ -9,8 +9,11 @@ import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
 import { Sidebar } from "@/components/Sidebar";
+import { PriceChart } from "@/components/PriceChart";
 import { Link } from "@/i18n/navigation";
+import { fetchFxRates } from "@/lib/fx";
 import { fetchSpot } from "@/lib/goldapi";
+import { fetchAllHistory } from "@/lib/history";
 
 const VALID_KARATS = ["24k", "21k", "18k", "14k"] as const;
 type Karat = (typeof VALID_KARATS)[number];
@@ -40,7 +43,7 @@ export default async function KaratPage({
   setRequestLocale(locale);
 
   const t = await getTranslations("KaratPage");
-  const spot = await fetchSpot("XAU");
+  const [spot, fx, histories] = await Promise.all([fetchSpot("XAU"), fetchFxRates(), fetchAllHistory("1y")]);
   const upper = karat.toUpperCase();
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
@@ -74,9 +77,10 @@ export default async function KaratPage({
             </header>
 
             <HeroSpot spot={spot} />
+            <PriceChart histories={histories} fx={fx} />
             <BidAskGauge spot={spot} />
-            <KaratGrid spot={spot} />
-            <Calculator spot={calcSpot} />
+            <KaratGrid spot={spot} fx={fx} />
+            <Calculator spot={calcSpot} fx={fx} />
             <AffiliateBanner url={affiliateUrl} />
             <Faq />
           </section>

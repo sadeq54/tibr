@@ -9,8 +9,11 @@ import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
 import { Sidebar } from "@/components/Sidebar";
+import { PriceChart } from "@/components/PriceChart";
 import { Link } from "@/i18n/navigation";
+import { fetchFxRates } from "@/lib/fx";
 import { fetchSpot } from "@/lib/goldapi";
+import { fetchAllHistory } from "@/lib/history";
 
 const COUNTRY_META: Record<string, { currency: string; nameKey: "jordan" | "saudi" | "uae" | "egypt" }> = {
   jordan: { currency: "JOD", nameKey: "jordan" },
@@ -64,7 +67,7 @@ export default async function CountryKaratPage({
 
   const tPage = await getTranslations("CountryPage");
   const tCountry = await getTranslations("Page.country");
-  const spot = await fetchSpot("XAU");
+  const [spot, fx, histories] = await Promise.all([fetchSpot("XAU"), fetchFxRates(), fetchAllHistory("1y")]);
   const upper = karat.toUpperCase();
   const countryName = tCountry(meta.nameKey);
 
@@ -102,9 +105,10 @@ export default async function CountryKaratPage({
             </header>
 
             <HeroSpot spot={spot} />
+            <PriceChart histories={histories} fx={fx} />
             <BidAskGauge spot={spot} />
-            <KaratGrid spot={spot} />
-            <Calculator spot={calcSpot} />
+            <KaratGrid spot={spot} fx={fx} />
+            <Calculator spot={calcSpot} fx={fx} />
             <AffiliateBanner url={affiliateUrl} />
             <Faq />
           </section>

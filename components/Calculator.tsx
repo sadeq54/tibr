@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import type { FxRates } from "@/lib/fx";
+
 const KARATS = [
   { key: "24K", field: "price_gram_24k" as const },
   { key: "21K", field: "price_gram_21k" as const },
@@ -10,13 +12,13 @@ const KARATS = [
   { key: "14K", field: "price_gram_14k" as const },
 ];
 
-const CURRENCIES = [
-  { code: "USD", rate: 1, symbol: "$" },
-  { code: "JOD", rate: 0.709, symbol: "JD" },
-  { code: "SAR", rate: 3.75, symbol: "SR" },
-  { code: "AED", rate: 3.6725, symbol: "AED" },
-  { code: "EGP", rate: 48.5, symbol: "EGP" },
-];
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$",
+  JOD: "JD",
+  SAR: "SR",
+  AED: "AED",
+  EGP: "EGP",
+};
 
 const UNITS = [
   { id: "g", factor: 1 },
@@ -26,7 +28,7 @@ const UNITS = [
 
 type Spot = Record<string, number>;
 
-export function Calculator({ spot }: { spot: Spot }) {
+export function Calculator({ spot, fx }: { spot: Spot; fx: FxRates }) {
   const t = useTranslations("Calculator");
   const [karatField, setKaratField] = useState<typeof KARATS[number]["field"]>("price_gram_24k");
   const [unit, setUnit] = useState<typeof UNITS[number]["id"]>("g");
@@ -38,11 +40,13 @@ export function Calculator({ spot }: { spot: Spot }) {
     const factor = UNITS.find((u) => u.id === unit)?.factor ?? 1;
     const grams = qty * factor;
     const usd = grams * perGramUsd;
-    const rate = CURRENCIES.find((c) => c.code === currency)?.rate ?? 1;
-    return { usd, value: usd * rate, perGramUsd, grams };
-  }, [karatField, unit, currency, qty, spot]);
+    const rate = fx[currency as keyof FxRates] as number | undefined;
+    const fxRate = typeof rate === "number" ? rate : 1;
+    return { usd, value: usd * fxRate, perGramUsd, grams };
+  }, [karatField, unit, currency, qty, spot, fx]);
 
-  const symbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? "$";
+  const symbol = CURRENCY_SYMBOLS[currency] ?? "$";
+  const currencyOptions = ["USD", "JOD", "SAR", "AED", "EGP"];
 
   return (
     <section
@@ -89,7 +93,7 @@ export function Calculator({ spot }: { spot: Spot }) {
           <Select
             value={currency}
             onChange={setCurrency}
-            options={CURRENCIES.map((c) => ({ value: c.code, label: c.code }))}
+            options={currencyOptions.map((c) => ({ value: c, label: c }))}
           />
         </Field>
       </div>

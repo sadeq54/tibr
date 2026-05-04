@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 
 import type { GoldApiResponse } from "@/lib/goldapi";
+import type { FxRates } from "@/lib/fx";
 
 const KARATS = [
   { key: "24K", field: "price_gram_24k" as const, purityNum: 1.0 },
@@ -11,11 +12,16 @@ const KARATS = [
 
 const OZ_TO_GRAM = 31.1034768;
 
-const RATES = { JOD: 0.709, SAR: 3.75, AED: 3.6725, EGP: 48.5 } as const;
-
-export function KaratGrid({ spot }: { spot: GoldApiResponse | null }) {
+export function KaratGrid({ spot, fx }: { spot: GoldApiResponse | null; fx: FxRates }) {
   const t = useTranslations("KaratGrid");
   if (!spot) return null;
+
+  const fxList: Array<[keyof FxRates, number]> = [
+    ["JOD", fx.JOD],
+    ["SAR", fx.SAR],
+    ["AED", fx.AED],
+    ["EGP", fx.EGP],
+  ];
 
   return (
     <section aria-labelledby="karat-heading">
@@ -86,7 +92,7 @@ export function KaratGrid({ spot }: { spot: GoldApiResponse | null }) {
               </div>
 
               <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-[var(--color-border)] pt-3 text-[11px]">
-                {Object.entries(RATES).map(([cur, rate]) => (
+                {fxList.map(([cur, rate]) => (
                   <div key={cur} className="flex justify-between">
                     <dt className="text-[var(--color-text-dim)]">{cur}{t("perGramShort")}</dt>
                     <dd className="font-mono text-[var(--color-text-muted)]">{(usd * rate).toFixed(2)}</dd>

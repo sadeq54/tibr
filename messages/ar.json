@@ -49,6 +49,21 @@
     "comingSoon": "مخطط الأسعار التاريخية لعام {year}",
     "comingSoonBody": "البيانات التاريخية اليومية تتطلب تخزينًا مجمّعًا. ستعرض هذه الصفحة بيانات الافتتاح والأعلى والأدنى والإغلاق لعيارات 24 و21 و18 و14 بمجرد ربط خط الأنابيب التاريخي. للأسعار الفورية، تحقق من الصفحة الرئيسية."
   },
+  "PriceChart": {
+    "heading": "{metal} · إغلاق يومي",
+    "titleDynamic": "سعر {metal} لـ {period} بـ {currency}/{unit}",
+    "rangeStats": "النطاق {low} – {high}",
+    "close": "إغلاق",
+    "metal": "المعدن",
+    "currency": "العملة",
+    "unit": "الوحدة",
+    "period": "المدة",
+    "unavailable": "البيانات التاريخية غير متاحة.",
+    "source": "بيانات OHLC اليومية من Yahoo Finance للعقود الآجلة (GC=F, SI=F, PL=F, PA=F). أسعار الصرف من fawazahmed0/currency-api."
+  },
+  "FxNote": {
+    "label": "أسعار الصرف · {source} · {date}"
+  },
   "HeroSpot": {
     "label": "السعر الفوري للذهب · XAU/USD · {exchange}",
     "perOz": "/ أونصة",

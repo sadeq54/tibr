@@ -10,9 +10,12 @@ import { HeroSpot } from "@/components/HeroSpot";
 import { JsonLd } from "@/components/JsonLd";
 import { KaratGrid } from "@/components/KaratGrid";
 import { MetalsStrip } from "@/components/MetalsStrip";
+import { PriceChart } from "@/components/PriceChart";
 import { Sidebar } from "@/components/Sidebar";
 import { Link } from "@/i18n/navigation";
+import { fetchFxRates } from "@/lib/fx";
 import { fetchMetals } from "@/lib/goldapi";
+import { fetchAllHistory } from "@/lib/history";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -25,7 +28,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   setRequestLocale(locale);
 
   const t = await getTranslations("Page");
-  const metals = await fetchMetals();
+  const [metals, fx, histories] = await Promise.all([fetchMetals(), fetchFxRates(), fetchAllHistory("1y")]);
   const spot = metals.XAU;
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
@@ -51,7 +54,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   return (
     <>
       <JsonLd spot={spot} siteUrl={siteUrl} />
-      <DebugConsole spot={spot} metals={metals} />
+      <DebugConsole spot={spot} metals={metals} fx={fx} />
       <Header />
 
       <main className="mx-auto max-w-7xl px-6 py-8">
@@ -74,9 +77,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
 
             <HeroSpot spot={spot} />
             <MetalsStrip metals={metals} />
+            <PriceChart histories={histories} fx={fx} />
             <BidAskGauge spot={spot} />
-            <KaratGrid spot={spot} />
-            <Calculator spot={calcSpot} />
+            <KaratGrid spot={spot} fx={fx} />
+            <Calculator spot={calcSpot} fx={fx} />
             <AffiliateBanner url={affiliateUrl} />
 
             <section aria-labelledby="about-heading">
