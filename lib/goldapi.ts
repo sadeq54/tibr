@@ -38,38 +38,149 @@ export const METAL_META: Record<string, { name: string; nameAr: string; tint: st
   XPD: { name: "Palladium", nameAr: "بالاديوم", tint: "#7ec4ae", symbol: "Pd" },
 };
 
-async function callGoldapi<T>(path: string, revalidateSec = 60): Promise<T | null> {
-  const key = process.env.GOLDAPI_KEY;
-  if (!key) return null;
+const OZ_TO_GRAM = 31.1034768;
+
+const PURITY = {
+  k24: 1.0,
+  k22: 0.917,
+  k21: 0.875,
+  k20: 0.833,
+  k18: 0.75,
+  k16: 0.667,
+  k14: 0.583,
+  k10: 0.417,
+};
+
+const STOOQ_QUOTE = "https://stooq.com/q/l/?s=xauusd+xagusd+xptusd+xpdusd&f=sd2t2ohlcpv&h&e=csv";
+const SWISSQUOTE_XAU = "https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD";
+
+type StooqRow = {
+  symbol: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  prev: number;
+  ts: number;
+};
+
+type SwissquoteRow = { bid: number; ask: number };
+
+async function fetchStooq(): Promise<Record<string, StooqRow>> {
   try {
-    const r = await fetch(`https://www.goldapi.io${path}`, {
-      headers: { "x-access-token": key },
-      next: { revalidate: revalidateSec },
+    const r = await fetch(STOOQ_QUOTE, {
+      next: { revalidate: 60 },
+      headers: { "User-Agent": "Mozilla/5.0 Tibr/1.0" },
+    });
+    if (!r.ok) return {};
+    const text = await r.text();
+    const lines = text.trim().split(/\r?\n/);
+    const out: Record<string, StooqRow> = {};
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(",");
+      if (cols.length < 8) continue;
+      const [symbol, date, time, open, high, low, close, prev] = cols;
+      const ts = Math.floor(Date.parse(`${date}T${time}Z`) / 1000);
+      const c = Number(close);
+      if (!Number.isFinite(c)) continue;
+      out[symbol] = {
+        symbol,
+        open: Number(open),
+        high: Number(high),
+        low: Number(low),
+        close: c,
+        prev: Number(prev) || c,
+        ts: Number.isFinite(ts) ? ts : Math.floor(Date.now() / 1000),
+      };
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+async function fetchSwissquoteXAU(): Promise<SwissquoteRow | null> {
+  try {
+    const r = await fetch(SWISSQUOTE_XAU, {
+      next: { revalidate: 60 },
+      headers: { "User-Agent": "Mozilla/5.0 Tibr/1.0" },
     });
     if (!r.ok) return null;
-    return (await r.json()) as T;
+    const data = (await r.json()) as Array<{
+      spreadProfilePrices: Array<{ bid: number; ask: number; spreadProfile: string }>;
+    }>;
+    for (const layer of data) {
+      const std = layer.spreadProfilePrices?.find((s) => s.spreadProfile === "standard");
+      if (std) return { bid: std.bid, ask: std.ask };
+      const first = layer.spreadProfilePrices?.[0];
+      if (first) return { bid: first.bid, ask: first.ask };
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
-export function fetchSpot(metal: "XAU" | "XAG" | "XPT" | "XPD" = "XAU") {
-  return callGoldapi<GoldApiResponse>(`/api/${metal}/USD`, 60);
+function buildResponse(
+  metal: "XAU" | "XAG" | "XPT" | "XPD",
+  row: StooqRow,
+  bidAsk: SwissquoteRow | null
+): GoldApiResponse {
+  const close = row.close;
+  const grams = close / OZ_TO_GRAM;
+  const fallbackSpread = close * 0.0005;
+  const bid = bidAsk?.bid ?? close - fallbackSpread;
+  const ask = bidAsk?.ask ?? close + fallbackSpread;
+
+  return {
+    timestamp: row.ts,
+    metal,
+    currency: "USD",
+    exchange: "STOOQ",
+    symbol: `STOOQ:${metal}USD`,
+    prev_close_price: row.prev,
+    open_price: row.open,
+    low_price: row.low,
+    high_price: row.high,
+    open_time: row.ts,
+    price: close,
+    ch: +(close - row.prev).toFixed(4),
+    chp: row.prev ? +(((close - row.prev) / row.prev) * 100).toFixed(4) : 0,
+    ask,
+    bid,
+    price_gram_24k: +(grams * PURITY.k24).toFixed(4),
+    price_gram_22k: +(grams * PURITY.k22).toFixed(4),
+    price_gram_21k: +(grams * PURITY.k21).toFixed(4),
+    price_gram_20k: +(grams * PURITY.k20).toFixed(4),
+    price_gram_18k: +(grams * PURITY.k18).toFixed(4),
+    price_gram_16k: +(grams * PURITY.k16).toFixed(4),
+    price_gram_14k: +(grams * PURITY.k14).toFixed(4),
+    price_gram_10k: +(grams * PURITY.k10).toFixed(4),
+  };
+}
+
+export async function fetchSpot(
+  metal: "XAU" | "XAG" | "XPT" | "XPD" = "XAU"
+): Promise<GoldApiResponse | null> {
+  const [stooq, sq] = await Promise.all([
+    fetchStooq(),
+    metal === "XAU" ? fetchSwissquoteXAU() : Promise.resolve(null),
+  ]);
+  const row = stooq[`${metal}USD`];
+  if (!row) return null;
+  return buildResponse(metal, row, sq);
 }
 
 export async function fetchMetals(): Promise<MetalsBundle> {
-  const [XAU, XAG, XPT, XPD] = await Promise.all([
-    fetchSpot("XAU"),
-    fetchSpot("XAG"),
-    fetchSpot("XPT"),
-    fetchSpot("XPD"),
-  ]);
-  return { XAU, XAG, XPT, XPD };
+  const [stooq, sq] = await Promise.all([fetchStooq(), fetchSwissquoteXAU()]);
+  const get = (m: "XAU" | "XAG" | "XPT" | "XPD") => {
+    const row = stooq[`${m}USD`];
+    if (!row) return null;
+    return buildResponse(m, row, m === "XAU" ? sq : null);
+  };
+  return { XAU: get("XAU"), XAG: get("XAG"), XPT: get("XPT"), XPD: get("XPD") };
 }
 
-export function fetchHistoricalDay(metal: string, date: string) {
-  return callGoldapi<{ price: number; price_gram_24k: number; date: string }>(
-    `/api/${metal}/USD/${date}`,
-    3600
-  );
+export async function fetchHistoricalDay(_metal: string, _date: string) {
+  return null;
 }
