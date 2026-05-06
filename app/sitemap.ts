@@ -8,14 +8,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const now = new Date();
 
+  // Default locale is Arabic — served at the root path.
+  // English lives under /en/*.
   const root: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: now, changeFrequency: "hourly", priority: 1.0 },
-    { url: `${base}/ar`, lastModified: now, changeFrequency: "hourly", priority: 1.0 },
+    { url: `${base}/en`, lastModified: now, changeFrequency: "hourly", priority: 1.0 },
   ];
 
   const karatRoutes = KARATS.flatMap((k) => [
     { url: `${base}/gold-price/${k}`, lastModified: now, changeFrequency: "hourly" as const, priority: 0.9 },
-    { url: `${base}/ar/gold-price/${k}`, lastModified: now, changeFrequency: "hourly" as const, priority: 0.9 },
+    { url: `${base}/en/gold-price/${k}`, lastModified: now, changeFrequency: "hourly" as const, priority: 0.9 },
   ]);
 
   const countryRoutes = COUNTRIES.flatMap((c) =>
@@ -27,9 +29,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
   );
 
-  const arCountryRoutes = COUNTRIES.flatMap((c) =>
+  const enCountryRoutes = COUNTRIES.flatMap((c) =>
     KARATS.map((k) => ({
-      url: `${base}/ar/${c}/gold-price/${k}`,
+      url: `${base}/en/${c}/gold-price/${k}`,
       lastModified: now,
       changeFrequency: "hourly" as const,
       priority: 0.85,
@@ -38,8 +40,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const histRoutes = YEARS.flatMap((y) => [
     { url: `${base}/historical-gold-prices/${y}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.7 },
-    { url: `${base}/ar/historical-gold-prices/${y}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.7 },
+    { url: `${base}/en/historical-gold-prices/${y}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.7 },
   ]);
 
-  return [...root, ...karatRoutes, ...countryRoutes, ...arCountryRoutes, ...histRoutes];
+  return [...root, ...karatRoutes, ...countryRoutes, ...enCountryRoutes, ...histRoutes];
 }

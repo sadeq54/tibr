@@ -146,6 +146,17 @@
     "subtitle": "Live spot pricing, insured shipping, fraction-gram bars.",
     "cta": "Visit Kormzi →"
   },
+  "Loading": {
+    "label": "Loading live gold data…"
+  },
+  "Error": {
+    "badge": "Error",
+    "title": "Something went wrong",
+    "body": "We couldn't load the latest market data. This is usually temporary — try again in a moment.",
+    "retry": "Try again",
+    "home": "Back to home",
+    "digest": "Reference: {digest}"
+  },
   "Faq": {
     "badge": "FAQ",
     "heading": "Frequently Asked Questions",

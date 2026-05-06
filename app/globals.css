@@ -119,8 +119,75 @@ html:not(.light) .affiliate-bg {
   background: linear-gradient(to right, #1a1408, #221a0c, #1a1408);
 }
 
+.hover-gold-card {
+  transition: border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.hover-gold-card:hover {
+  border-color: color-mix(in srgb, var(--color-gold) 45%, var(--color-border)) !important;
+  box-shadow: 0 16px 40px -12px color-mix(in srgb, var(--color-gold) 28%, transparent);
+}
+
+.hover-gold-card-strong:hover {
+  border-color: color-mix(in srgb, var(--color-gold) 55%, var(--color-border)) !important;
+  box-shadow: 0 18px 44px -12px color-mix(in srgb, var(--color-gold) 32%, transparent);
+}
+
+.theme-toggle {
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+.theme-toggle:hover {
+  border-color: color-mix(in srgb, var(--color-gold) 45%, var(--color-border-strong));
+  color: var(--color-gold);
+}
+
 .gold-glow {
   background: radial-gradient(circle, color-mix(in srgb, var(--color-gold) 70%, transparent) 0%, transparent 70%);
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg-card-hover);
+  border-radius: 8px;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-gold) 16%, transparent) 50%,
+    transparent 100%
+  );
+  animation: skeletonShimmer 1.6s ease-in-out infinite;
+}
+
+[dir="rtl"] .skeleton::after {
+  transform: translateX(100%);
+  animation-name: skeletonShimmerRtl;
+}
+
+@keyframes skeletonShimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes skeletonShimmerRtl {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
 }
 
 .lux-number {

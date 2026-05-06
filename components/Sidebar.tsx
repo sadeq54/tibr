@@ -27,13 +27,13 @@ export function Sidebar({ adClient }: { adClient: string }) {
         <h4 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
           {t("quickLinks")}
         </h4>
-        <nav className="flex flex-col gap-2 text-sm">
+        <nav className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3 lg:grid-cols-1">
           {KARAT_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="text-[var(--color-gold)] hover:underline">
               {t(l.key)}
             </Link>
           ))}
-          <div className="my-2 h-px bg-[var(--color-border)]" />
+          <div className="col-span-full my-1 hidden h-px bg-[var(--color-border)] lg:block" />
           {COUNTRY_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="text-[var(--color-gold)] hover:underline">
               {t(l.key)}
@@ -42,19 +42,33 @@ export function Sidebar({ adClient }: { adClient: string }) {
         </nav>
       </div>
 
-      <AdSlot client={adClient} label={t("adBottom")} adsenseLabel={t("adsense", { client: adClient })} />
+      <div className="hidden lg:block">
+        <AdSlot
+          client={adClient}
+          label={t("adBottom")}
+          adsenseLabel={t("adsense", { client: adClient })}
+        />
+      </div>
     </aside>
   );
 }
 
-function AdSlot({ client, label, adsenseLabel }: { client: string; label: string; adsenseLabel: string }) {
+function AdSlot({
+  client,
+  label,
+  adsenseLabel,
+}: {
+  client: string;
+  label: string;
+  adsenseLabel: string;
+}) {
   return (
-    <div className="flex h-44 flex-col items-center justify-center rounded-xl border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-card)] p-6 text-center">
-      <Megaphone className="mb-3 h-6 w-6 text-[var(--color-gold)]" />
-      <div className="text-sm font-medium text-[var(--color-text)]">{label}</div>
-      <div className="mt-1 text-xs text-[var(--color-text-dim)]">{adsenseLabel}</div>
+    <div className="flex h-32 flex-col items-center justify-center rounded-xl border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-card)] p-4 text-center sm:h-44 sm:p-6">
+      <Megaphone className="mb-2 h-5 w-5 text-[var(--color-gold)] sm:mb-3 sm:h-6 sm:w-6" />
+      <div className="text-xs font-medium text-[var(--color-text)] sm:text-sm">{label}</div>
+      <div className="mt-1 text-[10px] text-[var(--color-text-dim)] sm:text-xs">{adsenseLabel}</div>
       <ins
-        className="adsbygoogle mt-3 block h-0 w-full"
+        className="adsbygoogle mt-2 block h-0 w-full sm:mt-3"
         data-ad-client={client}
         data-ad-format="auto"
       />

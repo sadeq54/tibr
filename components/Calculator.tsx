@@ -30,11 +30,21 @@ const UNITS = [
 
 type Spot = Record<string, number>;
 
-export function Calculator({ spot, fx }: { spot: Spot; fx: FxRates }) {
+export function Calculator({
+  spot,
+  fx,
+  defaultCurrency = "USD",
+  defaultKarat = "price_gram_24k",
+}: {
+  spot: Spot;
+  fx: FxRates;
+  defaultCurrency?: string;
+  defaultKarat?: typeof KARATS[number]["field"];
+}) {
   const t = useTranslations("Calculator");
-  const [karatField, setKaratField] = useState<typeof KARATS[number]["field"]>("price_gram_24k");
+  const [karatField, setKaratField] = useState<typeof KARATS[number]["field"]>(defaultKarat);
   const [unit, setUnit] = useState<typeof UNITS[number]["id"]>("g");
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState(defaultCurrency);
   const [qty, setQty] = useState(10);
 
   const result = useMemo(() => {

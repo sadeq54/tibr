@@ -63,14 +63,16 @@ export function PriceChart({
   histories,
   fx,
   initialMetal = "XAU",
+  defaultCurrency = "USD",
 }: {
   histories: MetalHistory;
   fx: FxRates;
   initialMetal?: Metal;
+  defaultCurrency?: Currency;
 }) {
   const t = useTranslations("PriceChart");
   const [metal, setMetal] = useState<Metal>(initialMetal);
-  const [currency, setCurrency] = useState<Currency>("USD");
+  const [currency, setCurrency] = useState<Currency>(defaultCurrency);
   const [unit, setUnit] = useState<Unit>("oz");
   const [period, setPeriod] = useState<Period>("60D");
 
@@ -204,9 +206,7 @@ export function PriceChart({
 
       <div className="relative mt-5" style={{ width: "100%", height: 360 }}>
         {data.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-xs text-[var(--color-text-dim)]">
-            {t("unavailable")}
-          </div>
+          <div className="skeleton h-full w-full rounded-lg" aria-label={t("unavailable")} />
         ) : (
           <>
             <ResponsiveContainer width="100%" height={360}>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Moon, Sun } from "lucide-react";
 
 type Theme = "light" | "dark";
@@ -90,15 +91,29 @@ export function ThemeToggle() {
   const label = theme === "dark" ? "Switch to light" : "Switch to dark";
 
   return (
-    <button
+    <motion.button
       type="button"
       onClick={handleToggle}
       aria-label={label}
       title={label}
       suppressHydrationWarning
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] text-[var(--color-text)] transition hover:border-[var(--color-gold)]/40 hover:text-[var(--color-gold)]"
+      className="theme-toggle relative inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] text-[var(--color-text)]"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.92 }}
+      transition={{ type: "spring", stiffness: 360, damping: 20 }}
     >
-      {mounted ? <Icon size={16} /> : <Sun size={16} />}
-    </button>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={mounted ? theme : "sun"}
+          initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+          animate={{ rotate: 0, opacity: 1, scale: 1 }}
+          exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+          transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-flex"
+        >
+          {mounted ? <Icon size={16} /> : <Sun size={16} />}
+        </motion.span>
+      </AnimatePresence>
+    </motion.button>
   );
 }

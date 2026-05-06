@@ -105,5 +105,5 @@ export function JsonLd({ spot, siteUrl }: { spot: GoldApiResponse | null; siteUr
   const payload = [organization, website, ...products, faq];
   const json = JSON.stringify(payload);
 
-  return <script type="application/ld+json">{json}</script>;
+  return <script type="application/ld+json" suppressHydrationWarning>{json}</script>;
 }

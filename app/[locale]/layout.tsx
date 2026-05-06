@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { MotionRoot } from "@/components/motion/MotionRoot";
 import { routing } from "@/i18n/routing";
 
 import "../globals.css";
@@ -33,8 +35,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
     languages: {
-      en: "/",
-      ar: "/ar",
+      ar: "/",
+      en: "/en",
       "x-default": "/",
     },
   },
@@ -43,8 +45,8 @@ export const metadata: Metadata = {
     title: "Tibr — Live Gold Prices",
     description: "Live gold from the source. USD, JOD, SAR, AED, EGP.",
     siteName: "Tibr",
-    locale: "en_US",
-    alternateLocale: ["ar_AE", "ar_SA", "ar_JO", "ar_EG"],
+    locale: "ar_AE",
+    alternateLocale: ["en_US"],
   },
   twitter: {
     card: "summary_large_image",
@@ -63,6 +65,21 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+async function I18nProvider({
+  locale,
+  children,
+}: {
+  locale: string;
+  children: React.ReactNode;
+}) {
+  const messages = await getMessages();
+  return (
+    <NextIntlClientProvider messages={messages} locale={locale}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+
 export default async function LocaleLayout({
   children,
   params,
@@ -72,17 +89,13 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
-
   setRequestLocale(locale);
-  const messages = await getMessages();
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <head>
-        <Script id="tibr-theme-init" strategy="beforeInteractive">
-          {`(function(){try{var s=localStorage.getItem('tibr-theme');var p=window.matchMedia('(prefers-color-scheme: light)').matches;var t=s||(p?'light':'dark');if(t==='light')document.documentElement.classList.add('light');document.documentElement.dataset.theme=t;}catch(e){}})();`}
-        </Script>
+        <script src="/theme-init.js" suppressHydrationWarning />
         {process.env.NODE_ENV === "development" && (
           <Script
             src="//unpkg.com/react-grab/dist/index.global.js"
@@ -92,9 +105,11 @@ export default async function LocaleLayout({
         )}
       </head>
       <body>
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          {children}
-        </NextIntlClientProvider>
+        <MotionRoot>
+          <Suspense fallback={null}>
+            <I18nProvider locale={locale}>{children}</I18nProvider>
+          </Suspense>
+        </MotionRoot>
       </body>
     </html>
   );

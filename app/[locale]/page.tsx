@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AffiliateBanner } from "@/components/AffiliateBanner";
@@ -12,10 +14,19 @@ import { KaratGrid } from "@/components/KaratGrid";
 import { MetalsStrip } from "@/components/MetalsStrip";
 import { PriceChart } from "@/components/PriceChart";
 import { Sidebar } from "@/components/Sidebar";
+import { Reveal } from "@/components/motion/Reveal";
+import {
+  BidAskGaugeSkeleton,
+  CalculatorSkeleton,
+  HeroSpotSkeleton,
+  KaratGridSkeleton,
+  MetalsStripSkeleton,
+  PriceChartSkeleton,
+} from "@/components/skeletons";
 import { Link } from "@/i18n/navigation";
-import { fetchFxRates } from "@/lib/fx";
-import { fetchMetals } from "@/lib/goldapi";
-import { fetchAllHistory } from "@/lib/history";
+import { fetchFxRates, type FxRates } from "@/lib/fx";
+import { fetchMetals, type MetalsBundle } from "@/lib/goldapi";
+import { fetchAllHistory, type MetalHistory } from "@/lib/history";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -23,18 +34,57 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: t("title"), description: t("description") };
 }
 
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  setRequestLocale(locale);
+// ─────────────────────────────────────────────────────────────────────────────
+// Streaming sections — each awaits its own promise, falls back to a skeleton
+// while data resolves. Same fetch URL across sections is deduped by Next cache.
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const t = await getTranslations("Page");
-  const [metals, fx, histories] = await Promise.all([fetchMetals(), fetchFxRates(), fetchAllHistory("1y")]);
-  const spot = metals.XAU;
+async function HeroSpotSection({ promise }: { promise: Promise<MetalsBundle> }) {
+  const m = await promise;
+  return <HeroSpot spot={m.XAU} />;
+}
 
-  const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
-  const affiliateUrl = process.env.NEXT_PUBLIC_AFFILIATE_URL ?? "https://kormzi.com";
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+async function MetalsStripSection({ promise }: { promise: Promise<MetalsBundle> }) {
+  const m = await promise;
+  return <MetalsStrip metals={m} />;
+}
 
+async function PriceChartSection({
+  hPromise,
+  fxPromise,
+}: {
+  hPromise: Promise<MetalHistory>;
+  fxPromise: Promise<FxRates>;
+}) {
+  const [h, fx] = await Promise.all([hPromise, fxPromise]);
+  return <PriceChart histories={h} fx={fx} />;
+}
+
+async function BidAskSection({ promise }: { promise: Promise<MetalsBundle> }) {
+  const m = await promise;
+  return <BidAskGauge spot={m.XAU} />;
+}
+
+async function KaratGridSection({
+  mPromise,
+  fxPromise,
+}: {
+  mPromise: Promise<MetalsBundle>;
+  fxPromise: Promise<FxRates>;
+}) {
+  const [m, fx] = await Promise.all([mPromise, fxPromise]);
+  return <KaratGrid spot={m.XAU} fx={fx} />;
+}
+
+async function CalculatorSection({
+  mPromise,
+  fxPromise,
+}: {
+  mPromise: Promise<MetalsBundle>;
+  fxPromise: Promise<FxRates>;
+}) {
+  const [m, fx] = await Promise.all([mPromise, fxPromise]);
+  const spot = m.XAU;
   const calcSpot = spot
     ? {
         price_gram_24k: spot.price_gram_24k,
@@ -43,6 +93,44 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         price_gram_14k: spot.price_gram_14k,
       }
     : { price_gram_24k: 0, price_gram_21k: 0, price_gram_18k: 0, price_gram_14k: 0 };
+  return <Calculator spot={calcSpot} fx={fx} />;
+}
+
+async function MetaSection({
+  mPromise,
+  fxPromise,
+  siteUrl,
+}: {
+  mPromise: Promise<MetalsBundle>;
+  fxPromise: Promise<FxRates>;
+  siteUrl: string;
+}) {
+  const [m, fx] = await Promise.all([mPromise, fxPromise]);
+  return (
+    <>
+      <JsonLd spot={m.XAU} siteUrl={siteUrl} />
+      <DebugConsole spot={m.XAU} metals={m} fx={fx} />
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  await connection();
+
+  const t = await getTranslations("Page");
+
+  // Kick off fetches in parallel; share promises with Suspense children.
+  const metalsPromise = fetchMetals();
+  const fxPromise = fetchFxRates();
+  const historyPromise = fetchAllHistory("1y");
+
+  const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
+  const affiliateUrl = process.env.NEXT_PUBLIC_AFFILIATE_URL ?? "https://kormzi.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   const countries = [
     { c: t("country.jordan"), url: "/jordan/gold-price/21k", note: t("country.jordanNote") },
@@ -53,14 +141,15 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
 
   return (
     <>
-      <JsonLd spot={spot} siteUrl={siteUrl} />
-      <DebugConsole spot={spot} metals={metals} fx={fx} />
+      <Suspense fallback={null}>
+        <MetaSection mPromise={metalsPromise} fxPromise={fxPromise} siteUrl={siteUrl} />
+      </Suspense>
       <Header />
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
-        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="space-y-8">
-            <header>
+            <Reveal as="header">
               <h1 className="text-3xl font-bold tracking-tight text-[var(--color-gold)]">
                 {t("h1")}
               </h1>
@@ -73,14 +162,36 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                   ),
                 })}
               </p>
-            </header>
+            </Reveal>
 
-            <HeroSpot spot={spot} />
-            <MetalsStrip metals={metals} />
-            <PriceChart histories={histories} fx={fx} />
-            <BidAskGauge spot={spot} />
-            <KaratGrid spot={spot} fx={fx} />
-            <Calculator spot={calcSpot} fx={fx} />
+            <Suspense fallback={<HeroSpotSkeleton />}>
+              <HeroSpotSection promise={metalsPromise} />
+            </Suspense>
+
+            <Suspense fallback={<MetalsStripSkeleton />}>
+              <MetalsStripSection promise={metalsPromise} />
+            </Suspense>
+
+            <Reveal>
+              <Suspense fallback={<PriceChartSkeleton />}>
+                <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
+              </Suspense>
+            </Reveal>
+
+            <Suspense fallback={<BidAskGaugeSkeleton />}>
+              <BidAskSection promise={metalsPromise} />
+            </Suspense>
+
+            <Suspense fallback={<KaratGridSkeleton />}>
+              <KaratGridSection mPromise={metalsPromise} fxPromise={fxPromise} />
+            </Suspense>
+
+            <Reveal>
+              <Suspense fallback={<CalculatorSkeleton />}>
+                <CalculatorSection mPromise={metalsPromise} fxPromise={fxPromise} />
+              </Suspense>
+            </Reveal>
+
             <AffiliateBanner url={affiliateUrl} />
 
             <section aria-labelledby="about-heading">
@@ -120,7 +231,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               </div>
             </section>
 
-            <Faq />
+            <Reveal>
+              <Faq />
+            </Reveal>
           </section>
 
           <Sidebar adClient={adsClient} />
