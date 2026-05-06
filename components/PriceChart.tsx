@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   CartesianGrid,
@@ -101,7 +101,33 @@ export function PriceChart({
   const metalLabel = METALS.find((m) => m.id === metal)?.label ?? metal;
   const up = (stats?.ch ?? 0) >= 0;
   const trendColor = up ? "var(--color-up)" : "var(--color-down)";
-  const lineColor = "#f5c518";
+
+  const [chartColors, setChartColors] = useState({
+    line: "#f5c518",
+    grid: "#1f1f1f",
+    tooltipBg: "#0a0a0a",
+    axis: "#8a8a8a",
+    border: "#1f1f1f",
+  });
+
+  useEffect(() => {
+    function readVars() {
+      const cs = getComputedStyle(document.documentElement);
+      setChartColors({
+        line: cs.getPropertyValue("--color-gold").trim() || "#f5c518",
+        grid: cs.getPropertyValue("--color-grid").trim() || "#1f1f1f",
+        tooltipBg: cs.getPropertyValue("--color-tooltip-bg").trim() || "#0a0a0a",
+        axis: cs.getPropertyValue("--color-axis").trim() || "#8a8a8a",
+        border: cs.getPropertyValue("--color-border").trim() || "#1f1f1f",
+      });
+    }
+    readVars();
+    const observer = new MutationObserver(readVars);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] });
+    return () => observer.disconnect();
+  }, []);
+
+  const lineColor = chartColors.line;
   const formatPrice = (v: number) => {
     if (!Number.isFinite(v)) return "—";
     return `${symbol}${v.toLocaleString("en-US", {
@@ -150,28 +176,28 @@ export function PriceChart({
       <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
         <Selector label={t("metal")} value={metal} onChange={(v) => setMetal(v as Metal)}>
           {METALS.map((m) => (
-            <option key={m.id} value={m.id} className="bg-black">
+            <option key={m.id} value={m.id} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
               {m.label}
             </option>
           ))}
         </Selector>
         <Selector label={t("currency")} value={currency} onChange={(v) => setCurrency(v as Currency)}>
           {CURRENCIES.map((c) => (
-            <option key={c} value={c} className="bg-black">
+            <option key={c} value={c} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
               {c}
             </option>
           ))}
         </Selector>
         <Selector label={t("unit")} value={unit} onChange={(v) => setUnit(v as Unit)}>
           {(Object.keys(UNIT_LABEL) as Unit[]).map((u) => (
-            <option key={u} value={u} className="bg-black">
+            <option key={u} value={u} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
               {UNIT_LABEL[u]}
             </option>
           ))}
         </Selector>
         <Selector label={t("period")} value={period} onChange={(v) => setPeriod(v as Period)}>
           {PERIODS.map((p) => (
-            <option key={p.id} value={p.id} className="bg-black">
+            <option key={p.id} value={p.id} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
               {p.id}
             </option>
           ))}
@@ -187,11 +213,11 @@ export function PriceChart({
           <>
             <ResponsiveContainer width="100%" height={360}>
               <LineChart data={data} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
-                <CartesianGrid stroke="#1f1f1f" strokeDasharray="3 3" vertical={false} />
+                <CartesianGrid stroke={chartColors.grid} strokeDasharray="3 3" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 10, fill: "#8a8a8a" }}
-                  axisLine={{ stroke: "#1f1f1f" }}
+                  tick={{ fontSize: 10, fill: chartColors.axis }}
+                  axisLine={{ stroke: chartColors.grid }}
                   tickLine={false}
                   tickFormatter={(v: string) => {
                     const d = new Date(v);
@@ -200,7 +226,7 @@ export function PriceChart({
                   minTickGap={48}
                 />
                 <YAxis
-                  tick={{ fontSize: 10, fill: "#8a8a8a" }}
+                  tick={{ fontSize: 10, fill: chartColors.axis }}
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(v: number) => {
@@ -212,12 +238,12 @@ export function PriceChart({
                 />
                 <Tooltip
                   contentStyle={{
-                    background: "#0a0a0a",
-                    border: "1px solid #1f1f1f",
+                    background: chartColors.tooltipBg,
+                    border: `1px solid ${chartColors.border}`,
                     borderRadius: 8,
                     fontSize: 12,
                   }}
-                  labelStyle={{ color: "#8a8a8a" }}
+                  labelStyle={{ color: chartColors.axis }}
                   itemStyle={{ color: lineColor }}
                   formatter={(v) => {
                     const n = typeof v === "number" ? v : Number(v);
@@ -230,7 +256,7 @@ export function PriceChart({
                   stroke={lineColor}
                   strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 4, fill: lineColor, stroke: "#0a0a0a", strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: lineColor, stroke: chartColors.tooltipBg, strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -268,7 +294,7 @@ function Selector({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-[var(--color-border-strong)] bg-black/40 px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-gold)] focus:outline-none"
+        className="w-full rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card-hover)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-gold)] focus:outline-none"
       >
         {children}
       </select>

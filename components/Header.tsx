@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "@/i18n/navigation";
 
 export async function Header() {
@@ -41,6 +42,7 @@ export async function Header() {
           >
             {otherLabel}
           </Link>
+          <ThemeToggle />
         </nav>
       </div>
     </header>

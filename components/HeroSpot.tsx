@@ -20,17 +20,10 @@ export function HeroSpot({ spot }: { spot: GoldApiResponse | null }) {
   const trendColor = up ? "var(--color-up)" : "var(--color-down)";
 
   return (
-    <div
-      className="relative overflow-hidden rounded-2xl border border-[var(--color-border)] p-6"
-      style={{
-        background:
-          "radial-gradient(120% 120% at 0% 0%, rgba(245,197,24,0.12) 0%, rgba(10,10,10,1) 60%), #0a0a0a",
-      }}
-    >
+    <div className="hero-spot-bg card-shadow relative overflow-hidden rounded-2xl border border-[var(--color-border)] p-6">
       <div
         aria-hidden
-        className="absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-20 blur-3xl"
-        style={{ background: "radial-gradient(circle, #f5c518 0%, transparent 70%)" }}
+        className="gold-glow absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-20 blur-3xl"
       />
 
       <div className="flex items-start justify-between gap-6">
@@ -82,7 +75,7 @@ export function HeroSpot({ spot }: { spot: GoldApiResponse | null }) {
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="rounded-lg border border-[var(--color-border)] bg-black/30 p-3">
+    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card-hover)] p-3">
       <dt className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)]">{label}</dt>
       <dd className="mt-1 font-mono text-sm font-semibold" style={{ color: accent ?? "var(--color-text)" }}>
         {value}

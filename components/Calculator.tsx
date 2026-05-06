@@ -66,7 +66,7 @@ export function Calculator({ spot, fx }: { spot: Spot; fx: FxRates }) {
             step="0.01"
             value={qty}
             onChange={(e) => setQty(Math.max(0, Number(e.target.value) || 0))}
-            className="w-full rounded-md border border-[var(--color-border-strong)] bg-black/40 px-3 py-2 font-mono text-sm text-[var(--color-text)] focus:border-[var(--color-gold)] focus:outline-none"
+            className="w-full rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card-hover)] px-3 py-2 font-mono text-sm text-[var(--color-text)] focus:border-[var(--color-gold)] focus:outline-none"
           />
         </Field>
 
@@ -142,10 +142,10 @@ function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-md border border-[var(--color-border-strong)] bg-black/40 px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-gold)] focus:outline-none"
+      className="w-full rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card-hover)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-gold)] focus:outline-none"
     >
       {options.map((o) => (
-        <option key={o.value} value={o.value} className="bg-black">
+        <option key={o.value} value={o.value} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
           {o.label}
         </option>
       ))}

@@ -78,8 +78,11 @@ export default async function LocaleLayout({
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir}>
+    <html lang={locale} dir={dir} suppressHydrationWarning>
       <head>
+        <Script id="tibr-theme-init" strategy="beforeInteractive">
+          {`(function(){try{var s=localStorage.getItem('tibr-theme');var p=window.matchMedia('(prefers-color-scheme: light)').matches;var t=s||(p?'light':'dark');if(t==='light')document.documentElement.classList.add('light');document.documentElement.dataset.theme=t;}catch(e){}})();`}
+        </Script>
         {process.env.NODE_ENV === "development" && (
           <Script
             src="//unpkg.com/react-grab/dist/index.global.js"

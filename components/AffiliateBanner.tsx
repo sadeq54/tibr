@@ -8,7 +8,7 @@ export function AffiliateBanner({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="sponsored noopener"
-      className="block overflow-hidden rounded-xl border border-[var(--color-border)] bg-gradient-to-r from-[#1a1408] via-[#221a0c] to-[#1a1408] p-5 transition hover:border-[var(--color-gold)]/40"
+      className="affiliate-bg card-shadow block overflow-hidden rounded-xl border border-[var(--color-border)] p-5 transition hover:border-[var(--color-gold)]/40"
     >
       <div className="flex items-center justify-between gap-4">
         <div>

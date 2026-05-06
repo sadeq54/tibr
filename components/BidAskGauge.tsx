@@ -24,7 +24,7 @@ export function BidAskGauge({ spot }: { spot: GoldApiResponse | null }) {
         <span>{t("high", { value: spot.high_price.toFixed(2) })}</span>
       </div>
 
-      <div className="relative mt-2 h-2 rounded-full bg-black/60">
+      <div className="relative mt-2 h-2 rounded-full bg-[var(--color-border)]">
         <div
           className="absolute inset-y-0 rounded-full"
           style={{
@@ -35,7 +35,7 @@ export function BidAskGauge({ spot }: { spot: GoldApiResponse | null }) {
           }}
         />
         <div
-          className="absolute -top-1 h-4 w-4 -translate-x-1/2 rounded-full border-2 border-black"
+          className="absolute -top-1 h-4 w-4 -translate-x-1/2 rounded-full border-2 border-[var(--color-bg-card)]"
           style={{
             left: `${Math.max(0, Math.min(100, pos))}%`,
             background: "#f5c518",
@@ -59,7 +59,7 @@ export function BidAskGauge({ spot }: { spot: GoldApiResponse | null }) {
 
 function Stat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="rounded-md border border-[var(--color-border)] bg-black/40 p-2 text-center">
+    <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-card-hover)] p-2 text-center">
       <div className="text-[9px] uppercase tracking-wider text-[var(--color-text-dim)]">{label}</div>
       <div className="mt-0.5 font-mono text-sm font-semibold" style={{ color }}>
         {value}

@@ -15,6 +15,38 @@
   --color-down: #ef4444;
   --color-live: #22c55e;
   --color-accent: #2a3a18;
+  --color-grid: #1f1f1f;
+  --color-tooltip-bg: #0a0a0a;
+  --color-axis: #8a8a8a;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html.light {
+  color-scheme: light;
+  --color-bg: #f6f4ee;
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #fbf8ef;
+  --color-border: #e8e2d2;
+  --color-border-strong: #d4cbb4;
+  --color-text: #1a1814;
+  --color-text-muted: #5a5347;
+  --color-text-dim: #8a8270;
+  --color-gold: #b8860b;
+  --color-gold-soft: #d4a82a;
+  --color-up: #15803d;
+  --color-down: #b91c1c;
+  --color-live: #15803d;
+  --color-accent: #fdf6df;
+  --color-grid: #e8e2d2;
+  --color-tooltip-bg: #ffffff;
+  --color-axis: #5a5347;
+}
+
+html.light .card-shadow {
+  box-shadow: 0 1px 2px 0 rgba(40, 30, 10, 0.04), 0 1px 3px 0 rgba(40, 30, 10, 0.06);
 }
 
 html, body {
@@ -24,10 +56,71 @@ html, body {
   color: var(--color-text);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 240ms ease, color 240ms ease;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+[class*="border"],
+[class*="bg-"],
+[class*="text-"],
+button,
+a,
+input,
+select,
+section,
+header,
+footer,
+nav,
+table,
+th,
+td {
+  transition:
+    background-color 240ms ease,
+    border-color 240ms ease,
+    color 240ms ease,
+    fill 240ms ease,
+    stroke 240ms ease,
+    box-shadow 240ms ease;
+}
+
+.recharts-surface,
+.recharts-cartesian-grid line,
+.recharts-tooltip-wrapper {
+  transition: opacity 240ms ease;
+}
+
+.hero-spot-bg {
+  background:
+    radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--color-gold) 18%, transparent) 0%, var(--color-bg-card) 60%),
+    var(--color-bg-card);
+}
+
+html:not(.light) .hero-spot-bg {
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(245, 197, 24, 0.12) 0%, rgba(10, 10, 10, 1) 60%),
+    #0a0a0a;
+}
+
+.affiliate-bg {
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-gold) 10%, var(--color-bg-card)),
+    color-mix(in srgb, var(--color-gold) 4%, var(--color-bg-card)),
+    color-mix(in srgb, var(--color-gold) 10%, var(--color-bg-card))
+  );
+}
+
+html:not(.light) .affiliate-bg {
+  background: linear-gradient(to right, #1a1408, #221a0c, #1a1408);
+}
+
+.gold-glow {
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-gold) 70%, transparent) 0%, transparent 70%);
 }
 
 .scrollbar-none::-webkit-scrollbar {
