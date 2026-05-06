@@ -10,7 +10,7 @@ export async function Header() {
   const otherLabel = otherLocale === "ar" ? t("switchAr") : t("switchEn");
 
   return (
-    <header className="border-b border-[var(--color-border)] bg-[var(--color-bg)]">
+    <header className="glass-header sticky top-0 z-50">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2.5">

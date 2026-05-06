@@ -147,8 +147,13 @@
     "cta": "Visit Kormzi →"
   },
   "Faq": {
+    "badge": "FAQ",
     "heading": "Frequently Asked Questions",
     "subtitle": "Everything you need to know about live gold prices on Tibr.",
+    "supportTitle": "Can't find answers?",
+    "supportBody": "We're here to help! Get in touch with our support.",
+    "supportCta": "Get Started — Free",
+    "supportHref": "mailto:support@tibr.live",
     "items": [
       {
         "q": "How often does Tibr update gold prices?",

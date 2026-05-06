@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { LuxuryNumberInput } from "@/components/LuxuryNumberInput";
+import { LuxurySelect } from "@/components/LuxurySelect";
 import type { FxRates } from "@/lib/fx";
 
 const KARATS = [
@@ -60,13 +62,13 @@ export function Calculator({ spot, fx }: { spot: Spot; fx: FxRates }) {
 
       <div className="mt-5 grid gap-3 md:grid-cols-4">
         <Field label={t("qty")}>
-          <input
-            type="number"
-            min={0}
-            step="0.01"
+          <LuxuryNumberInput
             value={qty}
-            onChange={(e) => setQty(Math.max(0, Number(e.target.value) || 0))}
-            className="w-full rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card-hover)] px-3 py-2 font-mono text-sm text-[var(--color-text)] focus:border-[var(--color-gold)] focus:outline-none"
+            onChange={setQty}
+            step={unit === "g" ? 1 : unit === "kg" ? 0.1 : 0.5}
+            min={0}
+            ariaLabel={t("qty")}
+            suffix={t(`units.${unit}` as "units.g")}
           />
         </Field>
 
@@ -138,17 +140,5 @@ function Select({
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
 }) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card-hover)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-gold)] focus:outline-none"
-    >
-      {options.map((o) => (
-        <option key={o.value} value={o.value} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
-          {o.label}
-        </option>
-      ))}
-    </select>
-  );
+  return <LuxurySelect value={value} onChange={onChange} options={options} />;
 }

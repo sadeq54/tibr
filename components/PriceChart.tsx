@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+
+import { LuxurySelect } from "@/components/LuxurySelect";
 import {
   CartesianGrid,
   Line,
@@ -174,34 +176,30 @@ export function PriceChart({
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
-        <Selector label={t("metal")} value={metal} onChange={(v) => setMetal(v as Metal)}>
-          {METALS.map((m) => (
-            <option key={m.id} value={m.id} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
-              {m.label}
-            </option>
-          ))}
-        </Selector>
-        <Selector label={t("currency")} value={currency} onChange={(v) => setCurrency(v as Currency)}>
-          {CURRENCIES.map((c) => (
-            <option key={c} value={c} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
-              {c}
-            </option>
-          ))}
-        </Selector>
-        <Selector label={t("unit")} value={unit} onChange={(v) => setUnit(v as Unit)}>
-          {(Object.keys(UNIT_LABEL) as Unit[]).map((u) => (
-            <option key={u} value={u} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
-              {UNIT_LABEL[u]}
-            </option>
-          ))}
-        </Selector>
-        <Selector label={t("period")} value={period} onChange={(v) => setPeriod(v as Period)}>
-          {PERIODS.map((p) => (
-            <option key={p.id} value={p.id} className="bg-[var(--color-bg-card)] text-[var(--color-text)]">
-              {p.id}
-            </option>
-          ))}
-        </Selector>
+        <Selector
+          label={t("metal")}
+          value={metal}
+          onChange={(v) => setMetal(v as Metal)}
+          options={METALS.map((m) => ({ value: m.id, label: m.label, hint: m.id }))}
+        />
+        <Selector
+          label={t("currency")}
+          value={currency}
+          onChange={(v) => setCurrency(v as Currency)}
+          options={CURRENCIES.map((c) => ({ value: c, label: c }))}
+        />
+        <Selector
+          label={t("unit")}
+          value={unit}
+          onChange={(v) => setUnit(v as Unit)}
+          options={(Object.keys(UNIT_LABEL) as Unit[]).map((u) => ({ value: u, label: UNIT_LABEL[u] }))}
+        />
+        <Selector
+          label={t("period")}
+          value={period}
+          onChange={(v) => setPeriod(v as Period)}
+          options={PERIODS.map((p) => ({ value: p.id, label: p.id }))}
+        />
       </div>
 
       <div className="relative mt-5" style={{ width: "100%", height: 360 }}>
@@ -279,25 +277,19 @@ function Selector({
   label,
   value,
   onChange,
-  children,
+  options,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  children: React.ReactNode;
+  options: Array<{ value: string; label: string; hint?: string }>;
 }) {
   return (
     <label className="block">
       <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
         {label}
       </span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card-hover)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-gold)] focus:outline-none"
-      >
-        {children}
-      </select>
+      <LuxurySelect value={value} onChange={onChange} options={options} ariaLabel={label} />
     </label>
   );
 }

@@ -7,6 +7,10 @@ type Theme = "light" | "dark";
 
 const STORAGE_KEY = "tibr-theme";
 
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (cb: () => void | Promise<void>) => { finished: Promise<void> };
+};
+
 function readStored(): Theme | null {
   if (typeof window === "undefined") return null;
   const v = window.localStorage.getItem(STORAGE_KEY);
@@ -19,6 +23,40 @@ function applyTheme(theme: Theme) {
   if (theme === "light") root.classList.add("light");
   else root.classList.remove("light");
   root.dataset.theme = theme;
+}
+
+function persistTheme(theme: Theme) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, theme);
+  } catch {}
+}
+
+function applyThemeWithTransition(theme: Theme, origin?: { x: number; y: number }) {
+  if (typeof window === "undefined") {
+    applyTheme(theme);
+    return;
+  }
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const doc = document as ViewTransitionDocument;
+
+  if (reduced || typeof doc.startViewTransition !== "function") {
+    applyTheme(theme);
+    return;
+  }
+
+  const root = document.documentElement;
+  if (origin) {
+    root.style.setProperty("--vt-origin-x", `${origin.x}px`);
+    root.style.setProperty("--vt-origin-y", `${origin.y}px`);
+  } else {
+    root.style.setProperty("--vt-origin-x", "50%");
+    root.style.setProperty("--vt-origin-y", "50%");
+  }
+
+  doc.startViewTransition!(() => {
+    applyTheme(theme);
+  });
 }
 
 export function ThemeToggle() {
@@ -36,13 +74,16 @@ export function ThemeToggle() {
     setMounted(true);
   }, []);
 
-  function toggle() {
+  function handleToggle(e: React.MouseEvent<HTMLButtonElement>) {
     const next: Theme = theme === "dark" ? "light" : "dark";
+    persistTheme(next);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const origin = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    };
     setTheme(next);
-    applyTheme(next);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, next);
-    } catch {}
+    applyThemeWithTransition(next, origin);
   }
 
   const Icon = theme === "dark" ? Sun : Moon;
@@ -51,7 +92,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={handleToggle}
       aria-label={label}
       title={label}
       suppressHydrationWarning
