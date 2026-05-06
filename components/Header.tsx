@@ -27,7 +27,10 @@ export async function Header() {
             T
           </span>
           <span className="text-lg font-semibold tracking-tight text-[var(--color-gold)]">Tibr</span>
-          <span className="hidden text-xs text-[var(--color-text-dim)] lg:inline">— {t("tagline")}</span>
+          <span className="ml-1 inline-flex items-center gap-1 rounded-full border border-[var(--color-up)]/40 bg-[var(--color-up)]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-up)]">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-up)]" />
+            {t("live")}
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm text-[var(--color-text-muted)] md:flex">

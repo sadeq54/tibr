@@ -7,6 +7,7 @@ import { BidAskGauge } from "@/components/BidAskGauge";
 import { Calculator } from "@/components/Calculator";
 import { DebugConsole } from "@/components/DebugConsole";
 import { Faq } from "@/components/Faq";
+import { GeoRedirect } from "@/components/GeoRedirect";
 import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
 import { JsonLd } from "@/components/JsonLd";
@@ -144,6 +145,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       <Suspense fallback={null}>
         <MetaSection mPromise={metalsPromise} fxPromise={fxPromise} siteUrl={siteUrl} />
       </Suspense>
+      <GeoRedirect />
       <Header />
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
