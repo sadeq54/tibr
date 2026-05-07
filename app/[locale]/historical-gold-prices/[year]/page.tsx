@@ -35,7 +35,6 @@ export default async function HistoricalPage({
 
   const t = await getTranslations("HistoricalPage");
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
-  const affiliateUrl = process.env.NEXT_PUBLIC_AFFILIATE_URL ?? "https://kormzi.com";
 
   return (
     <>
@@ -45,7 +44,7 @@ export default async function HistoricalPage({
           <section className="space-y-8">
             <header>
               <Link href="/" className="text-xs text-[var(--color-text-dim)] hover:text-[var(--color-gold)]">
-                ← Tibr
+                ← Gold Prices Arabia
               </Link>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-gold)]">
                 {t("h1", { year })}
@@ -73,7 +72,7 @@ export default async function HistoricalPage({
               ))}
             </div>
 
-            <AffiliateBanner url={affiliateUrl} />
+            <AffiliateBanner />
             <Faq />
           </section>
           <Sidebar adClient={adsClient} />

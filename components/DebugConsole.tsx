@@ -16,7 +16,7 @@ export function DebugConsole({
 }) {
   useEffect(() => {
     const stamp = new Date().toISOString();
-    console.groupCollapsed(`%c[Tibr] data fetch @ ${stamp}`, "color:#f5c518;font-weight:600");
+    console.groupCollapsed(`%c[GPA] data fetch @ ${stamp}`, "color:#f5c518;font-weight:600");
     console.log("%csources", "color:#888", {
       metals: "stooq.com (CSV) + swissquote.com (bid/ask XAU)",
       historical: "Yahoo Finance futures (GC=F, SI=F, PL=F, PA=F)",

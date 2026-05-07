@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { useLivePrice } from "@/components/LivePriceProvider";
 import { CountUp } from "@/components/motion/CountUp";
 import type { MetalsBundle } from "@/lib/goldapi";
 import { METAL_META } from "@/lib/goldapi";
@@ -19,7 +20,21 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 export function MetalsStrip({ metals }: { metals: MetalsBundle }) {
   const t = useTranslations("MetalsStrip");
   const locale = useLocale();
-  const cards = (["XAU", "XAG", "XPT", "XPD"] as const).map((m) => ({ key: m, data: metals[m] }));
+  const live = useLivePrice();
+  const cards = (["XAU", "XAG", "XPT", "XPD"] as const).map((m) => {
+    const base = metals[m];
+    if (m !== "XAU" || !base || live.xau === null) return { key: m, data: base };
+    // Overlay live XAU values onto card.
+    return {
+      key: m,
+      data: {
+        ...base,
+        price: live.xau,
+        ch: live.change24 ?? base.ch,
+        chp: live.changePct24 ?? base.chp,
+      },
+    };
+  });
 
   return (
     <section aria-labelledby="metals-heading">

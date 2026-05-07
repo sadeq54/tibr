@@ -1,6 +1,6 @@
 (function () {
   try {
-    var s = localStorage.getItem("tibr-theme");
+    var s = localStorage.getItem("gpa-theme");
     var t;
     if (s === "light" || s === "dark") {
       t = s;

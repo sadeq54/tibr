@@ -107,7 +107,6 @@ export default async function KaratPage({
   const historyPromise = fetchAllHistory("1y");
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
-  const affiliateUrl = process.env.NEXT_PUBLIC_AFFILIATE_URL ?? "https://kormzi.com";
 
   return (
     <>
@@ -142,7 +141,7 @@ export default async function KaratPage({
             <Suspense fallback={<CalculatorSkeleton />}>
               <CalculatorSection sPromise={spotPromise} fxPromise={fxPromise} />
             </Suspense>
-            <AffiliateBanner url={affiliateUrl} />
+            <AffiliateBanner />
             <Faq />
           </section>
           <Sidebar adClient={adsClient} />

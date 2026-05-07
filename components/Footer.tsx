@@ -1,66 +1,9 @@
-import { Globe, Mail, Smartphone, Megaphone } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { Globe, Mail, Megaphone, Newspaper, Smartphone } from "lucide-react";
+import { connection } from "next/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
-
-type Country = { code: string; name: string; href?: string };
-
-const COUNTRIES: Country[] = [
-  { code: "US", name: "USA" },
-  { code: "EU", name: "Europe" },
-  { code: "AR", name: "Argentina" },
-  { code: "AU", name: "Australia" },
-  { code: "BH", name: "Bahrain" },
-  { code: "BR", name: "Brazil" },
-  { code: "CA", name: "Canada" },
-  { code: "CN", name: "China" },
-  { code: "CO", name: "Colombia" },
-  { code: "HR", name: "Croatia" },
-  { code: "DK", name: "Denmark" },
-  { code: "EG", name: "Egypt", href: "/egypt/gold-price/21k" },
-  { code: "HK", name: "Hong Kong" },
-  { code: "HU", name: "Hungary" },
-  { code: "IN", name: "India" },
-  { code: "ID", name: "Indonesia" },
-  { code: "IL", name: "Israel" },
-  { code: "JP", name: "Japan" },
-  { code: "JO", name: "Jordan", href: "/jordan/gold-price/21k" },
-  { code: "KW", name: "Kuwait" },
-  { code: "LB", name: "Lebanon" },
-  { code: "LY", name: "Libya" },
-  { code: "MO", name: "Macau" },
-  { code: "MY", name: "Malaysia" },
-  { code: "MX", name: "Mexico" },
-  { code: "MM", name: "Myanmar" },
-  { code: "NZ", name: "New Zealand" },
-  { code: "NG", name: "Nigeria" },
-  { code: "MK", name: "North Macedonia" },
-  { code: "NO", name: "Norway" },
-  { code: "PK", name: "Pakistan" },
-  { code: "PH", name: "Philippines" },
-  { code: "QA", name: "Qatar" },
-  { code: "RU", name: "Russia" },
-  { code: "SA", name: "Saudi Arabia", href: "/saudi-arabia/gold-price/21k" },
-  { code: "RS", name: "Serbia" },
-  { code: "SG", name: "Singapore" },
-  { code: "ZA", name: "South Africa" },
-  { code: "KR", name: "South Korea" },
-  { code: "SE", name: "Sweden" },
-  { code: "CH", name: "Switzerland" },
-  { code: "TW", name: "Taiwan" },
-  { code: "TH", name: "Thailand" },
-  { code: "TR", name: "Turkey" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "AE", name: "United Arab Emirates", href: "/uae/gold-price/21k" },
-  { code: "VN", name: "Vietnam" },
-];
-
-function flag(code: string): string {
-  if (code === "EU") return "🇪🇺";
-  return String.fromCodePoint(
-    ...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65)
-  );
-}
+import { COUNTRIES, countryName } from "@/lib/countries";
 
 type LinkItem = { label: string; href: string; external?: boolean };
 
@@ -72,7 +15,7 @@ function FooterColumn({ title, links }: { title: string; links: LinkItem[] }) {
       </h3>
       <ul className="space-y-1.5">
         {links.map((l) => (
-          <li key={l.label}>
+          <li key={`${l.label}-${l.href}`}>
             {l.external ? (
               <a
                 href={l.href}
@@ -100,7 +43,15 @@ function FooterColumn({ title, links }: { title: string; links: LinkItem[] }) {
 export async function Footer() {
   const t = await getTranslations("Footer");
   const tPage = await getTranslations("Page");
+  const locale = await getLocale();
+  await connection();
   const year = new Date().getFullYear();
+
+  const sortedCountries = [...COUNTRIES].sort((a, b) =>
+    locale === "ar"
+      ? a.name_ar.localeCompare(b.name_ar, "ar")
+      : a.name_en.localeCompare(b.name_en),
+  );
 
   return (
     <footer className="mt-16 border-t border-[var(--color-border)] bg-[var(--color-bg-card)] text-[var(--color-text)]">
@@ -113,74 +64,128 @@ export async function Footer() {
             </h2>
           </header>
           <ul className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {COUNTRIES.map((c) => {
-              const inner = (
-                <>
+            {sortedCountries.map((c) => (
+              <li key={c.slug} className="py-0.5">
+                <Link
+                  href={`/${c.slug}/gold-price/21k`}
+                  className="group flex items-center gap-2 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-gold)]"
+                  title={`${countryName(c, locale)} · ${c.currency}`}
+                >
                   <span className="text-base leading-none" aria-hidden>
-                    {flag(c.code)}
+                    {c.flag}
                   </span>
-                  <span className="text-xs font-medium">
-                    {t("countryItem", { name: c.name })}
+                  <span className="truncate text-xs font-medium">
+                    {countryName(c, locale)}
                   </span>
-                </>
-              );
-              return (
-                <li key={c.code} className="py-0.5">
-                  {c.href ? (
-                    <Link
-                      href={c.href}
-                      className="group flex items-center gap-2 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-gold)]"
-                    >
-                      {inner}
-                    </Link>
-                  ) : (
-                    <span
-                      className="flex cursor-default items-center gap-2 text-[var(--color-text-dim)]"
-                      title={`${t("countryItem", { name: c.name })} — ${t("comingSoon")}`}
-                    >
-                      {inner}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </section>
 
-      <section className="px-4 py-12 sm:px-6">
+      <section className="border-b border-[var(--color-border)] px-4 py-12 sm:px-6">
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 lg:grid-cols-4">
-          <FooterColumn
-            title={t("chartsHeading")}
-            links={[
-              { label: t("spotGold"), href: "/" },
-              { label: t("livePrice"), href: "/" },
-              { label: t("priceChart"), href: "/" },
-              { label: t("perOz"), href: "/gold-price/24k" },
-              { label: t("perGram"), href: "/gold-price/24k" },
-              { label: t("perKilo"), href: "/gold-price/24k" },
-              { label: t("history"), href: "/historical-gold-prices/2026" },
-              { label: t("calculator"), href: "/" },
-            ]}
-          />
-          <FooterColumn
-            title={t("metalsHeading")}
-            links={[
-              { label: t("gold"), href: "/" },
-              { label: t("silver"), href: "/" },
-              { label: t("platinum"), href: "/" },
-              { label: t("palladium"), href: "/" },
-            ]}
-          />
-          <FooterColumn
-            title={t("karatHeading")}
-            links={[
-              { label: t("karatLink", { karat: "24K" }), href: "/gold-price/24k" },
-              { label: t("karatLink", { karat: "21K" }), href: "/gold-price/21k" },
-              { label: t("karatLink", { karat: "18K" }), href: "/gold-price/18k" },
-              { label: t("karatLink", { karat: "14K" }), href: "/gold-price/14k" },
-            ]}
-          />
+          <div className="space-y-6">
+            <FooterColumn
+              title={t("newsHeading")}
+              links={[{ label: t("newsLink"), href: "/news" }]}
+            />
+            <FooterColumn
+              title={t("chartsHeading")}
+              links={[
+                { label: t("spotGold"), href: "/spot-gold" },
+                { label: t("livePrice"), href: "/live-gold-price" },
+                { label: t("priceChart"), href: "/gold-price-chart" },
+                { label: t("perOz"), href: "/gold-price-per-ounce" },
+                { label: t("perGram"), href: "/gold-price-per-gram" },
+                { label: t("perKilo"), href: "/gold-price-per-kilo" },
+                { label: t("history"), href: "/historical-gold-prices/2026" },
+                { label: t("goldSilverRatio"), href: "/gold-silver-ratio" },
+                { label: t("sge"), href: "/shanghai-gold-exchange" },
+                { label: t("calculator"), href: "/gold-calculator" },
+                { label: t("widgets"), href: "/widgets" },
+              ]}
+            />
+          </div>
+
+          <div className="space-y-6">
+            <FooterColumn
+              title={t("metalsHeading")}
+              links={[
+                { label: t("gold"), href: "/precious-metals/gold" },
+                { label: t("silver"), href: "/precious-metals/silver" },
+                { label: t("platinum"), href: "/precious-metals/platinum" },
+                { label: t("palladium"), href: "/precious-metals/palladium" },
+              ]}
+            />
+            <FooterColumn
+              title={t("bestPriceHeading")}
+              links={[
+                { label: t("bestPrice"), href: "/best-gold-price" },
+                { label: t("bestUSA"), href: "/best-gold-price/usa" },
+                { label: t("bestCanada"), href: "/best-gold-price/canada" },
+                { label: t("bestSingapore"), href: "/best-gold-price/singapore" },
+                { label: t("bestSwitzerland"), href: "/best-gold-price/switzerland" },
+                { label: t("bestUK"), href: "/best-gold-price/uk" },
+              ]}
+            />
+            <FooterColumn
+              title={t("cryptoHeading")}
+              links={[
+                { label: t("bitcoin"), href: "/cryptocurrency/bitcoin" },
+                { label: t("ethereum"), href: "/cryptocurrency/ethereum" },
+                { label: t("tether"), href: "/cryptocurrency/tether" },
+                { label: t("binance"), href: "/cryptocurrency/binancecoin" },
+                { label: t("ripple"), href: "/cryptocurrency/ripple" },
+                { label: t("usdc"), href: "/cryptocurrency/usd-coin" },
+                { label: t("solana"), href: "/cryptocurrency/solana" },
+                { label: t("tron"), href: "/cryptocurrency/tron" },
+                { label: t("dogecoin"), href: "/cryptocurrency/dogecoin" },
+                { label: t("moreCrypto"), href: "/cryptocurrency" },
+              ]}
+            />
+          </div>
+
+          <div className="space-y-6">
+            <FooterColumn
+              title={t("buyUSAHeading")}
+              links={[
+                { label: t("coinPrices"), href: "/buy-gold/usa/coins" },
+                { label: t("usaGoldPrices"), href: "/buy-gold/usa" },
+                { label: t("smallCoins"), href: "/buy-gold/usa/small-coins" },
+                { label: t("barPrices"), href: "/buy-gold/usa/bars" },
+              ]}
+            />
+            <FooterColumn
+              title={t("buyUKHeading")}
+              links={[
+                { label: t("ukPrices"), href: "/buy-gold/uk" },
+                { label: t("ukCoins"), href: "/buy-gold/uk/coins" },
+                { label: t("ukSmallCoins"), href: "/buy-gold/uk/small-coins" },
+                { label: t("ukBars"), href: "/buy-gold/uk/bars" },
+              ]}
+            />
+            <FooterColumn
+              title={t("buyCAHeading")}
+              links={[
+                { label: t("caPrices"), href: "/buy-gold/canada" },
+                { label: t("caCoins"), href: "/buy-gold/canada/coins" },
+                { label: t("caSmallCoins"), href: "/buy-gold/canada/small-coins" },
+                { label: t("caBars"), href: "/buy-gold/canada/bars" },
+              ]}
+            />
+            <FooterColumn
+              title={t("buyAUHeading")}
+              links={[
+                { label: t("auPrices"), href: "/buy-gold/australia" },
+                { label: t("auCoins"), href: "/buy-gold/australia/coins" },
+                { label: t("auSmallCoins"), href: "/buy-gold/australia/small-coins" },
+                { label: t("auBars"), href: "/buy-gold/australia/bars" },
+              ]}
+            />
+          </div>
+
           <div className="space-y-6">
             <div>
               <h3 className="mb-3 inline-flex items-center gap-1.5 border-b border-[var(--color-gold)]/40 pb-1 text-xs font-bold uppercase tracking-wider text-[var(--color-gold)]">
@@ -188,11 +193,23 @@ export async function Footer() {
               </h3>
               <p className="text-sm text-[var(--color-text-muted)]">{t("contactBody")}</p>
               <a
-                href="mailto:support@tibr.live"
+                href="mailto:support@goldpricesarabia.com"
                 className="mt-2 inline-block text-sm text-[var(--color-gold)] underline transition-colors hover:no-underline"
               >
-                support@tibr.live
+                support@goldpricesarabia.com
               </a>
+            </div>
+
+            <div>
+              <h3 className="mb-3 inline-flex items-center gap-1.5 border-b border-[var(--color-gold)]/40 pb-1 text-xs font-bold uppercase tracking-wider text-[var(--color-gold)]">
+                <Newspaper size={12} aria-hidden /> {t("newsHeading")}
+              </h3>
+              <Link
+                href="/news"
+                className="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-gold)] hover:underline"
+              >
+                {t("newsCta")}
+              </Link>
             </div>
 
             <div>
@@ -207,7 +224,7 @@ export async function Footer() {
                 <Megaphone size={12} aria-hidden /> {t("adsHeading")}
               </h3>
               <a
-                href="mailto:ads@tibr.live"
+                href="mailto:ads@goldpricesarabia.com"
                 className="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-gold)] hover:underline"
               >
                 {t("adsLink")}
@@ -219,7 +236,19 @@ export async function Footer() {
 
       <div className="border-t border-[var(--color-border)] px-4 py-5 sm:px-6">
         <div className="mx-auto max-w-7xl text-center text-xs text-[var(--color-text-dim)]">
-          {tPage("footer", { year })}
+          {tPage.rich("footer", {
+            year,
+            kormzi: (chunks) => (
+              <a
+                href="https://kormzi.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[var(--color-gold)] transition-colors hover:underline"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
         </div>
       </div>
     </footer>

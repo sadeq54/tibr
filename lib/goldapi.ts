@@ -70,7 +70,7 @@ async function fetchStooq(): Promise<Record<string, StooqRow>> {
   try {
     const r = await fetch(STOOQ_QUOTE, {
       next: { revalidate: 60 },
-      headers: { "User-Agent": "Mozilla/5.0 Tibr/1.0" },
+      headers: { "User-Agent": "Mozilla/5.0 GoldPricesArabia/1.0" },
     });
     if (!r.ok) return {};
     const text = await r.text();
@@ -103,7 +103,7 @@ async function fetchSwissquoteXAU(): Promise<SwissquoteRow | null> {
   try {
     const r = await fetch(SWISSQUOTE_XAU, {
       next: { revalidate: 60 },
-      headers: { "User-Agent": "Mozilla/5.0 Tibr/1.0" },
+      headers: { "User-Agent": "Mozilla/5.0 GoldPricesArabia/1.0" },
     });
     if (!r.ok) return null;
     const data = (await r.json()) as Array<{

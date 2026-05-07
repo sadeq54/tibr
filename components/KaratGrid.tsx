@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
+import { useLivePrice } from "@/components/LivePriceProvider";
 import { CountUp } from "@/components/motion/CountUp";
 import { KaratGridSkeleton } from "@/components/skeletons";
 import type { GoldApiResponse } from "@/lib/goldapi";
@@ -19,8 +20,30 @@ const OZ_TO_GRAM = 31.1034768;
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-export function KaratGrid({ spot, fx }: { spot: GoldApiResponse | null; fx: FxRates }) {
+const SYMBOL: Record<string, string> = {
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+  CNY: "¥",
+  JOD: "JD ",
+  SAR: "SR ",
+  AED: "AED ",
+  EGP: "EGP ",
+};
+const symFor = (c: string) => SYMBOL[c] ?? `${c} `;
+
+export function KaratGrid({
+  spot,
+  fx,
+  displayCurrency = "USD",
+}: {
+  spot: GoldApiResponse | null;
+  fx: FxRates;
+  displayCurrency?: string;
+}) {
   const t = useTranslations("KaratGrid");
+  const live = useLivePrice();
   if (!spot) {
     return (
       <section aria-labelledby="karat-heading">
@@ -37,12 +60,15 @@ export function KaratGrid({ spot, fx }: { spot: GoldApiResponse | null; fx: FxRa
     );
   }
 
-  const fxList: Array<[keyof FxRates, number]> = [
-    ["JOD", fx.JOD],
-    ["SAR", fx.SAR],
-    ["AED", fx.AED],
-    ["EGP", fx.EGP],
-  ];
+  const ccy = displayCurrency;
+  const ccyRate = (fx[ccy] as number | undefined) ?? 1;
+  const ccySym = symFor(ccy);
+
+  const altCandidates = ["USD", "JOD", "SAR", "AED", "EGP", "EUR", "GBP"];
+  const fxList: Array<[string, number]> = altCandidates
+    .filter((c) => c !== ccy)
+    .slice(0, 4)
+    .map((c) => [c, (fx[c] as number | undefined) ?? 1]);
 
   return (
     <section aria-labelledby="karat-heading">
@@ -66,9 +92,17 @@ export function KaratGrid({ spot, fx }: { spot: GoldApiResponse | null; fx: FxRa
         }}
       >
         {KARATS.map((k) => {
-          const usd = spot[k.field];
+          // Derive per-gram from live XAU when streaming, else fallback to SSR snapshot.
+          const liveOzUsd = live.xau ?? spot.price;
+          const usd =
+            live.xau !== null
+              ? (liveOzUsd / OZ_TO_GRAM) * k.purityNum
+              : spot[k.field];
           const oz = usd * OZ_TO_GRAM;
-          const ch = spot.ch * k.purityNum;
+          const local = usd * ccyRate;
+          const localOz = oz * ccyRate;
+          const liveCh = live.change24 ?? spot.ch;
+          const ch = liveCh * k.purityNum;
           const up = ch >= 0;
           const trend = up ? "var(--color-up)" : "var(--color-down)";
 
@@ -125,13 +159,18 @@ export function KaratGrid({ spot, fx }: { spot: GoldApiResponse | null; fx: FxRa
               </div>
 
               <div className="mt-4 font-mono text-2xl font-bold text-[var(--color-text)]">
-                <CountUp value={usd} decimals={3} prefix="$" duration={1.1} />
+                <CountUp
+                  value={local}
+                  decimals={ccy === "USD" ? 3 : 2}
+                  prefix={ccySym}
+                  duration={1.1}
+                />
                 <span className="ml-1 text-xs font-normal text-[var(--color-text-dim)]">
                   {t("perGramShort")}
                 </span>
               </div>
               <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">
-                <CountUp value={oz} decimals={2} prefix="$" duration={1.1} />{" "}
+                <CountUp value={localOz} decimals={2} prefix={ccySym} duration={1.1} />{" "}
                 <span className="text-[var(--color-text-dim)]">{t("perTroyOz")}</span>
               </div>
 

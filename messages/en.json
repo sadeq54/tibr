@@ -1,5 +1,6 @@
 {
   "Header": {
+    "brand": "Gold Prices Arabia",
     "tagline": "Live Gold",
     "live": "Live",
     "home": "Home",
@@ -9,12 +10,12 @@
   },
   "Page": {
     "title": "Live Gold Prices Today — USD, JOD, SAR, AED, EGP",
-    "description": "Track live gold, silver, platinum & palladium prices in USD, Jordanian Dinar, Saudi Riyal, UAE Dirham and Egyptian Pound across 24K, 21K, 18K and 14K karats. Updated every minute on Tibr (تبر).",
+    "description": "Track live gold, silver, platinum & palladium prices in USD, Jordanian Dinar, Saudi Riyal, UAE Dirham, Egyptian Pound and 40+ currencies across 24K, 21K, 18K and 14K karats. Updated every minute on Gold Prices Arabia.",
     "h1": "Live Gold & Precious Metals",
-    "intro": "Tibr (<ar>تبر</ar>) — live spot prices for gold, silver, platinum and palladium across the Arab world. USD, JOD, SAR, AED, EGP. Refreshed every minute from FOREXCOM.",
-    "aboutH2": "About Tibr — Live Gold for the Arab World",
-    "aboutP1": "<b>Tibr</b> (<ar>تبر</ar>) is the Arabic word for native gold — raw, unrefined, straight from the source. We bring that same transparency to live precious-metal pricing for MENA: pure spot data, no markups, no fluff.",
-    "aboutP2": "Tibr surfaces live spot prices for gold (XAU), silver (XAG), platinum (XPT) and palladium (XPD) alongside karat-derived rates (24K, 21K, 18K, 14K) — the four most-traded karats in Arab jewellery markets.",
+    "intro": "Gold Prices Arabia — live spot prices for gold, silver, platinum and palladium across MENA and worldwide. 46 countries, every karat, every minute. Refreshed from FOREXCOM.",
+    "aboutH2": "About Gold Prices Arabia — Live Gold for MENA",
+    "aboutP1": "<b>Gold Prices Arabia</b> brings live precious-metal pricing to the Arab world and beyond: pure spot data, no markups, no fluff. From Saudi to Egypt to global markets — straight from the source.",
+    "aboutP2": "Gold Prices Arabia surfaces live spot prices for gold (XAU), silver (XAG), platinum (XPT) and palladium (XPD) alongside karat-derived rates (24K, 21K, 18K, 14K) — the four most-traded karats in Arab jewellery markets.",
     "countriesH2": "Gold Prices by Country",
     "country": {
       "jordan": "Jordan",
@@ -26,20 +27,20 @@
       "egypt": "Egypt",
       "egyptNote": "Cairo and Alexandria — EGP-denominated."
     },
-    "footer": "© {year} Tibr (تبر) · Live gold from the source · Prices for informational purposes only."
+    "footer": "© {year} Gold Prices Arabia · Live gold from the source · Prices for informational purposes only · goldpricesarabia.com · Powered by <kormzi>Kormzi</kormzi>"
   },
   "KaratPage": {
     "title": "{karat} Gold Price Today",
-    "description": "Live {karat} gold price per gram and per troy ounce in USD, JOD, SAR, AED, EGP. Updated every minute on Tibr.",
+    "description": "Live {karat} gold price per gram and per troy ounce in USD, JOD, SAR, AED, EGP. Updated every minute on Gold Prices Arabia.",
     "h1": "{karat} Gold Price Today",
-    "intro": "Live spot price of {karat} gold derived from FOREXCOM XAUUSD via goldapi.io. Refreshed every minute.",
+    "intro": "Live spot price of {karat} gold derived from FOREXCOM XAUUSD. Refreshed every minute on Gold Prices Arabia.",
     "backHome": "← Back to all karats"
   },
   "CountryPage": {
     "title": "{karat} Gold Price in {country}",
-    "description": "Live {karat} gold price in {country} ({currency}) per gram and per troy ounce. Updated every minute on Tibr.",
+    "description": "Live {karat} gold price in {country} ({currency}) per gram and per troy ounce. Updated every minute on Gold Prices Arabia.",
     "h1": "{karat} Gold Price in {country}",
-    "intro": "Live {karat} gold price for {country} markets in {currency}, derived from the FOREXCOM XAUUSD spot via goldapi.io.",
+    "intro": "Live {karat} gold price for {country} markets in {currency}, derived from the FOREXCOM XAUUSD spot — Gold Prices Arabia.",
     "currencyNote": "All prices shown in {currency}. Conversion uses static FX rates — verify with your bank before any transaction."
   },
   "HistoricalPage": {
@@ -66,6 +67,7 @@
   },
   "HeroSpot": {
     "label": "Spot Gold · XAU/USD · {exchange}",
+    "streamBadge": "stream",
     "perOz": "/ troy oz",
     "vsPrev": "vs prev close ${value}",
     "bidAsk": "Bid / Ask",
@@ -142,23 +144,98 @@
   },
   "AffiliateBanner": {
     "label": "Sponsored",
-    "title": "Buy gold securely with our trusted partner",
-    "subtitle": "Live spot pricing, insured shipping, fraction-gram bars.",
-    "cta": "Visit Kormzi →"
+    "items": [
+      {
+        "title": "Live spot pricing across MENA",
+        "subtitle": "USD, JOD, SAR, AED, EGP — every karat, every minute."
+      },
+      {
+        "title": "Track gold like a pro",
+        "subtitle": "Charts, calculators and karat breakdowns in one place."
+      },
+      {
+        "title": "Compare karats at a glance",
+        "subtitle": "24K, 21K, 18K, 14K — pure data, no markups."
+      },
+      {
+        "title": "Built for the Arab world",
+        "subtitle": "Gold Prices Arabia brings gold from the source — no fluff."
+      }
+    ]
+  },
+  "LiveStream": {
+    "heading": "Live Stream",
+    "perOz": "/ troy oz · live",
+    "connected": "{n}/{total} connected",
+    "medianAcross": "median across {n} sources",
+    "totalTicks": "{n} ticks",
+    "footnote": "Real-time WebSocket aggregation: PAXG/USD across Binance, Coinbase, Kraken. Median computation. PAXG = 1 troy oz London Good Delivery gold bar (PAX Trust vault).",
+    "live": "live",
+    "offline": "offline",
+    "stale": "stale",
+    "bid": "Bid",
+    "ask": "Ask",
+    "spread": "Spread",
+    "vol24": "Vol 24h",
+    "high24": "High 24h",
+    "low24": "Low 24h",
+    "ticks": "{n} ticks received",
+    "lastTick": "{n}s ago"
   },
   "Footer": {
     "worldHeading": "World Gold Prices",
     "countryItem": "Gold Price {name}",
     "comingSoon": "Coming soon",
+    "newsHeading": "Gold Price News",
+    "newsLink": "News",
+    "newsCta": "Latest gold market news",
     "chartsHeading": "Gold Price Charts",
     "metalsHeading": "Precious Metals",
+    "bestPriceHeading": "Best Gold Price",
+    "bestPrice": "Best Gold Price",
+    "bestUSA": "Best Gold Price in United States",
+    "bestCanada": "Best Gold Price in Canada",
+    "bestSingapore": "Best Gold Price in Singapore",
+    "bestSwitzerland": "Best Gold Price in Switzerland",
+    "bestUK": "Best Gold Price in United Kingdom",
+    "cryptoHeading": "Cryptocurrency",
+    "bitcoin": "Bitcoin Price",
+    "ethereum": "Ethereum Price",
+    "tether": "Tether Price",
+    "binance": "Binance Coin Price",
+    "ripple": "Ripple Price",
+    "usdc": "USD Coin Price",
+    "solana": "Solana Price",
+    "tron": "TRON Price",
+    "dogecoin": "Dogecoin Price",
+    "moreCrypto": "More Cryptocurrencies",
+    "buyUSAHeading": "Buy Gold USA",
+    "coinPrices": "Gold Coin Prices",
+    "usaGoldPrices": "USA Gold Prices",
+    "smallCoins": "USA Small Gold Coins",
+    "barPrices": "Gold Bar Prices",
+    "buyUKHeading": "Buy Gold UK",
+    "ukPrices": "UK Gold Prices",
+    "ukCoins": "UK Gold Coins",
+    "ukSmallCoins": "UK Small Gold Coins",
+    "ukBars": "UK Gold Bars",
+    "buyCAHeading": "Buy Gold Canada",
+    "caPrices": "Canadian Gold Prices",
+    "caCoins": "Canadian Gold Coins",
+    "caSmallCoins": "Canadian Small Gold Coins",
+    "caBars": "Canadian Gold Bars",
+    "buyAUHeading": "Buy Gold Australia",
+    "auPrices": "Australian Gold Prices",
+    "auCoins": "Australian Gold Coins",
+    "auSmallCoins": "Australian Small Gold Coins",
+    "auBars": "Australian Gold Bars",
     "karatHeading": "By Karat",
     "contactHeading": "Contact",
-    "contactBody": "Tibr — live gold from the source.",
+    "contactBody": "Gold Prices Arabia — live gold from the source.",
     "appsHeading": "Mobile Apps",
     "appsSoon": "Coming soon — iOS & Android.",
     "adsHeading": "Advertising",
-    "adsLink": "Advertise on Tibr",
+    "adsLink": "Advertise on Gold Prices Arabia",
     "spotGold": "Spot Gold",
     "livePrice": "Live Gold Price",
     "priceChart": "Gold Price Chart",
@@ -166,12 +243,73 @@
     "perGram": "Gold Price per Gram",
     "perKilo": "Gold Price per Kilo",
     "history": "Gold Price History",
-    "calculator": "Gold Calculator",
+    "goldSilverRatio": "Gold Silver Ratio",
+    "sge": "Shanghai Gold Exchange",
+    "calculator": "Gold Price Calculators",
+    "widgets": "Gold Price Charts For Websites",
     "gold": "Gold",
     "silver": "Silver",
     "platinum": "Platinum",
     "palladium": "Palladium",
     "karatLink": "{karat} Gold"
+  },
+  "SubPage": {
+    "spotGoldH1": "Spot Gold Price",
+    "spotGoldIntro": "Live spot gold (XAU/USD) sourced from FOREXCOM via Stooq. Updated every minute.",
+    "livePriceH1": "Live Gold Price",
+    "livePriceIntro": "Live gold price across USD, JOD, SAR, AED, EGP and 40+ currencies. Refreshed every minute.",
+    "priceChartH1": "Gold Price Chart",
+    "priceChartIntro": "Interactive daily OHLC gold price chart over 30 days, 60 days, 90 days, 180 days and 1 year.",
+    "perOzH1": "Gold Price per Ounce",
+    "perOzIntro": "Live gold price per troy ounce in USD and 40+ currencies. The standard unit for global bullion markets.",
+    "perGramH1": "Gold Price per Gram",
+    "perGramIntro": "Live gold price per gram across all karats (24K, 21K, 18K, 14K) and 40+ currencies.",
+    "perKiloH1": "Gold Price per Kilo",
+    "perKiloIntro": "Live gold price per kilogram for institutional investors and bullion bar buyers. 1 kg = 1000 g = 32.151 troy ounces.",
+    "ratioH1": "Gold Silver Ratio",
+    "ratioIntro": "Live ratio of gold to silver — how many ounces of silver equal one ounce of gold. Historical mean ~50–60.",
+    "ratioCurrent": "Current ratio",
+    "sgeH1": "Shanghai Gold Exchange Gold Price",
+    "sgeIntro": "Live gold price in Chinese Yuan (CNY) — derived from FOREXCOM XAU/USD via live FX rates. SGE proxy.",
+    "calcH1": "Gold Price Calculator",
+    "calcIntro": "Calculate the value of any gold weight (gram, ounce, kilogram) in any karat and any currency.",
+    "widgetsH1": "Gold Price Charts For Websites",
+    "widgetsIntro": "Embed live gold price charts on your website or blog using free widgets and embeds.",
+    "widgetsHow": "Copy the snippet below and paste it into your HTML. The chart auto-updates every minute.",
+    "widgetsTitle": "Embed snippets",
+    "metalH1": "{metal} Price",
+    "metalIntro": "Live spot price of {metal} in USD and 40+ currencies. Updated every minute from STOOQ.",
+    "cryptoListH1": "Cryptocurrency Prices",
+    "cryptoListIntro": "Live cryptocurrency prices in USD, sourced from CoinGecko. Updated every 5 minutes.",
+    "cryptoH1": "{coin} Price",
+    "cryptoIntro": "Live {coin} ({symbol}) price in USD. Source: CoinGecko.",
+    "cryptoMarketCap": "Market Cap",
+    "cryptoVolume": "24h Volume",
+    "cryptoHigh": "24h High",
+    "cryptoLow": "24h Low",
+    "cryptoAth": "All-Time High",
+    "cryptoRank": "Rank",
+    "newsH1": "Gold Price News",
+    "newsIntro": "Latest gold market news from Kitco, Mining.com and BullionVault. Refreshed every 30 minutes.",
+    "newsReadMore": "Read more →",
+    "newsUnavailable": "News feed temporarily unavailable. Try again shortly.",
+    "bestPriceH1": "Best Gold Price",
+    "bestPriceIntro": "Compare live gold prices across major bullion markets. Find the best deal in your country.",
+    "bestPriceCountryH1": "Best Gold Price in {country}",
+    "bestPriceCountryIntro": "Live spot gold price for {country} in {currency}. Compare with major bullion dealers and confirm before buying.",
+    "buyH1": "Buy Gold {country}",
+    "buyIntro": "Live gold prices for {country} buyers — coins, small coins and bars. Compare premiums and find trusted dealers.",
+    "buyCoinsH1": "{country} Gold Coin Prices",
+    "buyCoinsIntro": "Live spot price of major gold bullion coins (1 oz, 1/2 oz, 1/4 oz) in {country}.",
+    "buySmallH1": "{country} Small Gold Coins",
+    "buySmallIntro": "Live spot price of small denomination gold coins (1/10 oz, 1/20 oz) in {country}.",
+    "buyBarsH1": "{country} Gold Bar Prices",
+    "buyBarsIntro": "Live spot price of gold bars (1 g, 10 g, 100 g, 1 kg) in {country}.",
+    "denominationsTitle": "Common denominations",
+    "denomGram": "{n} g",
+    "denomOz": "{n} oz",
+    "denomKg": "{n} kg",
+    "tableHeading": "Live spot price"
   },
   "Loading": {
     "label": "Loading live gold data…"
@@ -187,19 +325,19 @@
   "Faq": {
     "badge": "FAQ",
     "heading": "Frequently Asked Questions",
-    "subtitle": "Everything you need to know about live gold prices on Tibr.",
+    "subtitle": "Everything you need to know about live gold prices on Gold Prices Arabia.",
     "supportTitle": "Can't find answers?",
     "supportBody": "We're here to help! Get in touch with our support.",
     "supportCta": "Get Started — Free",
-    "supportHref": "mailto:support@tibr.live",
+    "supportHref": "mailto:support@goldpricesarabia.com",
     "items": [
       {
-        "q": "How often does Tibr update gold prices?",
+        "q": "How often does Gold Prices Arabia update gold prices?",
         "a": "Live spot prices refresh every minute from the FOREXCOM XAUUSD feed via goldapi.io. Pages cache for 60 seconds at the edge so visitors always see fresh data without overloading the upstream API."
       },
       {
         "q": "Which karats can I track?",
-        "a": "Tibr covers 24K (pure gold), 21K (87.5% pure — the dominant karat in Saudi Arabia and Jordan), 18K (75% pure — common across UAE and Egypt), and 14K (58.3% pure)."
+        "a": "Gold Prices Arabia covers 24K (pure gold), 21K (87.5% pure — the dominant karat in Saudi Arabia and Jordan), 18K (75% pure — common across UAE and Egypt), and 14K (58.3% pure)."
       },
       {
         "q": "Which currencies are supported?",
@@ -210,8 +348,8 @@
         "a": "Spot price is sourced from goldapi.io, which aggregates the FOREXCOM:XAUUSD feed. Karat prices are derived from the spot using the standard purity ratios published by the World Gold Council."
       },
       {
-        "q": "Is Tibr free?",
-        "a": "Yes. Tibr is free for personal and informational use. Always confirm with a licensed jeweller or bullion dealer before buying or selling."
+        "q": "Is Gold Prices Arabia free?",
+        "a": "Yes. Gold Prices Arabia is free for personal and informational use. Always confirm with a licensed jeweller or bullion dealer before buying or selling."
       }
     ]
   }

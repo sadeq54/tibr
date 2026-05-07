@@ -53,7 +53,7 @@ export async function fetchHistory(
     const url = `${YAHOO_BASE}/${encodeURIComponent(sym)}?range=${range}&interval=1d`;
     const r = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; TibrBot/1.0)",
+        "User-Agent": "Mozilla/5.0 (compatible; GoldPricesArabiaBot/1.0)",
         Accept: "application/json",
       },
       next: { revalidate: 3600 },

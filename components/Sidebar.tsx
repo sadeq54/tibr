@@ -20,7 +20,7 @@ export function Sidebar({ adClient }: { adClient: string }) {
   const t = useTranslations("Sidebar");
 
   return (
-    <aside className="space-y-4 lg:sticky lg:top-[72px] lg:self-start lg:max-h-[calc(100vh-88px)] lg:overflow-y-auto">
+    <aside className="space-y-4 lg:sticky lg:top-[96px] lg:self-start lg:max-h-[calc(100vh-112px)] lg:overflow-y-auto">
       <AdSlot client={adClient} label={t("adTop")} adsenseLabel={t("adsense", { client: adClient })} />
 
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5">

@@ -3,9 +3,19 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { useLivePrice } from "@/components/LivePriceProvider";
 import { LuxuryNumberInput } from "@/components/LuxuryNumberInput";
 import { LuxurySelect } from "@/components/LuxurySelect";
+import { ALL_CURRENCIES } from "@/lib/countries";
 import type { FxRates } from "@/lib/fx";
+
+const OZ_TO_GRAM = 31.1034768;
+const PURITY: Record<string, number> = {
+  price_gram_24k: 1.0,
+  price_gram_21k: 0.875,
+  price_gram_18k: 0.75,
+  price_gram_14k: 0.583,
+};
 
 const KARATS = [
   { key: "24K", field: "price_gram_24k" as const },
@@ -16,6 +26,10 @@ const KARATS = [
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+  CNY: "¥",
   JOD: "JD",
   SAR: "SR",
   AED: "AED",
@@ -42,23 +56,29 @@ export function Calculator({
   defaultKarat?: typeof KARATS[number]["field"];
 }) {
   const t = useTranslations("Calculator");
+  const live = useLivePrice();
   const [karatField, setKaratField] = useState<typeof KARATS[number]["field"]>(defaultKarat);
   const [unit, setUnit] = useState<typeof UNITS[number]["id"]>("g");
   const [currency, setCurrency] = useState(defaultCurrency);
   const [qty, setQty] = useState(10);
 
   const result = useMemo(() => {
-    const perGramUsd = spot[karatField] ?? 0;
+    const purity = PURITY[karatField] ?? 1;
+    // Derive per-gram from live XAU when streaming.
+    const perGramUsd =
+      live.xau !== null
+        ? (live.xau / OZ_TO_GRAM) * purity
+        : spot[karatField] ?? 0;
     const factor = UNITS.find((u) => u.id === unit)?.factor ?? 1;
     const grams = qty * factor;
     const usd = grams * perGramUsd;
     const rate = fx[currency as keyof FxRates] as number | undefined;
     const fxRate = typeof rate === "number" ? rate : 1;
     return { usd, value: usd * fxRate, perGramUsd, grams };
-  }, [karatField, unit, currency, qty, spot, fx]);
+  }, [karatField, unit, currency, qty, spot, fx, live.xau]);
 
-  const symbol = CURRENCY_SYMBOLS[currency] ?? "$";
-  const currencyOptions = ["USD", "JOD", "SAR", "AED", "EGP"];
+  const symbol = CURRENCY_SYMBOLS[currency] ?? `${currency}`;
+  const currencyOptions = ["USD", ...ALL_CURRENCIES.filter((c) => c !== "USD")].sort();
 
   return (
     <section

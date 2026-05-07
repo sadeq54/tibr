@@ -6,7 +6,7 @@ import { Moon, Sun } from "lucide-react";
 
 type Theme = "light" | "dark";
 
-const STORAGE_KEY = "tibr-theme";
+const STORAGE_KEY = "gpa-theme";
 
 function readStored(): Theme | null {
   if (typeof window === "undefined") return null;

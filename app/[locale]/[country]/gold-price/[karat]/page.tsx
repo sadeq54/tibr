@@ -19,25 +19,19 @@ import {
   PriceChartSkeleton,
 } from "@/components/skeletons";
 import { Link } from "@/i18n/navigation";
+import { COUNTRIES, COUNTRY_BY_SLUG, countryName } from "@/lib/countries";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
 
-const COUNTRY_META: Record<string, { currency: string; nameKey: "jordan" | "saudi" | "uae" | "egypt" }> = {
-  jordan: { currency: "JOD", nameKey: "jordan" },
-  "saudi-arabia": { currency: "SAR", nameKey: "saudi" },
-  uae: { currency: "AED", nameKey: "uae" },
-  egypt: { currency: "EGP", nameKey: "egypt" },
-};
-
 const VALID_KARATS = ["24k", "21k", "18k", "14k"] as const;
+type Karat = (typeof VALID_KARATS)[number];
 
 export async function generateStaticParams() {
-  const countries = Object.keys(COUNTRY_META);
   const params: { country: string; karat: string }[] = [];
-  for (const country of countries) {
-    for (const karat of VALID_KARATS) {
-      params.push({ country, karat });
+  for (const c of COUNTRIES) {
+    for (const k of VALID_KARATS) {
+      params.push({ country: c.slug, karat: k });
     }
   }
   return params;
@@ -48,18 +42,21 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; country: string; karat: string }>;
 }) {
-  const { locale, country, karat } = await params;
-  const meta = COUNTRY_META[country];
-  if (!meta) return {};
+  const { locale, country: slug, karat } = await params;
+  const country = COUNTRY_BY_SLUG[slug];
+  if (!country) return {};
 
   const tPage = await getTranslations({ locale, namespace: "CountryPage" });
-  const tCountry = await getTranslations({ locale, namespace: "Page.country" });
   const upper = karat.toUpperCase();
-  const countryName = tCountry(meta.nameKey);
+  const name = countryName(country, locale);
 
   return {
-    title: tPage("title", { karat: upper, country: countryName }),
-    description: tPage("description", { karat: upper, country: countryName, currency: meta.currency }),
+    title: tPage("title", { karat: upper, country: name }),
+    description: tPage("description", {
+      karat: upper,
+      country: name,
+      currency: country.currency,
+    }),
   };
 }
 
@@ -70,7 +67,7 @@ async function HeroSpotSection({
 }: {
   promise: Promise<GoldApiResponse | null>;
   fxPromise: Promise<FxRates>;
-  displayCurrency: keyof FxRates;
+  displayCurrency: string;
 }) {
   const [s, fx] = await Promise.all([promise, fxPromise]);
   return <HeroSpot spot={s} fx={fx} displayCurrency={displayCurrency} />;
@@ -83,7 +80,7 @@ async function PriceChartSection({
 }: {
   hPromise: Promise<MetalHistory>;
   fxPromise: Promise<FxRates>;
-  defaultCurrency?: "USD" | "JOD" | "SAR" | "AED" | "EGP";
+  defaultCurrency?: string;
 }) {
   const [h, fx] = await Promise.all([hPromise, fxPromise]);
   return <PriceChart histories={h} fx={fx} defaultCurrency={defaultCurrency} />;
@@ -96,7 +93,7 @@ async function BidAskSection({
 }: {
   promise: Promise<GoldApiResponse | null>;
   fxPromise: Promise<FxRates>;
-  displayCurrency: keyof FxRates;
+  displayCurrency: string;
 }) {
   const [s, fx] = await Promise.all([promise, fxPromise]);
   return <BidAskGauge spot={s} fx={fx} displayCurrency={displayCurrency} />;
@@ -105,12 +102,14 @@ async function BidAskSection({
 async function KaratGridSection({
   sPromise,
   fxPromise,
+  displayCurrency,
 }: {
   sPromise: Promise<GoldApiResponse | null>;
   fxPromise: Promise<FxRates>;
+  displayCurrency: string;
 }) {
   const [s, fx] = await Promise.all([sPromise, fxPromise]);
-  return <KaratGrid spot={s} fx={fx} />;
+  return <KaratGrid spot={s} fx={fx} displayCurrency={displayCurrency} />;
 }
 
 async function CalculatorSection({
@@ -133,7 +132,14 @@ async function CalculatorSection({
         price_gram_14k: s.price_gram_14k,
       }
     : { price_gram_24k: 0, price_gram_21k: 0, price_gram_18k: 0, price_gram_14k: 0 };
-  return <Calculator spot={calcSpot} fx={fx} defaultCurrency={defaultCurrency} defaultKarat={defaultKarat} />;
+  return (
+    <Calculator
+      spot={calcSpot}
+      fx={fx}
+      defaultCurrency={defaultCurrency}
+      defaultKarat={defaultKarat}
+    />
+  );
 }
 
 export default async function CountryKaratPage({
@@ -141,22 +147,20 @@ export default async function CountryKaratPage({
 }: {
   params: Promise<{ locale: string; country: string; karat: string }>;
 }) {
-  const { locale, country, karat } = await params;
-  const meta = COUNTRY_META[country];
-  if (!meta || !VALID_KARATS.includes(karat as (typeof VALID_KARATS)[number])) notFound();
+  const { locale, country: slug, karat } = await params;
+  const country = COUNTRY_BY_SLUG[slug];
+  if (!country || !VALID_KARATS.includes(karat as Karat)) notFound();
   setRequestLocale(locale);
 
   const tPage = await getTranslations("CountryPage");
-  const tCountry = await getTranslations("Page.country");
   const upper = karat.toUpperCase();
-  const countryName = tCountry(meta.nameKey);
+  const name = countryName(country, locale);
 
   const spotPromise = fetchSpot("XAU");
   const fxPromise = fetchFxRates();
   const historyPromise = fetchAllHistory("1y");
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
-  const affiliateUrl = process.env.NEXT_PUBLIC_AFFILIATE_URL ?? "https://kormzi.com";
 
   return (
     <>
@@ -165,17 +169,23 @@ export default async function CountryKaratPage({
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="space-y-8">
             <header>
-              <Link href="/" className="text-xs text-[var(--color-text-dim)] hover:text-[var(--color-gold)]">
-                ← {countryName}
+              <Link
+                href="/"
+                className="text-xs text-[var(--color-text-dim)] hover:text-[var(--color-gold)]"
+              >
+                <span className="me-1" aria-hidden>
+                  {country.flag}
+                </span>
+                {name}
               </Link>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-gold)]">
-                {tPage("h1", { karat: upper, country: countryName })}
+                {tPage("h1", { karat: upper, country: name })}
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[var(--color-text-muted)]">
-                {tPage("intro", { karat: upper, country: countryName, currency: meta.currency })}
+                {tPage("intro", { karat: upper, country: name, currency: country.currency })}
               </p>
               <div className="mt-3 inline-block rounded-md border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/10 px-3 py-1.5 text-xs text-[var(--color-gold)]">
-                {tPage("currencyNote", { currency: meta.currency })}
+                {tPage("currencyNote", { currency: country.currency })}
               </div>
             </header>
 
@@ -183,35 +193,41 @@ export default async function CountryKaratPage({
               <HeroSpotSection
                 promise={spotPromise}
                 fxPromise={fxPromise}
-                displayCurrency={meta.currency as keyof FxRates}
+                displayCurrency={country.currency}
               />
             </Suspense>
             <Suspense fallback={<PriceChartSkeleton />}>
               <PriceChartSection
                 hPromise={historyPromise}
                 fxPromise={fxPromise}
-                defaultCurrency={meta.currency as "USD" | "JOD" | "SAR" | "AED" | "EGP"}
+                defaultCurrency={country.currency}
               />
             </Suspense>
             <Suspense fallback={<BidAskGaugeSkeleton />}>
               <BidAskSection
                 promise={spotPromise}
                 fxPromise={fxPromise}
-                displayCurrency={meta.currency as keyof FxRates}
+                displayCurrency={country.currency}
               />
             </Suspense>
             <Suspense fallback={<KaratGridSkeleton />}>
-              <KaratGridSection sPromise={spotPromise} fxPromise={fxPromise} />
+              <KaratGridSection
+                sPromise={spotPromise}
+                fxPromise={fxPromise}
+                displayCurrency={country.currency}
+              />
             </Suspense>
             <Suspense fallback={<CalculatorSkeleton />}>
               <CalculatorSection
                 sPromise={spotPromise}
                 fxPromise={fxPromise}
-                defaultCurrency={meta.currency}
-                defaultKarat={`price_gram_${karat as "24k" | "21k" | "18k" | "14k"}` as "price_gram_24k"}
+                defaultCurrency={country.currency}
+                defaultKarat={
+                  `price_gram_${karat as "24k" | "21k" | "18k" | "14k"}` as "price_gram_24k"
+                }
               />
             </Suspense>
-            <AffiliateBanner url={affiliateUrl} />
+            <AffiliateBanner />
             <Faq />
           </section>
           <Sidebar adClient={adsClient} />

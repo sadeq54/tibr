@@ -14,11 +14,12 @@ import {
   YAxis,
 } from "recharts";
 
+import { ALL_CURRENCIES } from "@/lib/countries";
 import type { FxRates } from "@/lib/fx";
 import type { HistoricalPoint, MetalHistory } from "@/lib/history";
 
 type Metal = "XAU" | "XAG" | "XPT" | "XPD";
-type Currency = "USD" | "JOD" | "SAR" | "AED" | "EGP";
+type Currency = string;
 type Unit = "oz" | "g" | "kg";
 type Period = "30D" | "60D" | "90D" | "180D" | "1Y";
 
@@ -29,7 +30,7 @@ const METALS: Array<{ id: Metal; label: string }> = [
   { id: "XPD", label: "Palladium" },
 ];
 
-const CURRENCIES: Currency[] = ["USD", "JOD", "SAR", "AED", "EGP"];
+const CURRENCIES: Currency[] = ["USD", ...ALL_CURRENCIES.filter((c) => c !== "USD")].sort();
 
 const UNIT_FACTOR: Record<Unit, number> = {
   oz: 1,
@@ -51,13 +52,21 @@ const PERIODS: Array<{ id: Period; days: number }> = [
   { id: "1Y", days: 260 },
 ];
 
-const CURRENCY_SYMBOL: Record<Currency, string> = {
+const CURRENCY_SYMBOL: Record<string, string> = {
   USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+  CNY: "¥",
   JOD: "JD ",
   SAR: "SR ",
   AED: "AED ",
   EGP: "EGP ",
 };
+
+function symbolFor(c: string): string {
+  return CURRENCY_SYMBOL[c] ?? `${c} `;
+}
 
 export function PriceChart({
   histories,
@@ -101,7 +110,7 @@ export function PriceChart({
     return { ch, chp, min, max, last, first };
   }, [data]);
 
-  const symbol = CURRENCY_SYMBOL[currency];
+  const symbol = symbolFor(currency);
   const metalLabel = METALS.find((m) => m.id === metal)?.label ?? metal;
   const up = (stats?.ch ?? 0) >= 0;
   const trendColor = up ? "var(--color-up)" : "var(--color-down)";
@@ -248,7 +257,7 @@ export function PriceChart({
               aria-hidden
               className="pointer-events-none absolute bottom-3 right-4 text-[10px] tracking-wide text-[var(--color-text-dim)]"
             >
-              tibr.live
+              goldpricesarabia.com
             </span>
           </>
         )}

@@ -1,9 +1,10 @@
 "use client";
 
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { Radio, TrendingDown, TrendingUp } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
+import { useLivePrice } from "@/components/LivePriceProvider";
 import { CountUp } from "@/components/motion/CountUp";
 import { HeroSpotSkeleton } from "@/components/skeletons";
 import type { FxRates } from "@/lib/fx";
@@ -13,6 +14,10 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 const SYMBOL: Record<string, string> = {
   USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+  CNY: "¥",
   JOD: "JD ",
   SAR: "SR ",
   AED: "AED ",
@@ -25,32 +30,42 @@ export function HeroSpot({
   fx,
 }: {
   spot: GoldApiResponse | null;
-  displayCurrency?: keyof FxRates;
+  displayCurrency?: string;
   fx?: FxRates;
 }) {
   const t = useTranslations("HeroSpot");
+
+  const live = useLivePrice();
 
   if (!spot) {
     return <HeroSpotSkeleton />;
   }
 
-  const up = spot.ch >= 0;
+  // Overlay streaming values when available; fall back to SSR spot snapshot.
+  const liveXau = live.xau ?? spot.price;
+  const liveBid = live.bid ?? spot.bid;
+  const liveAsk = live.ask ?? spot.ask;
+  const liveHigh = live.high24 ?? spot.high_price;
+  const liveLow = live.low24 ?? spot.low_price;
+  const liveCh = live.change24 ?? spot.ch;
+  const liveChp = live.changePct24 ?? spot.chp;
+
+  const up = liveCh >= 0;
   const TrendIcon = up ? TrendingUp : TrendingDown;
   const trendColor = up ? "var(--color-up)" : "var(--color-down)";
-  const spread = +(spot.ask - spot.bid).toFixed(3);
 
   const useLocal = Boolean(displayCurrency && displayCurrency !== "USD" && fx);
   const rate = useLocal ? (fx?.[displayCurrency!] as number) ?? 1 : 1;
   const ccy = useLocal ? (displayCurrency as string) : "USD";
-  const symbol = SYMBOL[ccy] ?? "$";
-  const localPrice = spot.price * rate;
-  const localCh = spot.ch * rate;
+  const symbol = SYMBOL[ccy] ?? `${ccy} `;
+  const localPrice = liveXau * rate;
+  const localCh = liveCh * rate;
   const localPrev = spot.prev_close_price * rate;
-  const localBid = spot.bid * rate;
-  const localAsk = spot.ask * rate;
+  const localBid = liveBid * rate;
+  const localAsk = liveAsk * rate;
   const localOpen = spot.open_price * rate;
-  const localHigh = spot.high_price * rate;
-  const localLow = spot.low_price * rate;
+  const localHigh = liveHigh * rate;
+  const localLow = liveLow * rate;
   const localSpread = +(localAsk - localBid).toFixed(3);
 
   return (
@@ -82,7 +97,13 @@ export function HeroSpot({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.15, duration: 0.5 }}
           >
-            {t("label", { exchange: `${spot.exchange} · ${ccy}` })}
+            {t("label", { exchange: `${live.isLive ? "LIVE" : spot.exchange} · ${ccy}` })}
+            {live.isLive ? (
+              <span className="ms-2 inline-flex items-center gap-1 rounded-full border border-[var(--color-up)]/40 bg-[var(--color-up)]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--color-up)]">
+                <Radio size={9} aria-hidden />
+                {t("streamBadge")}
+              </span>
+            ) : null}
           </motion.div>
 
           <div className="mt-2 flex flex-wrap items-baseline gap-3">
@@ -97,7 +118,7 @@ export function HeroSpot({
 
           {useLocal ? (
             <div className="mt-1 text-xs text-[var(--color-text-dim)]">
-              ≈ ${spot.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+              ≈ ${liveXau.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
             </div>
           ) : null}
 
@@ -114,7 +135,7 @@ export function HeroSpot({
               <TrendIcon size={14} />
               {up ? "+" : ""}
               {localCh.toFixed(2)} ({up ? "+" : ""}
-              {spot.chp.toFixed(2)}%)
+              {liveChp.toFixed(2)}%)
             </span>
             <span className="text-[var(--color-text-dim)]">
               {t("vsPrev", { value: localPrev.toFixed(2) })}

@@ -19,7 +19,7 @@ export default function ErrorBoundary({
   useEffect(() => {
     if (typeof window !== "undefined") {
       // eslint-disable-next-line no-console
-      console.error("[Tibr] route error:", {
+      console.error("[GPA] route error:", {
         message: error.message,
         digest: error.digest,
         stack: error.stack,

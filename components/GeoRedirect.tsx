@@ -11,8 +11,8 @@ const COUNTRY_TO_PATH: Record<string, string> = {
   EG: "/egypt/gold-price/21k",
 };
 
-const COOKIE = "tibr-geo";
-const STORAGE_KEY = "tibr-geo-redirected";
+const COOKIE = "gpa-geo";
+const STORAGE_KEY = "gpa-geo-redirected";
 
 function readCookie(name: string): string | null {
   if (typeof document === "undefined") return null;

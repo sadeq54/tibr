@@ -1,6 +1,7 @@
 import { Languages } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { BrandMark } from "@/components/BrandMark";
 import { MobileMenu } from "@/components/MobileMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "@/i18n/navigation";
@@ -19,16 +20,15 @@ export async function Header() {
 
   return (
     <header className="glass-header sticky top-0 z-50">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-2.5">
-          <span
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-base font-extrabold tracking-tight text-black"
-            style={{ background: "linear-gradient(135deg, #f5c518 0%, #d4a82a 60%, #8a6a18 100%)" }}
-          >
-            T
-          </span>
-          <span className="text-lg font-semibold tracking-tight text-[var(--color-gold)]">Tibr</span>
-          <span className="ml-1 inline-flex items-center gap-1 rounded-full border border-[var(--color-up)]/40 bg-[var(--color-up)]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-up)]">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+        <Link
+          href="/"
+          dir="ltr"
+          aria-label="Gold Prices Arabia"
+          className="flex min-w-0 items-center gap-2 sm:gap-2.5"
+        >
+          <BrandMark size={72} className="flex-shrink-0" />
+          <span className="ml-1 hidden items-center gap-1 rounded-full border border-[var(--color-up)]/40 bg-[var(--color-up)]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-up)] sm:inline-flex">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-up)]" />
             {t("live")}
           </span>

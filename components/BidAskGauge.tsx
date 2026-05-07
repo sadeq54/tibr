@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
+import { useLivePrice } from "@/components/LivePriceProvider";
 import { BidAskGaugeSkeleton } from "@/components/skeletons";
 import type { FxRates } from "@/lib/fx";
 import type { GoldApiResponse } from "@/lib/goldapi";
@@ -11,6 +12,10 @@ const SPRING = { type: "spring" as const, stiffness: 110, damping: 22 };
 
 const SYMBOL: Record<string, string> = {
   USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+  CNY: "¥",
   JOD: "JD ",
   SAR: "SR ",
   AED: "AED ",
@@ -23,23 +28,30 @@ export function BidAskGauge({
   fx,
 }: {
   spot: GoldApiResponse | null;
-  displayCurrency?: keyof FxRates;
+  displayCurrency?: string;
   fx?: FxRates;
 }) {
   const t = useTranslations("BidAskGauge");
+  const live = useLivePrice();
 
   if (!spot) return <BidAskGaugeSkeleton />;
 
   const useLocal = Boolean(displayCurrency && displayCurrency !== "USD" && fx);
   const rate = useLocal ? (fx?.[displayCurrency!] as number) ?? 1 : 1;
   const ccy = useLocal ? (displayCurrency as string) : "USD";
-  const symbol = SYMBOL[ccy] ?? "$";
+  const symbol = SYMBOL[ccy] ?? `${ccy} `;
 
-  const lo = spot.low_price * rate;
-  const hi = spot.high_price * rate;
-  const px = spot.price * rate;
-  const bid = spot.bid * rate;
-  const ask = spot.ask * rate;
+  const liveLow = live.low24 ?? spot.low_price;
+  const liveHigh = live.high24 ?? spot.high_price;
+  const liveXau = live.xau ?? spot.price;
+  const liveBid = live.bid ?? spot.bid;
+  const liveAsk = live.ask ?? spot.ask;
+
+  const lo = liveLow * rate;
+  const hi = liveHigh * rate;
+  const px = liveXau * rate;
+  const bid = liveBid * rate;
+  const ask = liveAsk * rate;
 
   const range = hi - lo;
   const pos = range > 0 ? ((px - lo) / range) * 100 : 50;

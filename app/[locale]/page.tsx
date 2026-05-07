@@ -12,6 +12,7 @@ import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
 import { JsonLd } from "@/components/JsonLd";
 import { KaratGrid } from "@/components/KaratGrid";
+import { LiveGoldStream } from "@/components/LiveGoldStream";
 import { MetalsStrip } from "@/components/MetalsStrip";
 import { PriceChart } from "@/components/PriceChart";
 import { Sidebar } from "@/components/Sidebar";
@@ -130,7 +131,6 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const historyPromise = fetchAllHistory("1y");
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
-  const affiliateUrl = process.env.NEXT_PUBLIC_AFFILIATE_URL ?? "https://kormzi.com";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   const countries = [
@@ -166,6 +166,8 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               </p>
             </Reveal>
 
+            <LiveGoldStream />
+
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection promise={metalsPromise} />
             </Suspense>
@@ -194,7 +196,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               </Suspense>
             </Reveal>
 
-            <AffiliateBanner url={affiliateUrl} />
+            <AffiliateBanner />
 
             <section aria-labelledby="about-heading">
               <h2 id="about-heading" className="text-xl font-semibold text-[var(--color-text)]">
