@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { LuxurySelect } from "@/components/LuxurySelect";
@@ -106,31 +106,16 @@ export function PriceChart({
   const up = (stats?.ch ?? 0) >= 0;
   const trendColor = up ? "var(--color-up)" : "var(--color-down)";
 
-  const [chartColors, setChartColors] = useState({
-    line: "#f5c518",
-    grid: "#1f1f1f",
-    tooltipBg: "#0a0a0a",
-    axis: "#8a8a8a",
-    border: "#1f1f1f",
-  });
-
-  useEffect(() => {
-    function readVars() {
-      const cs = getComputedStyle(document.documentElement);
-      setChartColors({
-        line: cs.getPropertyValue("--color-gold").trim() || "#f5c518",
-        grid: cs.getPropertyValue("--color-grid").trim() || "#1f1f1f",
-        tooltipBg: cs.getPropertyValue("--color-tooltip-bg").trim() || "#0a0a0a",
-        axis: cs.getPropertyValue("--color-axis").trim() || "#8a8a8a",
-        border: cs.getPropertyValue("--color-border").trim() || "#1f1f1f",
-      });
-    }
-    readVars();
-    const observer = new MutationObserver(readVars);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] });
-    return () => observer.disconnect();
-  }, []);
-
+  // Pass CSS var() directly to Recharts. Browser resolves the value live —
+  // when theme class flips, paint updates with no React re-render. Avoids
+  // a re-render mid-View-Transition that would cause a visible blink.
+  const chartColors = {
+    line: "var(--color-gold)",
+    grid: "var(--color-grid)",
+    tooltipBg: "var(--color-tooltip-bg)",
+    axis: "var(--color-axis)",
+    border: "var(--color-border)",
+  };
   const lineColor = chartColors.line;
   const formatPrice = (v: number) => {
     if (!Number.isFinite(v)) return "—";
@@ -254,6 +239,7 @@ export function PriceChart({
                   stroke={lineColor}
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
                   activeDot={{ r: 4, fill: lineColor, stroke: chartColors.tooltipBg, strokeWidth: 2 }}
                 />
               </LineChart>

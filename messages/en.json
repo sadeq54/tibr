@@ -146,6 +146,33 @@
     "subtitle": "Live spot pricing, insured shipping, fraction-gram bars.",
     "cta": "Visit Kormzi →"
   },
+  "Footer": {
+    "worldHeading": "World Gold Prices",
+    "countryItem": "Gold Price {name}",
+    "comingSoon": "Coming soon",
+    "chartsHeading": "Gold Price Charts",
+    "metalsHeading": "Precious Metals",
+    "karatHeading": "By Karat",
+    "contactHeading": "Contact",
+    "contactBody": "Tibr — live gold from the source.",
+    "appsHeading": "Mobile Apps",
+    "appsSoon": "Coming soon — iOS & Android.",
+    "adsHeading": "Advertising",
+    "adsLink": "Advertise on Tibr",
+    "spotGold": "Spot Gold",
+    "livePrice": "Live Gold Price",
+    "priceChart": "Gold Price Chart",
+    "perOz": "Gold Price per Ounce",
+    "perGram": "Gold Price per Gram",
+    "perKilo": "Gold Price per Kilo",
+    "history": "Gold Price History",
+    "calculator": "Gold Calculator",
+    "gold": "Gold",
+    "silver": "Silver",
+    "platinum": "Platinum",
+    "palladium": "Palladium",
+    "karatLink": "{karat} Gold"
+  },
   "Loading": {
     "label": "Loading live gold data…"
   },

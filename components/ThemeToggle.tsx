@@ -8,10 +8,6 @@ type Theme = "light" | "dark";
 
 const STORAGE_KEY = "tibr-theme";
 
-type ViewTransitionDocument = Document & {
-  startViewTransition?: (cb: () => void | Promise<void>) => { finished: Promise<void> };
-};
-
 function readStored(): Theme | null {
   if (typeof window === "undefined") return null;
   const v = window.localStorage.getItem(STORAGE_KEY);
@@ -21,8 +17,8 @@ function readStored(): Theme | null {
 function applyTheme(theme: Theme) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
-  if (theme === "light") root.classList.add("light");
-  else root.classList.remove("light");
+  root.classList.toggle("light", theme === "light");
+  root.classList.toggle("dark", theme === "dark");
   root.dataset.theme = theme;
 }
 
@@ -32,59 +28,29 @@ function persistTheme(theme: Theme) {
   } catch {}
 }
 
-function applyThemeWithTransition(theme: Theme, origin?: { x: number; y: number }) {
-  if (typeof window === "undefined") {
-    applyTheme(theme);
-    return;
-  }
-
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const doc = document as ViewTransitionDocument;
-
-  if (reduced || typeof doc.startViewTransition !== "function") {
-    applyTheme(theme);
-    return;
-  }
-
-  const root = document.documentElement;
-  if (origin) {
-    root.style.setProperty("--vt-origin-x", `${origin.x}px`);
-    root.style.setProperty("--vt-origin-y", `${origin.y}px`);
-  } else {
-    root.style.setProperty("--vt-origin-x", "50%");
-    root.style.setProperty("--vt-origin-y", "50%");
-  }
-
-  doc.startViewTransition!(() => {
-    applyTheme(theme);
-  });
-}
-
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = readStored();
-    const prefersLight =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: light)").matches;
-    const initial: Theme = stored ?? (prefersLight ? "light" : "dark");
+    let initial: Theme;
+    if (stored) {
+      initial = stored;
+    } else {
+      const h = new Date().getHours();
+      initial = h >= 7 && h < 19 ? "light" : "dark";
+    }
     setTheme(initial);
     applyTheme(initial);
     setMounted(true);
   }, []);
 
-  function handleToggle(e: React.MouseEvent<HTMLButtonElement>) {
+  function handleToggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     persistTheme(next);
-    const rect = e.currentTarget.getBoundingClientRect();
-    const origin = {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
+    applyTheme(next);
     setTheme(next);
-    applyThemeWithTransition(next, origin);
   }
 
   const Icon = theme === "dark" ? Sun : Moon;
@@ -108,7 +74,7 @@ export function ThemeToggle() {
           initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
           animate={{ rotate: 0, opacity: 1, scale: 1 }}
           exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
-          transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           className="inline-flex"
         >
           {mounted ? <Icon size={16} /> : <Sun size={16} />}

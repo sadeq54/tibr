@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { Menu, X } from "lucide-react";
+import { Languages, Menu, X } from "lucide-react";
 
 import { Link, usePathname } from "@/i18n/navigation";
 
@@ -129,9 +129,11 @@ export function MobileMenu({
             <Link
               href="/"
               locale={switchLocale}
-              className="theme-toggle inline-flex items-center justify-center rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] px-3 py-2 text-sm font-semibold text-[var(--color-text)]"
+              aria-label={switchLabel}
+              className="theme-toggle inline-flex items-center justify-center gap-2 rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] px-3 py-2 text-sm font-semibold text-[var(--color-text)]"
             >
-              {switchLabel}
+              <Languages size={16} aria-hidden />
+              <span>{switchLabel}</span>
             </Link>
           </motion.aside>
         </>

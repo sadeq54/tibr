@@ -1,3 +1,4 @@
+import { Languages } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { MobileMenu } from "@/components/MobileMenu";
@@ -34,7 +35,6 @@ export async function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm text-[var(--color-text-muted)] md:flex">
-          <Link href="/" className="hover:text-[var(--color-text)]">{t("home")}</Link>
           {navItems.map((n) => (
             <Link key={n.href} href={n.href} className="hover:text-[var(--color-text)]">
               {n.label}
@@ -46,9 +46,11 @@ export async function Header() {
           <Link
             href="/"
             locale={otherLocale}
-            className="theme-toggle rounded-md border border-[var(--color-border-strong)] px-3 py-1 text-xs text-[var(--color-text)]"
+            aria-label={otherLabel}
+            title={otherLabel}
+            className="theme-toggle inline-flex h-8 w-8 items-center justify-center rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] text-[var(--color-text)]"
           >
-            {otherLabel}
+            <Languages size={16} aria-hidden />
           </Link>
           <ThemeToggle />
         </nav>

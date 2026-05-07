@@ -5,6 +5,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { Footer } from "@/components/Footer";
 import { MotionRoot } from "@/components/motion/MotionRoot";
 import { routing } from "@/i18n/routing";
 
@@ -107,7 +108,10 @@ export default async function LocaleLayout({
       <body>
         <MotionRoot>
           <Suspense fallback={null}>
-            <I18nProvider locale={locale}>{children}</I18nProvider>
+            <I18nProvider locale={locale}>
+              {children}
+              <Footer />
+            </I18nProvider>
           </Suspense>
         </MotionRoot>
       </body>

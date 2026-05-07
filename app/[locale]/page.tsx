@@ -242,11 +242,6 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         </div>
       </main>
 
-      <footer className="mt-12 border-t border-[var(--color-border)] py-6">
-        <div className="mx-auto max-w-7xl px-6 text-xs text-[var(--color-text-dim)]">
-          {t("footer", { year: new Date().getFullYear() })}
-        </div>
-      </footer>
     </>
   );
 }

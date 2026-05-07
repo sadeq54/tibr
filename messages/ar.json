@@ -146,6 +146,33 @@
     "subtitle": "أسعار فورية، شحن مؤمَّن، سبائك بأجزاء الجرام.",
     "cta": "زيارة كرمزي →"
   },
+  "Footer": {
+    "worldHeading": "أسعار الذهب عالميًا",
+    "countryItem": "سعر الذهب · {name}",
+    "comingSoon": "قريبًا",
+    "chartsHeading": "مخططات الذهب",
+    "metalsHeading": "المعادن النفيسة",
+    "karatHeading": "حسب العيار",
+    "contactHeading": "تواصل",
+    "contactBody": "تبر — الذهب الحي من المصدر.",
+    "appsHeading": "تطبيقات الموبايل",
+    "appsSoon": "قريبًا — iOS و Android.",
+    "adsHeading": "إعلانات",
+    "adsLink": "أعلن على تبر",
+    "spotGold": "السعر الفوري",
+    "livePrice": "سعر الذهب المباشر",
+    "priceChart": "مخطط أسعار الذهب",
+    "perOz": "سعر الذهب للأونصة",
+    "perGram": "سعر الذهب للجرام",
+    "perKilo": "سعر الذهب للكيلو",
+    "history": "السجل التاريخي",
+    "calculator": "حاسبة الذهب",
+    "gold": "ذهب",
+    "silver": "فضة",
+    "platinum": "بلاتين",
+    "palladium": "بالاديوم",
+    "karatLink": "ذهب عيار {karat}"
+  },
   "Loading": {
     "label": "جارِ تحميل بيانات الذهب الحية…"
   },

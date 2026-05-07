@@ -1,9 +1,16 @@
 (function () {
   try {
     var s = localStorage.getItem("tibr-theme");
-    var p = window.matchMedia("(prefers-color-scheme: light)").matches;
-    var t = s || (p ? "light" : "dark");
-    if (t === "light") document.documentElement.classList.add("light");
-    document.documentElement.dataset.theme = t;
+    var t;
+    if (s === "light" || s === "dark") {
+      t = s;
+    } else {
+      var h = new Date().getHours();
+      t = h >= 7 && h < 19 ? "light" : "dark";
+    }
+    var root = document.documentElement;
+    root.classList.remove(t === "light" ? "dark" : "light");
+    root.classList.add(t);
+    root.dataset.theme = t;
   } catch (e) {}
 })();
