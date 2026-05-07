@@ -197,6 +197,13 @@ async function I18nProvider({
   );
 }
 
+async function FooterGate() {
+  const h = await headers();
+  const path = h.get("x-pathname") ?? "";
+  const isEmbed = /\/widgets\/embed\//.test(path);
+  return isEmbed ? null : <Footer />;
+}
+
 export default async function LocaleLayout({
   children,
   params,
@@ -208,10 +215,6 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const dir = locale === "ar" ? "rtl" : "ltr";
-
-  const h = await headers();
-  const path = h.get("x-pathname") ?? "";
-  const isEmbed = /\/widgets\/embed\//.test(path);
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
@@ -238,7 +241,9 @@ export default async function LocaleLayout({
             <Suspense fallback={null}>
               <I18nProvider locale={locale}>
                 {children}
-                {!isEmbed ? <Footer /> : null}
+                <Suspense fallback={null}>
+                  <FooterGate />
+                </Suspense>
               </I18nProvider>
             </Suspense>
           </LivePriceProvider>
