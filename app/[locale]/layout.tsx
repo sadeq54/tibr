@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import Script from "next/script";
+
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -9,6 +9,8 @@ import { notFound } from "next/navigation";
 import { Footer } from "@/components/Footer";
 import { LivePriceProvider } from "@/components/LivePriceProvider";
 import { MotionRoot } from "@/components/motion/MotionRoot";
+import { ReduxProvider } from "@/components/ReduxProvider";
+import { ThemeApplier } from "@/components/ThemeApplier";
 import { routing } from "@/i18n/routing";
 
 import "../globals.css";
@@ -214,9 +216,8 @@ export default async function LocaleLayout({
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning>
+    <html lang={locale} dir={dir} className="dark" data-theme="dark" suppressHydrationWarning>
       <head>
-        <script src="/theme-init.js" suppressHydrationWarning />
         <link rel="preconnect" href="https://stream.binance.com" />
         <link rel="preconnect" href="https://ws-feed.exchange.coinbase.com" />
         <link rel="preconnect" href="https://ws.kraken.com" />
@@ -224,27 +225,23 @@ export default async function LocaleLayout({
         <link rel="dns-prefetch" href="https://stooq.com" />
         <link rel="dns-prefetch" href="https://query1.finance.yahoo.com" />
         <link rel="dns-prefetch" href="https://api.coingecko.com" />
-        {process.env.NODE_ENV === "development" && (
-          <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
-            crossOrigin="anonymous"
-            strategy="beforeInteractive"
-          />
-        )}
       </head>
       <body>
-        <MotionRoot>
-          <LivePriceProvider>
-            <Suspense fallback={null}>
-              <I18nProvider locale={locale}>
-                {children}
-                <Suspense fallback={null}>
-                  <FooterGate />
-                </Suspense>
-              </I18nProvider>
-            </Suspense>
-          </LivePriceProvider>
-        </MotionRoot>
+        <ReduxProvider>
+          <ThemeApplier />
+          <MotionRoot>
+            <LivePriceProvider>
+              <Suspense fallback={null}>
+                <I18nProvider locale={locale}>
+                  {children}
+                  <Suspense fallback={null}>
+                    <FooterGate />
+                  </Suspense>
+                </I18nProvider>
+              </Suspense>
+            </LivePriceProvider>
+          </MotionRoot>
+        </ReduxProvider>
       </body>
     </html>
   );
