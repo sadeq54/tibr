@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, FreeMode } from "swiper/modules";
 
@@ -11,8 +12,15 @@ const N = 8;
 const SLOTS = Array.from({ length: N }, (_, i) => i);
 
 export function StoresMarquee() {
+  const t = useTranslations("StoresMarquee");
   return (
-    <section aria-label="Stores" className="relative w-full overflow-hidden">
+    <section aria-labelledby="stores-marquee-heading" className="relative w-full overflow-hidden">
+      <h2
+        id="stores-marquee-heading"
+        className="mb-4 text-xl font-bold tracking-tight text-[var(--color-text)] md:text-2xl mx-7"
+      >
+        {t("heading")}
+      </h2>
       <div
         className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16"
         style={{ background: "linear-gradient(to right, var(--color-bg) 0%, transparent 100%)" }}
