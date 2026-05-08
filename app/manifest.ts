@@ -16,34 +16,34 @@ export default function manifest(): MetadataRoute.Manifest {
     dir: "rtl",
     categories: ["finance", "business", "news"],
     icons: [
-      { src: "/logopng.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/logopng.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/logopng.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/appIcone.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/appIcone.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/appIcone.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
       {
         name: "Live Gold Price",
         short_name: "Live",
         url: "/live-gold-price",
-        icons: [{ src: "/logopng.png", sizes: "96x96" }],
+        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
       },
       {
         name: "Gold Calculator",
         short_name: "Calculator",
         url: "/gold-calculator",
-        icons: [{ src: "/logopng.png", sizes: "96x96" }],
+        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
       },
       {
         name: "Saudi Arabia",
         short_name: "Saudi",
         url: "/saudi-arabia/gold-price/21k",
-        icons: [{ src: "/logopng.png", sizes: "96x96" }],
+        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
       },
       {
         name: "UAE",
         short_name: "UAE",
         url: "/uae/gold-price/21k",
-        icons: [{ src: "/logopng.png", sizes: "96x96" }],
+        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
       },
     ],
   };

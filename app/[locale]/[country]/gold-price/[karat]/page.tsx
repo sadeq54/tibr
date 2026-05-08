@@ -11,6 +11,8 @@ import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
 import { Sidebar } from "@/components/Sidebar";
 import { PriceChart } from "@/components/PriceChart";
+import { StoresMarquee } from "@/components/StoresMarquee";
+import { TradingViewChart } from "@/components/TradingViewChart";
 import {
   BidAskGaugeSkeleton,
   CalculatorSkeleton,
@@ -167,7 +169,7 @@ export default async function CountryKaratPage({
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
-          <section className="space-y-8">
+          <section className="min-w-0 space-y-8">
             <header>
               <Link
                 href="/"
@@ -196,6 +198,8 @@ export default async function CountryKaratPage({
                 displayCurrency={country.currency}
               />
             </Suspense>
+            <TradingViewChart currency={country.currency} />
+            <AffiliateBanner />
             <Suspense fallback={<PriceChartSkeleton />}>
               <PriceChartSection
                 hPromise={historyPromise}
@@ -227,7 +231,7 @@ export default async function CountryKaratPage({
                 }
               />
             </Suspense>
-            <AffiliateBanner />
+            <StoresMarquee />
             <Faq />
           </section>
           <Sidebar adClient={adsClient} />

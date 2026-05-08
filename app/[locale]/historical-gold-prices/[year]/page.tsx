@@ -5,6 +5,8 @@ import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { Faq } from "@/components/Faq";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
+import { StoresMarquee } from "@/components/StoresMarquee";
+import { TradingViewChart } from "@/components/TradingViewChart";
 import { Link } from "@/i18n/navigation";
 
 const VALID_YEARS = [2024, 2025, 2026];
@@ -41,7 +43,7 @@ export default async function HistoricalPage({
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
-          <section className="space-y-8">
+          <section className="min-w-0 space-y-8">
             <header>
               <Link href="/" className="text-xs text-[var(--color-text-dim)] hover:text-[var(--color-gold)]">
                 ← Gold Prices Arabia
@@ -50,6 +52,10 @@ export default async function HistoricalPage({
                 {t("h1", { year })}
               </h1>
             </header>
+
+            <TradingViewChart />
+
+            <AffiliateBanner />
 
             <div className="rounded-xl border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-card)] p-8 text-center">
               <div className="text-sm font-semibold text-[var(--color-gold)]">
@@ -72,7 +78,7 @@ export default async function HistoricalPage({
               ))}
             </div>
 
-            <AffiliateBanner />
+            <StoresMarquee />
             <Faq />
           </section>
           <Sidebar adClient={adsClient} />

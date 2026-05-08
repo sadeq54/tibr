@@ -16,6 +16,8 @@ import { LiveGoldStream } from "@/components/LiveGoldStream";
 import { MetalsStrip } from "@/components/MetalsStrip";
 import { PriceChart } from "@/components/PriceChart";
 import { Sidebar } from "@/components/Sidebar";
+import { StoresMarquee } from "@/components/StoresMarquee";
+import { TradingViewChart } from "@/components/TradingViewChart";
 import { Reveal } from "@/components/motion/Reveal";
 import {
   BidAskGaugeSkeleton,
@@ -150,7 +152,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
-          <section className="space-y-8">
+          <section className="min-w-0 space-y-8">
             <Reveal as="header">
               <h1 className="text-3xl font-bold tracking-tight text-[var(--color-gold)]">
                 {t("h1")}
@@ -177,6 +179,12 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             </Suspense>
 
             <Reveal>
+              <TradingViewChart />
+            </Reveal>
+
+            <AffiliateBanner />
+
+            <Reveal>
               <Suspense fallback={<PriceChartSkeleton />}>
                 <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
               </Suspense>
@@ -196,7 +204,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               </Suspense>
             </Reveal>
 
-            <AffiliateBanner />
+            <StoresMarquee />
 
             <section aria-labelledby="about-heading">
               <h2 id="about-heading" className="text-xl font-semibold text-[var(--color-text)]">

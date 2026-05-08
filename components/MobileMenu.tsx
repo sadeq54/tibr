@@ -110,7 +110,7 @@ export function MobileMenu({
               {navItems.map((item) => (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={item.href as never}
                   className="rounded-md px-3 py-3 text-base font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg-card-hover)] hover:text-[var(--color-gold)]"
                 >
                   {item.label}

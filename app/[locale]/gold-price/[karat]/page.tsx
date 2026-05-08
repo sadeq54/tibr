@@ -11,6 +11,8 @@ import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
 import { Sidebar } from "@/components/Sidebar";
 import { PriceChart } from "@/components/PriceChart";
+import { StoresMarquee } from "@/components/StoresMarquee";
+import { TradingViewChart } from "@/components/TradingViewChart";
 import {
   BidAskGaugeSkeleton,
   CalculatorSkeleton,
@@ -113,7 +115,7 @@ export default async function KaratPage({
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
-          <section className="space-y-8">
+          <section className="min-w-0 space-y-8">
             <header>
               <Link href="/" className="text-xs text-[var(--color-text-dim)] hover:text-[var(--color-gold)]">
                 {t("backHome")}
@@ -129,6 +131,8 @@ export default async function KaratPage({
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection promise={spotPromise} />
             </Suspense>
+            <TradingViewChart />
+            <AffiliateBanner />
             <Suspense fallback={<PriceChartSkeleton />}>
               <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
             </Suspense>
@@ -141,7 +145,7 @@ export default async function KaratPage({
             <Suspense fallback={<CalculatorSkeleton />}>
               <CalculatorSection sPromise={spotPromise} fxPromise={fxPromise} />
             </Suspense>
-            <AffiliateBanner />
+            <StoresMarquee />
             <Faq />
           </section>
           <Sidebar adClient={adsClient} />

@@ -12,6 +12,7 @@ const COUNTRY_TO_PATH: Record<string, string> = {
 };
 
 const COOKIE = "gpa-geo";
+const COUNTRY_COOKIE = "gpa-country";
 const STORAGE_KEY = "gpa-geo-redirected";
 
 function readCookie(name: string): string | null {
@@ -67,8 +68,11 @@ export function GeoRedirect() {
     if (ran.current) return;
     ran.current = true;
 
-    if (readCookie(COOKIE) === "1") return;
-    if (sessionStorage.getItem(STORAGE_KEY) === "1") return;
+    const alreadyRedirected =
+      readCookie(COOKIE) === "1" || sessionStorage.getItem(STORAGE_KEY) === "1";
+    const haveCountry = !!readCookie(COUNTRY_COOKIE);
+
+    if (alreadyRedirected && haveCountry) return;
 
     let cancelled = false;
 
@@ -80,6 +84,10 @@ export function GeoRedirect() {
         writeCookie(COOKIE, "1");
         return;
       }
+
+      writeCookie(COUNTRY_COOKIE, country, 90);
+
+      if (alreadyRedirected) return;
 
       const path = COUNTRY_TO_PATH[country];
       if (!path) {

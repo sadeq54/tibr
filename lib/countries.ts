@@ -60,9 +60,18 @@ export const COUNTRY_BY_SLUG: Record<string, Country> = Object.fromEntries(
   COUNTRIES.map((c) => [c.slug, c])
 );
 
+export const COUNTRY_BY_CC: Record<string, Country> = Object.fromEntries(
+  COUNTRIES.map((c) => [c.cc, c])
+);
+
 export const ALL_CURRENCIES: string[] = Array.from(
   new Set(COUNTRIES.map((c) => c.currency)),
 );
+
+export function currencyForCC(cc: string | null | undefined): string | null {
+  if (!cc) return null;
+  return COUNTRY_BY_CC[cc.toUpperCase()]?.currency ?? null;
+}
 
 export function countryName(c: Country, locale: string): string {
   return locale === "ar" ? c.name_ar : c.name_en;

@@ -77,17 +77,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logoicon.svg", type: "image/svg+xml" },
-      { url: "/logopng.ico", sizes: "any" },
-      { url: "/logopng.png", sizes: "32x32", type: "image/png" },
-      { url: "/logopng.png", sizes: "192x192", type: "image/png" },
-      { url: "/logopng.png", sizes: "512x512", type: "image/png" },
+      { url: "/appIcone.ico", sizes: "any" },
+      { url: "/appIcone.png", sizes: "192x192", type: "image/png" },
+      { url: "/appIcone.png", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: ["/logopng.ico"],
-    apple: [{ url: "/logopng.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/appIcone.ico"],
+    apple: [{ url: "/appIcone.png", sizes: "180x180", type: "image/png" }],
     other: [
-      { rel: "mask-icon", url: "/logoicon.svg", color: "#f5c518" },
-      { rel: "apple-touch-icon-precomposed", url: "/logopng.png" },
+      { rel: "apple-touch-icon-precomposed", url: "/appIcone.png" },
     ],
   },
   openGraph: {
@@ -106,7 +103,7 @@ export const metadata: Metadata = {
         alt: "Gold Prices Arabia — Live gold for MENA",
       },
       {
-        url: "/logopng.png",
+        url: "/appIcone.png",
         width: 512,
         height: 512,
         alt: "Gold Prices Arabia logo",
@@ -161,7 +158,7 @@ export const metadata: Metadata = {
     "google-adsense-account":
       process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX",
     "msapplication-TileColor": "#0a0a0a",
-    "msapplication-TileImage": "/logopng.png",
+    "msapplication-TileImage": "/appIcone.png",
   },
 };
 

@@ -24,7 +24,7 @@ export function JsonLd({ spot, siteUrl }: { spot: GoldApiResponse | null; siteUr
     url: siteUrl,
     logo: {
       "@type": "ImageObject",
-      url: `${siteUrl}/logopng.png`,
+      url: `${siteUrl}/appIcone.png`,
       width: 512,
       height: 512,
     },
