@@ -9,7 +9,15 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage";
+import reduxStorage from "redux-persist/lib/storage";
+
+const noopStorage = {
+  getItem: (_key: string) => Promise.resolve(null),
+  setItem: (_key: string, value: string) => Promise.resolve(value),
+  removeItem: (_key: string) => Promise.resolve(),
+};
+
+const storage = typeof window !== "undefined" ? reduxStorage : noopStorage;
 
 import themeReducer from "./themeSlice";
 
