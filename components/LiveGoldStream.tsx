@@ -1,10 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowDown, ArrowUp, Radio, Wifi, WifiOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useLivePrice, type SourceState } from "@/components/LivePriceProvider";
+
+function useNow(intervalMs = 1000): number {
+  const [now, setNow] = useState(() =>
+    typeof window === "undefined" ? 0 : Date.now(),
+  );
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), intervalMs);
+    return () => clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
 
 function fmtUsd(n: number, frac = 2): string {
   if (!Number.isFinite(n) || n === 0) return "—";
@@ -98,7 +110,8 @@ export function LiveGoldStream() {
 
 function SourceCard({ state: s }: { state: SourceState }) {
   const t = useTranslations("LiveStream");
-  const stale = s.ts > 0 && Date.now() - s.ts > 30_000;
+  const now = useNow(1000);
+  const stale = s.ts > 0 && now - s.ts > 30_000;
   const spread = s.ask > 0 && s.bid > 0 ? s.ask - s.bid : 0;
   const trendColor = s.change_24h_pct >= 0 ? "var(--color-up)" : "var(--color-down)";
 
@@ -155,7 +168,7 @@ function SourceCard({ state: s }: { state: SourceState }) {
 
       <div className="mt-2 text-[9px] text-[var(--color-text-dim)]">
         {t("ticks", { n: s.tick_count })}
-        {s.ts > 0 ? ` · ${t("lastTick", { n: Math.max(0, Math.floor((Date.now() - s.ts) / 1000)) })}` : ""}
+        {s.ts > 0 ? ` · ${t("lastTick", { n: Math.max(0, Math.floor((now - s.ts) / 1000)) })}` : ""}
       </div>
     </motion.div>
   );

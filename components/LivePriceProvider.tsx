@@ -302,6 +302,7 @@ export function LivePriceProvider({ children }: { children: React.ReactNode }) {
     const totalVol = list.reduce((acc, s) => acc + (s.volume_24h || 0), 0);
     const lastTick = Math.max(...list.map((s) => s.ts), 0);
     const isLive = list.some(
+      // eslint-disable-next-line react-hooks/purity
       (s) => s.connected && s.last > 0 && Date.now() - s.ts < 30_000,
     );
     const totalTicks = list.reduce((acc, s) => acc + s.tick_count, 0);

@@ -25,6 +25,7 @@ export function LuxurySelect({
   const listboxId = useId();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHighlight(Math.max(0, options.findIndex((o) => o.value === value)));
   }, [value, options]);
 

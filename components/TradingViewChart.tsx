@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 
 import { currencyForCC } from "@/lib/countries";
@@ -130,6 +130,7 @@ export function TradingViewChart({
     const cached = readCountryCookie();
     if (cached) {
       const ccy = currencyForCC(cached);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (ccy) setAutoCurrency(ccy);
       return;
     }
@@ -149,10 +150,12 @@ export function TradingViewChart({
     symbol ?? (effectiveCurrency ? symbolForCurrency(effectiveCurrency) : "TVC:GOLD");
   const locale = useLocale();
   const ref = useRef<HTMLDivElement>(null);
-  const containerId = useRef(`tv_${Math.random().toString(36).slice(2, 10)}`);
+  const idSuffix = useId().replace(/[^a-zA-Z0-9]/g, "");
+  const containerId = useRef(`tv_${idSuffix}`);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme(readTheme());
     const obs = new MutationObserver(() => setTheme(readTheme()));
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] });
