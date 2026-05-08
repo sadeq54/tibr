@@ -75,7 +75,7 @@ export async function Footer() {
                     {c.flag}
                   </span>
                   <span className="truncate text-xs font-medium">
-                    {countryName(c, locale)}
+                    {t("countryItem", { name: countryName(c, locale) })}
                   </span>
                 </Link>
               </li>

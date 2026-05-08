@@ -184,7 +184,7 @@
   },
   "Footer": {
     "worldHeading": "أسعار الذهب عالميًا",
-    "countryItem": "سعر الذهب · {name}",
+    "countryItem": "سعر الذهب في {name}",
     "comingSoon": "قريبًا",
     "newsHeading": "أخبار أسعار الذهب",
     "newsLink": "الأخبار",

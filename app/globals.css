@@ -515,16 +515,3 @@ html:not(.light) .faq-support-bg {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-.faq-cone {
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--color-gold) 90%, white) 0%, transparent 55%),
-    radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--color-gold) 60%, transparent) 0%, transparent 60%),
-    conic-gradient(from 220deg at 50% 60%, transparent 0deg, color-mix(in srgb, var(--color-gold) 70%, transparent) 90deg, transparent 200deg);
-  filter: blur(0.5px);
-  opacity: 0.95;
-  pointer-events: none;
-}

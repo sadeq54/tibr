@@ -1,11 +1,13 @@
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
+import Script from "next/script";
 
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { AutoTheme } from "@/components/AutoTheme";
 import { Footer } from "@/components/Footer";
 import { LivePriceProvider } from "@/components/LivePriceProvider";
 import { MotionRoot } from "@/components/motion/MotionRoot";
@@ -218,6 +220,16 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={dir} className="dark" data-theme="dark" suppressHydrationWarning>
       <head>
+        <Script id="auto-theme" strategy="beforeInteractive">
+          {"(function(){try{var h=new Date().getHours();var t=h>=6&&h<18?'light':'dark';var r=document.documentElement;r.classList.remove('light','dark');r.classList.add(t);r.setAttribute('data-theme',t);}catch(e){}})();"}
+        </Script>
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            src="//unpkg.com/react-grab/dist/index.global.js"
+            crossOrigin="anonymous"
+            strategy="beforeInteractive"
+          />
+        )}
         <link rel="preconnect" href="https://stream.binance.com" />
         <link rel="preconnect" href="https://ws-feed.exchange.coinbase.com" />
         <link rel="preconnect" href="https://ws.kraken.com" />
@@ -228,6 +240,7 @@ export default async function LocaleLayout({
       </head>
       <body>
         <ReduxProvider>
+          <AutoTheme />
           <ThemeApplier />
           <MotionRoot>
             <LivePriceProvider>
