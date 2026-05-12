@@ -152,6 +152,10 @@ If quota hit: "Quota exceeded" message. Retry tomorrow.
 -  https://goldpricesarabia.com/about/sadeq
 -  https://goldpricesarabia.com/en/about/sadeq
 
+**Priority 0.5 — Disclaimer (YMYL legal-trust signal)**
+-  https://goldpricesarabia.com/about/disclaimer
+-  https://goldpricesarabia.com/en/about/disclaimer
+
 **Priority 0.55 — Trust pages**
 -  https://goldpricesarabia.com/about
 -  https://goldpricesarabia.com/en/about

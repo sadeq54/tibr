@@ -410,5 +410,28 @@
     "linkedinLabel": "LinkedIn profile",
     "emailLabel": "Email",
     "contactNote": "All editorial corrections are issued within 24 hours and cached pages are purged. See /editorial-standards for full corrections policy."
+  },
+  "DisclaimerPage": {
+    "title": "Disclaimer — Gold Prices Arabia",
+    "description": "Important disclaimer about gold price data, accuracy, and limitations on Gold Prices Arabia. We publish prices, not financial advice.",
+    "h1": "Disclaimer",
+    "introH2": "Plain-language summary",
+    "intro": "Gold Prices Arabia displays publicly observable market data. It is not financial advice. Confirm prices with a licensed jeweller or bullion dealer before buying or selling. We make no guarantee of accuracy and accept no liability for trading decisions.",
+    "natureH2": "Nature of the service",
+    "nature": "Gold Prices Arabia is a price-reference and educational website. We aggregate live spot gold (XAU/USD) from public WebSocket feeds and convert into 40+ retail currencies. We do not sell gold, broker trades, or operate as a financial institution. We hold no banking, brokerage, or investment-advisory licence in any jurisdiction.",
+    "notAdviceH2": "Not financial advice",
+    "notAdvice": "Nothing on this site constitutes investment advice, financial advice, trading advice, or any other sort of professional advice. No content here is a recommendation to buy, sell, or hold any asset. Always consult a licensed financial advisor in your country before making investment decisions.",
+    "accuracyH2": "Accuracy and timeliness",
+    "accuracy": "Live prices come from third-party APIs (Binance, Coinbase, Kraken via PAXG/USD; STOOQ for silver/platinum/palladium; central-bank mid-market FX). Upstream outages, latency, or errors are outside our control. Retail jewellery prices, dealer spreads, refining loss, and local taxes are NOT included. The actual price you pay at a jeweller or dealer will differ from the spot price shown here.",
+    "noLiabilityH2": "No liability",
+    "noLiability": "To the maximum extent permitted by law, Gold Prices Arabia, its founder, contributors, and parent organisations accept no liability for any loss or damage — direct, indirect, incidental, consequential, or otherwise — arising from use of this site, its data, or any decision made based on its content. Use of the site is at your own risk.",
+    "affiliateH2": "Affiliate disclosure",
+    "affiliate": "Some pages may contain affiliate links to bullion dealers or financial products. If you click through and open an account or make a purchase, we may earn a commission. This does not influence the prices we display or which dealers we list. See /editorial-standards for the full affiliate policy.",
+    "thirdPartyH2": "Third-party content",
+    "thirdParty": "News articles, charts, widgets, and advertisements may originate from third parties. We do not endorse, verify, or guarantee any third-party content. External links open in a new tab; visit at your own discretion.",
+    "jurisdictionH2": "Jurisdiction and updates",
+    "jurisdiction": "This disclaimer is governed by the laws of the jurisdiction in which Gold Prices Arabia operates. We may update this disclaimer at any time without notice. The current version always lives at this URL — check the date below for the last revision.",
+    "contactH2": "Contact",
+    "contact": "Questions or corrections: support@goldpricesarabia.com. Editorial corrections are issued within 24 hours. See /editorial-standards for full corrections policy."
   }
 }

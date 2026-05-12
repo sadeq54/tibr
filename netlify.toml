@@ -97,9 +97,8 @@
 
 # Redirect the staging hostname → production canonical, so any organic
 # link to tibers.netlify.app passes equity to goldpricesarabia.com.
-# (Disabled until you cut DNS over; uncomment when the apex is live.)
-# [[redirects]]
-#   from = "https://tibers.netlify.app/*"
-#   to = "https://goldpricesarabia.com/:splat"
-#   status = 301
-#   force = true
+[[redirects]]
+  from = "https://tibers.netlify.app/*"
+  to = "https://goldpricesarabia.com/:splat"
+  status = 301
+  force = true

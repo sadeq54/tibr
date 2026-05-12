@@ -147,6 +147,98 @@ After next build, sitemap.xml will include 2 new URLs (one per locale). Verify a
 
 ---
 
+## 2026-05-12 — Bug fixes: duplicate FAQPage + wrong host in JSON-LD
+
+### Issue (from Google Rich Results test)
+
+Two `FAQPage` entries detected on home page:
+1. `@id: https://goldpricesarabia.com/#faq` (from layout-level `SiteJsonLd`)
+2. `@id: https://tibers.netlify.app/#faq` (from page-level `MetaSection` reading `NEXT_PUBLIC_SITE_URL`)
+
+Both flagged as "Duplicate field 'FAQPage'" errors.
+
+### Root cause
+
+- `app/[locale]/page.tsx` was reading `process.env.NEXT_PUBLIC_SITE_URL` for `siteUrl` prop. On Netlify build this picked up `tibers.netlify.app` instead of the hardcoded production domain.
+- `JsonLd` component always emitted full schema set (Org + WebSite + Service + FAQ + WebPage + Breadcrumb + Products), so any page that also rendered `JsonLd` in addition to layout's `SiteJsonLd` got duplicates of global schemas.
+
+### Fix
+
+| Change | File |
+|--------|------|
+| Replaced `process.env.NEXT_PUBLIC_SITE_URL` with hardcoded `SITE_URL` import | `app/[locale]/page.tsx` |
+| Added `pageOnly` prop to `JsonLd` — when `true`, skips Organization/WebSite/Service/FAQ. Still emits WebPage/Breadcrumb/Products/FinancialProduct | `components/JsonLd.tsx` |
+| Set `pageOnly={true}` on all page-level callers | `app/[locale]/page.tsx`, `app/[locale]/gold-price/[karat]/page.tsx`, `app/[locale]/about/sadeq/page.tsx` |
+| `app/[locale]/layout.tsx` (`SiteJsonLd`) keeps full schemas — emits globals once per page | unchanged |
+
+Result: every page now emits each schema exactly once.
+
+### Founder schema cleanup
+
+- Removed Twitter / Facebook / company LinkedIn (dead URLs) from `Organization.sameAs`
+- Added `Organization.founder` (Person) with personal LinkedIn in `Person.sameAs`
+- `Organization.sameAs` now empty (no own social profiles yet — no fake URLs)
+- Removed parent-org / Kormzi reference per user request
+
+### Netlify production hostname redirect
+
+Uncommented redirect block in `netlify.toml`:
+```toml
+[[redirects]]
+  from = "https://tibers.netlify.app/*"
+  to = "https://goldpricesarabia.com/:splat"
+  status = 301
+  force = true
+```
+
+Prevents subdomain from indexing as competing site.
+
+---
+
+## 2026-05-12 — Disclaimer page (`/about/disclaimer`)
+
+### What
+
+Added comprehensive YMYL disclaimer page with 9 sections covering:
+1. Plain-language summary
+2. Nature of the service
+3. Not financial advice
+4. Accuracy & timeliness
+5. No liability
+6. Affiliate disclosure
+7. Third-party content
+8. Jurisdiction & updates
+9. Contact
+
+Both Arabic and English versions. Original wording (not copied from any other site).
+
+### Why
+
+YMYL site (financial commodity prices) requires explicit legal disclaimer for:
+- Liability protection (you not responsible for user trading losses)
+- Google E-E-A-T transparency signal (+1 SEO trust point)
+- Compliance with affiliate disclosure requirements
+- GDPR / Saudi PDPL alignment (privacy reference)
+
+### Files
+
+| File | Action |
+|------|--------|
+| `app/[locale]/about/disclaimer/page.tsx` | ✅ NEW |
+| `messages/en.json` | Added `DisclaimerPage` namespace (10 keys: title/description + 8 section bodies + contact) |
+| `messages/ar.json` | Arabic mirror |
+| `app/sitemap.ts` | Added `dual("about/disclaimer", "monthly", 0.5)` |
+| `components/Footer.tsx` | Added "Disclaimer" link in bottom editorial nav |
+
+### URLs added
+
+- `https://goldpricesarabia.com/about/disclaimer` (Arabic)
+- `https://goldpricesarabia.com/en/about/disclaimer` (English)
+
+Both auto-listed in sitemap.xml at next deploy.
+
+---
+
 ## Outstanding (from `sadeqblocker.md`)
 
 1. **Rotate exposed API keys** — `GOLDAPI_KEY` and `NEWSDATA_KEY` (deferred by user)
