@@ -1,4 +1,4 @@
-import { Globe, Mail, Megaphone, Newspaper, Smartphone } from "lucide-react";
+import { Globe } from "lucide-react";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -85,7 +85,7 @@ export async function Footer() {
       </section>
 
       <section className="border-b border-[var(--color-border)] px-4 py-12 sm:px-6">
-        <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-6">
             <FooterColumn
               title={t("newsHeading")}
@@ -184,52 +184,6 @@ export async function Footer() {
                 { label: t("auBars"), href: "/buy-gold/australia/bars" },
               ]}
             />
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <h3 className="mb-3 inline-flex items-center gap-1.5 border-b border-[var(--color-gold)]/40 pb-1 text-xs font-bold uppercase tracking-wider text-[var(--color-gold)]">
-                <Mail size={12} aria-hidden /> {t("contactHeading")}
-              </h3>
-              <p className="text-sm text-[var(--color-text-muted)]">{t("contactBody")}</p>
-              <a
-                href="mailto:support@goldpricesarabia.com"
-                className="mt-2 inline-block text-sm text-[var(--color-gold)] underline transition-colors hover:no-underline"
-              >
-                support@goldpricesarabia.com
-              </a>
-            </div>
-
-            <div>
-              <h3 className="mb-3 inline-flex items-center gap-1.5 border-b border-[var(--color-gold)]/40 pb-1 text-xs font-bold uppercase tracking-wider text-[var(--color-gold)]">
-                <Newspaper size={12} aria-hidden /> {t("newsHeading")}
-              </h3>
-              <Link
-                href="/news"
-                className="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-gold)] hover:underline"
-              >
-                {t("newsCta")}
-              </Link>
-            </div>
-
-            <div>
-              <h3 className="mb-3 inline-flex items-center gap-1.5 border-b border-[var(--color-gold)]/40 pb-1 text-xs font-bold uppercase tracking-wider text-[var(--color-gold)]">
-                <Smartphone size={12} aria-hidden /> {t("appsHeading")}
-              </h3>
-              <p className="text-sm text-[var(--color-text-dim)]">{t("appsSoon")}</p>
-            </div>
-
-            <div>
-              <h3 className="mb-3 inline-flex items-center gap-1.5 border-b border-[var(--color-gold)]/40 pb-1 text-xs font-bold uppercase tracking-wider text-[var(--color-gold)]">
-                <Megaphone size={12} aria-hidden /> {t("adsHeading")}
-              </h3>
-              <a
-                href="mailto:ads@goldpricesarabia.com"
-                className="text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-gold)] hover:underline"
-              >
-                {t("adsLink")}
-              </a>
-            </div>
           </div>
         </div>
       </section>

@@ -8,8 +8,29 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/autoplay";
 
-const N = 8;
-const SLOTS = Array.from({ length: N }, (_, i) => i);
+type Broker = {
+  name: string;
+  logo: string;
+  islamic: boolean;
+};
+
+const BROKERS: Broker[] = [
+  {
+    name: "Exness",
+    logo: "https://arabinvest.net/uc_files/image/resize/100/60/app_files/exness_logo_dark_clear_newpng_17407596135891311645731.png",
+    islamic: true,
+  },
+  {
+    name: "XM",
+    logo: "https://arabinvest.net/uc_files/image/resize/100/60/app_files/custom-fields/inner_logo/xm_15years_logo_black300_209png_17467925716283250661726.png",
+    islamic: true,
+  },
+  {
+    name: "Evest",
+    logo: "https://arabinvest.net/uc_files/image/resize/100/60/app_files/custom-fields/inner_logo/evest_logo_eng_inside_300_180png_168605907102691232733738.png",
+    islamic: true,
+  },
+];
 
 export function StoresMarqueeClient() {
   const t = useTranslations("StoresMarquee");
@@ -37,7 +58,7 @@ export function StoresMarqueeClient() {
         slidesPerView="auto"
         spaceBetween={16}
         loop
-        loopAdditionalSlides={N}
+        loopAdditionalSlides={BROKERS.length}
         grabCursor
         freeMode={{ enabled: true, momentum: true, momentumRatio: 0.6 }}
         autoplay={{
@@ -49,46 +70,47 @@ export function StoresMarqueeClient() {
         allowTouchMove
         className="!py-4"
       >
-        {SLOTS.map((slot) => {
-          const letter = String.fromCharCode(65 + slot);
-          return (
-            <SwiperSlide key={slot} style={{ width: 288 }}>
-              <div className="hover-gold-card-strong relative flex h-52 w-72 flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5">
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-30 blur-2xl"
-                  style={{ background: "radial-gradient(circle, #f5c518 0%, transparent 70%)" }}
-                />
+        {BROKERS.map((b) => (
+          <SwiperSlide key={b.name} style={{ width: 288 }}>
+            <div className="hover-gold-card-strong relative flex h-52 w-72 flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-30 blur-2xl"
+                style={{ background: "radial-gradient(circle, #f5c518 0%, transparent 70%)" }}
+              />
 
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-sm font-extrabold text-black"
-                    style={{ background: "linear-gradient(135deg, #f5c518 0%, #d4a82a 70%, #5a3a08 100%)" }}
-                  >
-                    {letter}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="truncate font-semibold text-[var(--color-text)]">
-                      Partner {slot + 1}
-                    </div>
-                    <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)]">
-                      Sponsor Slot
-                    </div>
-                  </div>
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-16 flex-shrink-0 items-center justify-center rounded-md bg-white p-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={b.logo}
+                    alt={`${b.name} logo`}
+                    loading="lazy"
+                    className="max-h-full max-w-full object-contain"
+                  />
                 </div>
-
-                <div className="mt-auto">
+                <div className="min-w-0">
+                  <div className="truncate font-semibold text-[var(--color-text)]">{b.name}</div>
                   <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)]">
-                    Featured
-                  </div>
-                  <div className="mt-1 font-mono text-base font-bold text-[var(--color-text)]">
-                    Coming Soon
+                    {b.islamic ? "Islamic Account" : "Broker"}
                   </div>
                 </div>
               </div>
-            </SwiperSlide>
-          );
-        })}
+
+              <div className="mt-auto">
+                <button
+                  type="button"
+                  className="w-full rounded-md py-1.5 text-center text-xs font-bold text-black transition-opacity hover:opacity-90"
+                  style={{
+                    background: "linear-gradient(135deg, #f5c518 0%, #d4a82a 70%, #5a3a08 100%)",
+                  }}
+                >
+                  Open Account
+                </button>
+              </div>
+            </div>
+          </SwiperSlide>
+        ))}
       </Swiper>
     </section>
   );
