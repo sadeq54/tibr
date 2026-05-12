@@ -137,34 +137,34 @@ If quota hit: "Quota exceeded" message. Retry tomorrow.
 - [ ] https://goldpricesarabia.com/en/precious-metals/silver
 
 **Crypto hub (Priority 0.55)**
-- [ ] https://goldpricesarabia.com/cryptocurrency
-- [ ] https://goldpricesarabia.com/en/cryptocurrency
+-  https://goldpricesarabia.com/cryptocurrency
+-  https://goldpricesarabia.com/en/cryptocurrency
 
 **Tools**
-- [ ] https://goldpricesarabia.com/gold-calculator
-- [ ] https://goldpricesarabia.com/en/gold-calculator
+-  https://goldpricesarabia.com/gold-calculator
+-  https://goldpricesarabia.com/en/gold-calculator
 
 ---
 
 ## Day 7 — Trust + Editorial (E-E-A-T signals)
 
 **Priority 0.6 — Founder / Author page (E-E-A-T unlock)**
-- [ ] https://goldpricesarabia.com/about/sadeq
-- [ ] https://goldpricesarabia.com/en/about/sadeq
+-  https://goldpricesarabia.com/about/sadeq
+-  https://goldpricesarabia.com/en/about/sadeq
 
 **Priority 0.55 — Trust pages**
-- [ ] https://goldpricesarabia.com/about
-- [ ] https://goldpricesarabia.com/en/about
-- [ ] https://goldpricesarabia.com/methodology
-- [ ] https://goldpricesarabia.com/en/methodology
-- [ ] https://goldpricesarabia.com/editorial-standards
-- [ ] https://goldpricesarabia.com/en/editorial-standards
+-  https://goldpricesarabia.com/about
+-  https://goldpricesarabia.com/en/about
+-  https://goldpricesarabia.com/methodology
+-  https://goldpricesarabia.com/en/methodology
+-  https://goldpricesarabia.com/editorial-standards
+-  https://goldpricesarabia.com/en/editorial-standards
 
 **Buy gold pages**
-- [ ] https://goldpricesarabia.com/buy-gold/usa
-- [ ] https://goldpricesarabia.com/buy-gold/uk
-- [ ] https://goldpricesarabia.com/buy-gold/canada
-- [ ] https://goldpricesarabia.com/buy-gold/australia
+-  https://goldpricesarabia.com/buy-gold/usa
+-  https://goldpricesarabia.com/buy-gold/uk
+-  https://goldpricesarabia.com/buy-gold/canada
+-  https://goldpricesarabia.com/buy-gold/australia
 
 ---
 

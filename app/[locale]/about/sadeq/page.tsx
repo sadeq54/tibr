@@ -71,6 +71,7 @@ export default async function AuthorPage({
         pageType="WebPage"
         pageUrl={pageUrl}
         pageName={t("h1")}
+        pageOnly
         breadcrumb={[
           { name: locale === "en" ? "Home" : "الرئيسية", url: locale === "en" ? "/en" : "/" },
           { name: tInfo("aboutH1"), url: locale === "en" ? "/en/about" : "/about" },

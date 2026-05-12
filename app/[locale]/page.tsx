@@ -31,7 +31,7 @@ import { Link } from "@/i18n/navigation";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchMetals, type MetalsBundle } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
-import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
+import { buildAlternates, buildOpenGraph, SITE_URL } from "@/lib/metadata";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -108,16 +108,14 @@ async function CalculatorSection({
 async function MetaSection({
   mPromise,
   fxPromise,
-  siteUrl,
 }: {
   mPromise: Promise<MetalsBundle>;
   fxPromise: Promise<FxRates>;
-  siteUrl: string;
 }) {
   const [m, fx] = await Promise.all([mPromise, fxPromise]);
   return (
     <>
-      <JsonLd spot={m.XAU} siteUrl={siteUrl} />
+      <JsonLd spot={m.XAU} siteUrl={SITE_URL} pageOnly />
       <DebugConsole spot={m.XAU} metals={m} fx={fx} />
     </>
   );
@@ -138,7 +136,6 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const historyPromise = fetchAllHistory("1y");
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   const countries = [
     { c: t("country.jordan"), url: "/jordan/gold-price/21k", note: t("country.jordanNote") },
@@ -150,7 +147,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   return (
     <>
       <Suspense fallback={null}>
-        <MetaSection mPromise={metalsPromise} fxPromise={fxPromise} siteUrl={siteUrl} />
+        <MetaSection mPromise={metalsPromise} fxPromise={fxPromise} />
       </Suspense>
       <GeoRedirect />
       <Header />

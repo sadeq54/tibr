@@ -33,6 +33,7 @@ export function JsonLd({
   pageType = "WebPage",
   pageUrl,
   pageName,
+  pageOnly = false,
 }: {
   spot?: GoldApiResponse | null;
   siteUrl: string;
@@ -40,6 +41,8 @@ export function JsonLd({
   pageType?: "WebPage" | "CollectionPage" | "ItemPage" | "FAQPage";
   pageUrl?: string;
   pageName?: string;
+  /** When true, skip global schemas (Organization, WebSite, Service, FAQ) — use on pages where layout already emits them. Still emits WebPage, BreadcrumbList, and live-price schemas (Product/FinancialProduct). */
+  pageOnly?: boolean;
 }) {
   const organization = {
     "@context": "https://schema.org",
@@ -307,9 +310,14 @@ export function JsonLd({
     ],
   };
 
-  const payload: object[] = [organization, website, service, breadcrumbList];
+  const payload: object[] = [];
+  if (!pageOnly) {
+    payload.push(organization, website, service);
+  }
+  payload.push(breadcrumbList);
   if (webPage) payload.push(webPage);
-  payload.push(faq, ...products);
+  if (!pageOnly) payload.push(faq);
+  payload.push(...products);
   if (financialProduct) payload.push(financialProduct);
   const json = JSON.stringify(payload);
 

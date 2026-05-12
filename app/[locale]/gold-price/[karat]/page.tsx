@@ -125,6 +125,7 @@ export default async function KaratPage({
         pageType="ItemPage"
         pageUrl={pageUrl}
         pageName={t("h1", { karat: upper })}
+        pageOnly
         breadcrumb={[
           { name: locale === "en" ? "Home" : "الرئيسية", url: locale === "en" ? "/en" : "/" },
           { name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب ${upper}`, url: pageUrl },
