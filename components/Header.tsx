@@ -33,6 +33,7 @@ export async function Header() {
     { href: `${base}/24k`, label: "24K" },
     { href: `${base}/21k`, label: "21K" },
     { href: `${base}/18k`, label: "18K" },
+    { href: `${base}/14k`, label: "14K" },
   ];
 
   return (
