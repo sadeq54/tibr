@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
 import { fetchMetals } from "@/lib/goldapi";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -11,7 +12,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("ratioH1"), description: t("ratioIntro") };
+  return {
+    title: t("ratioH1"), description: t("ratioIntro"),
+    alternates: buildAlternates(locale, "/gold-silver-ratio"),
+    openGraph: buildOpenGraph(locale, "/gold-silver-ratio"),
+  };
 }
 
 export default async function GoldSilverRatioPage({

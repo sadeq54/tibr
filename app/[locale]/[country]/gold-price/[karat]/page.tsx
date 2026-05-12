@@ -21,10 +21,11 @@ import {
   PriceChartSkeleton,
 } from "@/components/skeletons";
 import { Link } from "@/i18n/navigation";
-import { COUNTRIES, COUNTRY_BY_SLUG, countryName } from "@/lib/countries";
+import { COUNTRIES, COUNTRY_BY_SLUG, countryName, countryNote } from "@/lib/countries";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 const VALID_KARATS = ["24k", "21k", "18k", "14k"] as const;
 type Karat = (typeof VALID_KARATS)[number];
@@ -59,6 +60,8 @@ export async function generateMetadata({
       country: name,
       currency: country.currency,
     }),
+    alternates: buildAlternates(locale, `/${slug}/gold-price/${karat}`),
+    openGraph: buildOpenGraph(locale, `/${slug}/gold-price/${karat}`),
   };
 }
 
@@ -157,6 +160,7 @@ export default async function CountryKaratPage({
   const tPage = await getTranslations("CountryPage");
   const upper = karat.toUpperCase();
   const name = countryName(country, locale);
+  const note = countryNote(slug, locale);
 
   const spotPromise = fetchSpot("XAU");
   const fxPromise = fetchFxRates();
@@ -189,6 +193,19 @@ export default async function CountryKaratPage({
               <div className="mt-3 inline-block rounded-md border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/10 px-3 py-1.5 text-xs text-[var(--color-gold)]">
                 {tPage("currencyNote", { currency: country.currency })}
               </div>
+              {note ? (
+                <section
+                  aria-label={locale === "ar" ? "ملاحظات السوق المحلي" : "Local market notes"}
+                  className="mt-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4"
+                >
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--color-gold)]">
+                    {locale === "ar" ? `سوق الذهب في ${name}` : `${name} gold market`}
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
+                    {note}
+                  </p>
+                </section>
+              ) : null}
             </header>
 
             <Suspense fallback={<HeroSpotSkeleton />}>

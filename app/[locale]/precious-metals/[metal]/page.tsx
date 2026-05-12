@@ -12,6 +12,7 @@ import {
 import { fetchFxRates } from "@/lib/fx";
 import { fetchSpot } from "@/lib/goldapi";
 import { fetchAllHistory } from "@/lib/history";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 type MetalSlug = "gold" | "silver" | "platinum" | "palladium";
 
@@ -39,6 +40,8 @@ export async function generateMetadata({
   return {
     title: t("metalH1", { metal: name }),
     description: t("metalIntro", { metal: name }),
+    alternates: buildAlternates(locale, `/precious-metals/${metal}`),
+    openGraph: buildOpenGraph(locale, `/precious-metals/${metal}`),
   };
 }
 

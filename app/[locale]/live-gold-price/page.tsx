@@ -12,6 +12,7 @@ import {
 } from "@/components/skeletons";
 import { fetchFxRates } from "@/lib/fx";
 import { fetchMetals } from "@/lib/goldapi";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -20,7 +21,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("livePriceH1"), description: t("livePriceIntro") };
+  return {
+    title: t("livePriceH1"), description: t("livePriceIntro"),
+    alternates: buildAlternates(locale, "/live-gold-price"),
+    openGraph: buildOpenGraph(locale, "/live-gold-price"),
+  };
 }
 
 export default async function LiveGoldPricePage({

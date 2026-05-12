@@ -189,6 +189,23 @@ export async function Footer() {
       </section>
 
       <div className="border-t border-[var(--color-border)] px-4 py-5 sm:px-6">
+        <nav
+          aria-label="Editorial"
+          className="mx-auto mb-3 flex max-w-7xl flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] text-[var(--color-text-dim)]"
+        >
+          <Link href="/about" className="transition-colors hover:text-[var(--color-gold)]">
+            {locale === "ar" ? "عن الموقع" : "About"}
+          </Link>
+          <Link href="/methodology" className="transition-colors hover:text-[var(--color-gold)]">
+            {locale === "ar" ? "المنهجية" : "Methodology"}
+          </Link>
+          <Link
+            href="/editorial-standards"
+            className="transition-colors hover:text-[var(--color-gold)]"
+          >
+            {locale === "ar" ? "معايير التحرير" : "Editorial standards"}
+          </Link>
+        </nav>
         <div className="mx-auto max-w-7xl text-center text-xs text-[var(--color-text-dim)]">
           {tPage.rich("footer", {
             year,

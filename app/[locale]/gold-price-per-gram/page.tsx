@@ -10,6 +10,7 @@ import {
 } from "@/components/skeletons";
 import { fetchFxRates } from "@/lib/fx";
 import { fetchSpot } from "@/lib/goldapi";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -18,7 +19,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("perGramH1"), description: t("perGramIntro") };
+  return {
+    title: t("perGramH1"), description: t("perGramIntro"),
+    alternates: buildAlternates(locale, "/gold-price-per-gram"),
+    openGraph: buildOpenGraph(locale, "/gold-price-per-gram"),
+  };
 }
 
 export default async function PerGramPage({

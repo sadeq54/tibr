@@ -2,34 +2,30 @@ import type { MetadataRoute } from "next";
 
 import { COUNTRIES as COUNTRY_DATA } from "@/lib/countries";
 import { CRYPTO_LIST } from "@/lib/crypto";
+import { SITE_URL } from "@/lib/metadata";
 
 const KARATS = ["24k", "21k", "18k", "14k"];
 const COUNTRIES = COUNTRY_DATA.map((c) => c.slug);
 const YEARS = [2024, 2025, 2026];
 
-const STATIC_PAGES = [
-  "spot-gold",
-  "live-gold-price",
-  "gold-price-chart",
-  "gold-price-per-ounce",
-  "gold-price-per-gram",
-  "gold-price-per-kilo",
-  "gold-silver-ratio",
-  "shanghai-gold-exchange",
-  "gold-calculator",
-  "widgets",
-  "precious-metals",
-  "cryptocurrency",
-  "best-gold-price",
-  "news",
-];
+/** Priority MENA + flagship markets get higher sitemap priority. Long-tail
+ *  countries get lower priority + lower change frequency to reduce index bloat
+ *  and prevent Google from over-recrawling near-duplicate pages. */
+const TIER1_COUNTRIES = new Set([
+  "saudi-arabia",
+  "jordan",
+  "uae",
+  "egypt",
+  "qatar",
+  "kuwait",
+  "bahrain",
+  "usa",
+  "uk",
+]);
 
-const METALS = ["gold", "silver", "platinum", "palladium"];
-const BEST_PRICE_COUNTRIES = ["usa", "canada", "singapore", "switzerland", "uk"];
-const BUY_COUNTRIES = ["usa", "uk", "canada", "australia"];
-const BUY_TYPES = ["coins", "small-coins", "bars"];
+type Freq = "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
 
-function dual(path: string, freq: "hourly" | "daily" = "hourly", priority = 0.7) {
+function dual(path: string, freq: Freq = "daily", priority = 0.6) {
   return [
     { path: `/${path}`, freq, priority },
     { path: `/en/${path}`, freq, priority },
@@ -37,41 +33,81 @@ function dual(path: string, freq: "hourly" | "daily" = "hourly", priority = 0.7)
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://goldpricesarabia.com";
+  const base = SITE_URL;
   const now = new Date();
+  const currentYear = now.getFullYear();
 
-  const out: Array<{ path: string; freq: "hourly" | "daily"; priority: number }> = [
+  const out: Array<{ path: string; freq: Freq; priority: number }> = [
     { path: "/", freq: "hourly", priority: 1.0 },
     { path: "/en", freq: "hourly", priority: 1.0 },
   ];
 
-  // Karats (locale-prefixed)
+  // Karats — top live-price pages. Hourly because prices stream live.
   for (const k of KARATS) out.push(...dual(`gold-price/${k}`, "hourly", 0.9));
 
-  // Countries × Karats
-  for (const c of COUNTRIES)
-    for (const k of KARATS) out.push(...dual(`${c}/gold-price/${k}`, "hourly", 0.85));
+  // Live + spot + chart routes — high-traffic SEO targets.
+  out.push(...dual("spot-gold", "hourly", 0.85));
+  out.push(...dual("live-gold-price", "hourly", 0.85));
+  out.push(...dual("gold-price-chart", "hourly", 0.85));
+  out.push(...dual("gold-price-per-ounce", "hourly", 0.8));
+  out.push(...dual("gold-price-per-gram", "hourly", 0.8));
+  out.push(...dual("gold-price-per-kilo", "hourly", 0.8));
 
-  // Static pages
-  for (const p of STATIC_PAGES) out.push(...dual(p, "hourly", 0.8));
-
-  // Precious metals × type
-  for (const m of METALS) out.push(...dual(`precious-metals/${m}`, "hourly", 0.8));
-
-  // Crypto coins
-  for (const c of CRYPTO_LIST) out.push(...dual(`cryptocurrency/${c.slug}`, "hourly", 0.7));
-
-  // Best gold price by country
-  for (const c of BEST_PRICE_COUNTRIES) out.push(...dual(`best-gold-price/${c}`, "hourly", 0.75));
-
-  // Buy gold by country (+ types)
-  for (const c of BUY_COUNTRIES) {
-    out.push(...dual(`buy-gold/${c}`, "hourly", 0.75));
-    for (const t of BUY_TYPES) out.push(...dual(`buy-gold/${c}/${t}`, "hourly", 0.7));
+  // Country × Karat (programmatic). Tier-1 markets get higher priority + hourly,
+  // long-tail countries get daily + lower priority to control crawl budget.
+  for (const c of COUNTRIES) {
+    const tier1 = TIER1_COUNTRIES.has(c);
+    const freq: Freq = tier1 ? "hourly" : "daily";
+    const pr = tier1 ? 0.8 : 0.55;
+    for (const k of KARATS) out.push(...dual(`${c}/gold-price/${k}`, freq, pr));
   }
 
-  // Historical
-  for (const y of YEARS) out.push(...dual(`historical-gold-prices/${y}`, "daily", 0.7));
+  // Reference + tools — change rarely, but informational queries land here.
+  out.push(...dual("gold-silver-ratio", "daily", 0.7));
+  out.push(...dual("shanghai-gold-exchange", "daily", 0.65));
+  out.push(...dual("gold-calculator", "monthly", 0.6));
+  out.push(...dual("widgets", "monthly", 0.4));
+
+  // Precious metals hub + per-metal pages.
+  out.push(...dual("precious-metals", "daily", 0.7));
+  for (const m of ["gold", "silver", "platinum", "palladium"]) {
+    out.push(...dual(`precious-metals/${m}`, "hourly", 0.7));
+  }
+
+  // Crypto pages.
+  out.push(...dual("cryptocurrency", "hourly", 0.55));
+  for (const c of CRYPTO_LIST) out.push(...dual(`cryptocurrency/${c.slug}`, "hourly", 0.5));
+
+  // Best gold price hub + per-country.
+  out.push(...dual("best-gold-price", "daily", 0.7));
+  for (const c of ["usa", "canada", "singapore", "switzerland", "uk"]) {
+    out.push(...dual(`best-gold-price/${c}`, "daily", 0.6));
+  }
+
+  // Buy gold pages — bullion coin/bar pricing changes daily-ish.
+  for (const c of ["usa", "uk", "canada", "australia"]) {
+    out.push(...dual(`buy-gold/${c}`, "weekly", 0.65));
+    for (const t of ["coins", "small-coins", "bars"]) {
+      out.push(...dual(`buy-gold/${c}/${t}`, "weekly", 0.55));
+    }
+  }
+
+  // Historical: current year stays daily; prior years become monthly + lower
+  // priority since they're effectively archives.
+  for (const y of YEARS) {
+    const isCurrent = y === currentYear;
+    out.push(
+      ...dual(`historical-gold-prices/${y}`, isCurrent ? "daily" : "monthly", isCurrent ? 0.55 : 0.35),
+    );
+  }
+
+  // News — daily.
+  out.push(...dual("news", "daily", 0.65));
+
+  // Editorial / trust pages — change rarely, but signal E-E-A-T.
+  out.push(...dual("about", "monthly", 0.5));
+  out.push(...dual("methodology", "monthly", 0.55));
+  out.push(...dual("editorial-standards", "monthly", 0.5));
 
   return out.map(({ path, freq, priority }) => ({
     url: `${base}${path}`,

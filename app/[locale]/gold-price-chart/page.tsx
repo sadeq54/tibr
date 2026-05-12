@@ -6,6 +6,7 @@ import { PriceChart } from "@/components/PriceChart";
 import { PriceChartSkeleton } from "@/components/skeletons";
 import { fetchFxRates } from "@/lib/fx";
 import { fetchAllHistory } from "@/lib/history";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -14,7 +15,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("priceChartH1"), description: t("priceChartIntro") };
+  return {
+    title: t("priceChartH1"), description: t("priceChartIntro"),
+    alternates: buildAlternates(locale, "/gold-price-chart"),
+    openGraph: buildOpenGraph(locale, "/gold-price-chart"),
+  };
 }
 
 export default async function GoldPriceChartPage({

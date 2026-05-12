@@ -355,5 +355,42 @@
         "a": "Yes. Gold Prices Arabia is free for personal and informational use. Always confirm with a licensed jeweller or bullion dealer before buying or selling."
       }
     ]
+  },
+  "InfoPage": {
+    "aboutH1": "About Gold Prices Arabia",
+    "aboutIntro": "Gold Prices Arabia is an independent live-price reference for the MENA gold market. We aggregate spot gold (XAU/USD) from PAXG/USD WebSocket feeds across Binance, Coinbase, and Kraken, then convert into 40+ retail currencies and four karat purities every second.",
+    "aboutMissionH2": "Our mission",
+    "aboutMission": "Make the live spot gold price — and its retail equivalents in Saudi Riyal, Jordanian Dinar, UAE Dirham, Egyptian Pound and 36 more currencies — free, accurate and ad-light for every consumer, jeweller and trader in the Arab world and beyond.",
+    "aboutTeamH2": "Editorial team",
+    "aboutTeamBody": "Gold Prices Arabia is operated by a small editorial + engineering team with a combined 15+ years of experience in commodities markets, MENA jewellery distribution and live-data infrastructure. We do not employ paid analysts; we publish prices, not advice.",
+    "aboutContactH2": "Contact",
+    "aboutContact": "General enquiries: support@goldpricesarabia.com. Advertising: ads@goldpricesarabia.com. Press / corrections: support@goldpricesarabia.com.",
+    "methodologyH1": "Methodology — How we calculate gold prices",
+    "methodologyIntro": "Every number on this site is derived from observable, third-party market data. Below is exactly how it is sourced, transformed and presented.",
+    "methodologySpotH2": "Spot gold (XAU/USD)",
+    "methodologySpot": "Spot gold is computed as the per-tick median of three WebSocket feeds: Binance PAXG/USDT, Coinbase PAXG-USD, and Kraken PAXG/USD. PAX Gold (PAXG) is an ERC-20 token backed 1:1 by physical 1 oz London Good Delivery gold bars held in Brink's vaults and audited monthly by Withum. PAXG trades within a few cents of the LBMA spot benchmark. Using the median of three venues prevents single-exchange outliers from contaminating the displayed price.",
+    "methodologyKaratH2": "Karat prices (24K, 21K, 18K, 14K)",
+    "methodologyKarat": "Karat prices per gram are computed as: spot_per_gram × purity_ratio, where purity ratios are 99.9% (24K), 87.5% (21K), 75% (18K), 58.3% (14K) per the World Gold Council. No retailer premium, refining loss or VAT is added — these are pure spot equivalents. Local jewellery shops will quote a premium above this number.",
+    "methodologyFxH2": "FX rates",
+    "methodologyFx": "FX conversion to JOD, SAR, AED, EGP and 36 other currencies uses the open-source fawazahmed0/currency-api feed, refreshed once per day from central-bank mid-market rates. We do not apply a retail spread — confirm at-the-counter rates with your bank.",
+    "methodologyOtherH2": "Silver, platinum, palladium",
+    "methodologyOther": "Silver (XAG), platinum (XPT) and palladium (XPD) spot prices update once per minute via STOOQ aggregated feeds (FOREXCOM symbols). These are not WebSocket-streamed because the underlying markets are less liquid than gold; minute-cadence is sufficient.",
+    "methodologyHistoryH2": "Historical data",
+    "methodologyHistory": "Historical daily OHLC for gold is sourced from Yahoo Finance via query1.finance.yahoo.com for the GC=F (COMEX gold futures) and XAU=X tickers. Data is cached for 24 hours.",
+    "methodologyLimitsH2": "Known limitations",
+    "methodologyLimits": "1) PAXG/USD is a proxy for LBMA spot — it correlates extremely tightly but is not the LBMA fix. 2) FX rates are mid-market — your bank's retail rate will differ by 0.5–3%. 3) Karat prices exclude retailer premium, refining loss and VAT/tax. 4) Crypto-coin pricing on /cryptocurrency/* uses CoinGecko cached at 5-minute intervals.",
+    "editorialH1": "Editorial standards",
+    "editorialIntro": "Gold Prices Arabia is a price-reference publication. We publish data, not financial advice.",
+    "editorialIndependenceH2": "Editorial independence",
+    "editorialIndependence": "No advertiser, affiliate partner or content sponsor influences price calculation, methodology or what we publish. Sponsored content, where present, is clearly labelled and visually separated from editorial.",
+    "editorialAccuracyH2": "Accuracy & corrections",
+    "editorialAccuracy": "Spot, karat and FX numbers are pulled live from third-party feeds; visible upstream outages are flagged. If you spot a calculation error, email support@goldpricesarabia.com — corrections are issued within 24h and any cached page is purged.",
+    "editorialAffiliateH2": "Affiliate disclosure",
+    "editorialAffiliate": "Some 'Buy gold' pages link to bullion dealers via affiliate programmes. We may earn a commission when you open an account or purchase. Commissions do not influence the prices we show or whether dealers are listed.",
+    "editorialAdsH2": "Advertising policy",
+    "editorialAds": "Display advertising is served via Google AdSense and a small allowlist of vetted finance partners. We do not accept advertising from products we judge to be predatory, scammy or non-compliant with local financial regulation.",
+    "editorialPrivacyH2": "Privacy & cookies",
+    "editorialPrivacy": "No personal data is collected without consent. Analytics use first-party cookies; advertising cookies require explicit opt-in under GDPR / Saudi PDPL. Email us at support@goldpricesarabia.com to request data deletion.",
+    "lastUpdated": "Last updated"
   }
 }

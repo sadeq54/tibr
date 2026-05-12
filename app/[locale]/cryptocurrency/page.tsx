@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageShell } from "@/components/PageShell";
 import { Link } from "@/i18n/navigation";
 import { CRYPTO_LIST, fetchCryptos } from "@/lib/crypto";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -12,7 +13,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("cryptoListH1"), description: t("cryptoListIntro") };
+  return {
+    title: t("cryptoListH1"), description: t("cryptoListIntro"),
+    alternates: buildAlternates(locale, "/cryptocurrency"),
+    openGraph: buildOpenGraph(locale, "/cryptocurrency"),
+  };
 }
 
 export default async function CryptoListPage({

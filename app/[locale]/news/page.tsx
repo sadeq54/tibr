@@ -3,6 +3,7 @@ import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
 import { fetchNews } from "@/lib/news";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -11,7 +12,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("newsH1"), description: t("newsIntro") };
+  return {
+    title: t("newsH1"), description: t("newsIntro"),
+    alternates: buildAlternates(locale, "/news"),
+    openGraph: buildOpenGraph(locale, "/news"),
+  };
 }
 
 export default async function NewsPage({

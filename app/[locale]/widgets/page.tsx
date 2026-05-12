@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -9,7 +10,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("widgetsH1"), description: t("widgetsIntro") };
+  return {
+    title: t("widgetsH1"), description: t("widgetsIntro"),
+    alternates: buildAlternates(locale, "/widgets"),
+    openGraph: buildOpenGraph(locale, "/widgets"),
+  };
 }
 
 const SNIPPETS = [

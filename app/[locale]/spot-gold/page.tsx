@@ -13,6 +13,7 @@ import {
 import { fetchFxRates } from "@/lib/fx";
 import { fetchSpot } from "@/lib/goldapi";
 import { fetchAllHistory } from "@/lib/history";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -21,7 +22,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("spotGoldH1"), description: t("spotGoldIntro") };
+  return {
+    title: t("spotGoldH1"), description: t("spotGoldIntro"),
+    alternates: buildAlternates(locale, "/spot-gold"),
+    openGraph: buildOpenGraph(locale, "/spot-gold"),
+  };
 }
 
 export default async function SpotGoldPage({

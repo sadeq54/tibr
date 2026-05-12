@@ -6,6 +6,7 @@ import { PageShell } from "@/components/PageShell";
 import { MetalsStripSkeleton } from "@/components/skeletons";
 import { Link } from "@/i18n/navigation";
 import { fetchMetals } from "@/lib/goldapi";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 const METALS = [
   { slug: "gold", id: "XAU" as const, name_en: "Gold", name_ar: "ذهب" },
@@ -21,7 +22,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Footer" });
-  return { title: t("metalsHeading") };
+  return {
+    title: t("metalsHeading"),
+    alternates: buildAlternates(locale, "/precious-metals"),
+    openGraph: buildOpenGraph(locale, "/precious-metals"),
+  };
 }
 
 export default async function PreciousMetalsPage({

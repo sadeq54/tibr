@@ -13,6 +13,7 @@ import {
 import { COUNTRY_BY_SLUG, countryName } from "@/lib/countries";
 import { fetchFxRates } from "@/lib/fx";
 import { fetchSpot } from "@/lib/goldapi";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 const SUPPORTED = ["usa", "canada", "singapore", "switzerland", "uk"] as const;
 
@@ -33,6 +34,8 @@ export async function generateMetadata({
   return {
     title: t("bestPriceCountryH1", { country: name }),
     description: t("bestPriceCountryIntro", { country: name, currency: c.currency }),
+    alternates: buildAlternates(locale, `/best-gold-price/${slug}`),
+    openGraph: buildOpenGraph(locale, `/best-gold-price/${slug}`),
   };
 }
 

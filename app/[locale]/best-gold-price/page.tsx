@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { COUNTRIES, countryName } from "@/lib/countries";
 import { fetchFxRates } from "@/lib/fx";
 import { fetchSpot } from "@/lib/goldapi";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -15,7 +16,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("bestPriceH1"), description: t("bestPriceIntro") };
+  return {
+    title: t("bestPriceH1"), description: t("bestPriceIntro"),
+    alternates: buildAlternates(locale, "/best-gold-price"),
+    openGraph: buildOpenGraph(locale, "/best-gold-price"),
+  };
 }
 
 export default async function BestGoldPricePage({

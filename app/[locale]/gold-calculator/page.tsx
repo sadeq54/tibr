@@ -6,6 +6,7 @@ import { PageShell } from "@/components/PageShell";
 import { CalculatorSkeleton } from "@/components/skeletons";
 import { fetchFxRates } from "@/lib/fx";
 import { fetchSpot } from "@/lib/goldapi";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -14,7 +15,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  return { title: t("calcH1"), description: t("calcIntro") };
+  return {
+    title: t("calcH1"), description: t("calcIntro"),
+    alternates: buildAlternates(locale, "/gold-calculator"),
+    openGraph: buildOpenGraph(locale, "/gold-calculator"),
+  };
 }
 
 export default async function GoldCalculatorPage({

@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
 import { CRYPTO_BY_SLUG, CRYPTO_LIST, fetchCryptoBySlug } from "@/lib/crypto";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export function generateStaticParams() {
   return CRYPTO_LIST.map((c) => ({ coin: c.slug }));
@@ -22,6 +23,8 @@ export async function generateMetadata({
   return {
     title: t("cryptoH1", { coin: name }),
     description: t("cryptoIntro", { coin: name, symbol: meta.symbol }),
+    alternates: buildAlternates(locale, `/cryptocurrency/${coin}`),
+    openGraph: buildOpenGraph(locale, `/cryptocurrency/${coin}`),
   };
 }
 

@@ -31,11 +31,16 @@ import { Link } from "@/i18n/navigation";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchMetals, type MetalsBundle } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Page" });
-  return { title: t("title"), description: t("description") };
+  return {
+    title: t("title"), description: t("description"),
+    alternates: buildAlternates(locale, "/"),
+    openGraph: buildOpenGraph(locale, "/"),
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

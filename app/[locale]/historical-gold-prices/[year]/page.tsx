@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { StoresMarquee } from "@/components/StoresMarquee";
 import { TradingViewChart } from "@/components/TradingViewChart";
 import { Link } from "@/i18n/navigation";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 const VALID_YEARS = [2024, 2025, 2026];
 
@@ -22,7 +23,11 @@ export async function generateMetadata({
 }) {
   const { locale, year } = await params;
   const t = await getTranslations({ locale, namespace: "HistoricalPage" });
-  return { title: t("title", { year }), description: t("description", { year }) };
+  return {
+    title: t("title", { year }), description: t("description", { year }),
+    alternates: buildAlternates(locale, `/historical-gold-prices/${year}`),
+    openGraph: buildOpenGraph(locale, `/historical-gold-prices/${year}`),
+  };
 }
 
 export default async function HistoricalPage({

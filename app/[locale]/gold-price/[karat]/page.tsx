@@ -20,10 +20,12 @@ import {
   KaratGridSkeleton,
   PriceChartSkeleton,
 } from "@/components/skeletons";
-import { Link } from "@/i18n/navigation";
+import { JsonLd } from "@/components/JsonLd";
+import { SeoStaticHeader } from "@/components/SeoStaticHeader";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
+import { buildAlternates, canonicalPath, SITE_URL, buildOpenGraph } from "@/lib/metadata";
 
 const VALID_KARATS = ["24k", "21k", "18k", "14k"] as const;
 type Karat = (typeof VALID_KARATS)[number];
@@ -40,7 +42,11 @@ export async function generateMetadata({
   const { locale, karat } = await params;
   const t = await getTranslations({ locale, namespace: "KaratPage" });
   const upper = karat.toUpperCase();
-  return { title: t("title", { karat: upper }), description: t("description", { karat: upper }) };
+  return {
+    title: t("title", { karat: upper }), description: t("description", { karat: upper }),
+    alternates: buildAlternates(locale, `/gold-price/${karat}`),
+    openGraph: buildOpenGraph(locale, `/gold-price/${karat}`),
+  };
 }
 
 async function HeroSpotSection({ promise }: { promise: Promise<GoldApiResponse | null> }) {
@@ -110,23 +116,32 @@ export default async function KaratPage({
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
+  const pageUrl = canonicalPath(locale, `/gold-price/${karat}`);
+
   return (
     <>
+      <JsonLd
+        siteUrl={SITE_URL}
+        pageType="ItemPage"
+        pageUrl={pageUrl}
+        pageName={t("h1", { karat: upper })}
+        breadcrumb={[
+          { name: locale === "en" ? "Home" : "الرئيسية", url: locale === "en" ? "/en" : "/" },
+          { name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب ${upper}`, url: pageUrl },
+        ]}
+      />
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="min-w-0 space-y-8">
-            <header>
-              <Link href="/" className="text-xs text-[var(--color-text-dim)] hover:text-[var(--color-gold)]">
-                {t("backHome")}
-              </Link>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-gold)]">
-                {t("h1", { karat: upper })}
-              </h1>
-              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[var(--color-text-muted)]">
-                {t("intro", { karat: upper })}
-              </p>
-            </header>
+            <SeoStaticHeader
+              locale={locale}
+              namespace="KaratPage"
+              titleKey="h1"
+              introKey="intro"
+              titleVars={{ karat: upper }}
+              introVars={{ karat: upper }}
+            />
 
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection promise={spotPromise} />

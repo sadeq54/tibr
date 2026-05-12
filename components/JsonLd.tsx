@@ -14,7 +14,33 @@ const KARAT_PURITY: Record<string, string> = {
   "14K": "58.3%",
 };
 
-export function JsonLd({ spot, siteUrl }: { spot: GoldApiResponse | null; siteUrl: string }) {
+type BreadcrumbItem = { name: string; url: string };
+
+/**
+ * Renders a `<script type="application/ld+json">` block of structured data.
+ * Two modes:
+ *  - No `spot`: emits Org + WebSite + Service + (optional WebPage) + Breadcrumb
+ *    + FAQ. Cheap, deterministic — render at the top of every page outside any
+ *    Suspense boundary so it lands in the prerendered HTML for AI crawlers.
+ *  - With `spot`: adds Product entries per karat + FinancialProduct entry for
+ *    XAU/USD with live price + validFrom. Render inside a Suspense boundary
+ *    that awaits the spot fetch.
+ */
+export function JsonLd({
+  spot,
+  siteUrl,
+  breadcrumb,
+  pageType = "WebPage",
+  pageUrl,
+  pageName,
+}: {
+  spot?: GoldApiResponse | null;
+  siteUrl: string;
+  breadcrumb?: BreadcrumbItem[];
+  pageType?: "WebPage" | "CollectionPage" | "ItemPage" | "FAQPage";
+  pageUrl?: string;
+  pageName?: string;
+}) {
   const organization = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -31,7 +57,6 @@ export function JsonLd({ spot, siteUrl }: { spot: GoldApiResponse | null; siteUr
     image: `${siteUrl}/opengraph-image`,
     description:
       "Live gold prices in real time across 46 countries and 40+ currencies. Track 24K, 21K, 18K and 14K gold per gram, ounce and kilogram.",
-    foundingDate: "2026",
     knowsAbout: [
       "Gold price",
       "Silver price",
@@ -104,7 +129,10 @@ export function JsonLd({ spot, siteUrl }: { spot: GoldApiResponse | null; siteUr
     name: "Live Gold Price Tracking",
     serviceType: "FinancialService",
     provider: { "@id": `${siteUrl}/#org` },
-    areaServed: [{ "@type": "Place", name: "MENA" }, { "@type": "Place", name: "Worldwide" }],
+    areaServed: [
+      { "@type": "Place", name: "MENA" },
+      { "@type": "Place", name: "Worldwide" },
+    ],
     description:
       "Real-time gold price aggregation via WebSocket from Binance, Coinbase and Kraken with median computation across exchanges.",
     audience: { "@type": "Audience", audienceType: "Investors, Jewellers, Traders" },
@@ -180,18 +208,42 @@ export function JsonLd({ spot, siteUrl }: { spot: GoldApiResponse | null; siteUr
       }
     : null;
 
-  const breadcrumb = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: siteUrl,
-      },
-    ],
-  };
+  const breadcrumbList: Record<string, unknown> = breadcrumb && breadcrumb.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumb.map((b, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: b.name,
+          item: b.url.startsWith("http") ? b.url : `${siteUrl}${b.url}`,
+        })),
+      }
+    : {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+        ],
+      };
+
+  if (pageUrl) {
+    breadcrumbList["@id"] = `${siteUrl}${pageUrl}#breadcrumb`;
+  }
+
+  const webPage = pageUrl
+    ? {
+        "@context": "https://schema.org",
+        "@type": pageType,
+        "@id": `${siteUrl}${pageUrl}#webpage`,
+        url: `${siteUrl}${pageUrl}`,
+        name: pageName,
+        isPartOf: { "@id": `${siteUrl}/#website` },
+        about: { "@id": `${siteUrl}/#service` },
+        inLanguage: pageUrl.startsWith("/en") ? "en" : "ar",
+        breadcrumb: { "@id": `${siteUrl}${pageUrl}#breadcrumb` },
+      }
+    : null;
 
   const faq = {
     "@context": "https://schema.org",
@@ -249,9 +301,15 @@ export function JsonLd({ spot, siteUrl }: { spot: GoldApiResponse | null; siteUr
     ],
   };
 
-  const payload: object[] = [organization, website, service, breadcrumb, ...products, faq];
+  const payload: object[] = [organization, website, service, breadcrumbList];
+  if (webPage) payload.push(webPage);
+  payload.push(faq, ...products);
   if (financialProduct) payload.push(financialProduct);
   const json = JSON.stringify(payload);
 
-  return <script type="application/ld+json" suppressHydrationWarning>{json}</script>;
+  return (
+    <script type="application/ld+json" suppressHydrationWarning>
+      {json}
+    </script>
+  );
 }

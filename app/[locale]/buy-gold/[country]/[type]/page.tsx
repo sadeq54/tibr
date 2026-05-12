@@ -8,6 +8,7 @@ import { HeroSpotSkeleton } from "@/components/skeletons";
 import { COUNTRY_BY_SLUG, countryName } from "@/lib/countries";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
+import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 const SUPPORTED_COUNTRIES = ["usa", "uk", "canada", "australia"] as const;
 const SUPPORTED_TYPES = ["coins", "small-coins", "bars"] as const;
@@ -69,6 +70,8 @@ export async function generateMetadata({
   return {
     title: titleFor(type as Type, t, name),
     description: introFor(type as Type, t, name),
+    alternates: buildAlternates(locale, `/buy-gold/${slug}/${type}`),
+    openGraph: buildOpenGraph(locale, `/buy-gold/${slug}/${type}`),
   };
 }
 

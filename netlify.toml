@@ -1,0 +1,105 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# ────────────────────────────────────────────────────────────────────
+# Security headers (mirrored in next.config.ts; Netlify wins at edge).
+# Embed widgets get their own headers in next.config.ts.
+# ────────────────────────────────────────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+
+# HTML cache: edge-cache for 60s, serve stale up to 4 min while revalidating.
+# Beats Next's `no-store` default for SEO + edge performance — search bots
+# and repeat visitors hit cache, live prices stay <60s stale.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, s-maxage=60, stale-while-revalidate=240"
+
+# Long-cache static assets
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Stable assets (logos, manifest, icons) — 1 day
+[[headers]]
+  for = "/appIcone.*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# llms.txt + robots.txt + sitemap.xml — long edge cache, fast SWR
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, s-maxage=3600, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/favicon.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# /favicon.ico → /appIcone.ico (file lives at non-default path in /public)
+[[redirects]]
+  from = "/favicon.ico"
+  to = "/appIcone.ico"
+  status = 200
+
+# ────────────────────────────────────────────────────────────────────
+# Staging / deploy-preview noindex — keeps tibers.netlify.app and
+# branch-deploy URLs out of search indexes; production overrides this
+# via [context.production] below.
+# ────────────────────────────────────────────────────────────────────
+[context.deploy-preview.environment]
+  NEXT_PUBLIC_DEPLOY_CONTEXT = "preview"
+
+[context.branch-deploy.environment]
+  NEXT_PUBLIC_DEPLOY_CONTEXT = "branch"
+
+[[context.deploy-preview.headers]]
+  for = "/*"
+  [context.deploy-preview.headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[context.branch-deploy.headers]]
+  for = "/*"
+  [context.branch-deploy.headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# Production-only: ensure indexable (overrides any inherited X-Robots-Tag).
+[context.production.environment]
+  NEXT_PUBLIC_DEPLOY_CONTEXT = "production"
+
+# Redirect the staging hostname → production canonical, so any organic
+# link to tibers.netlify.app passes equity to goldpricesarabia.com.
+# (Disabled until you cut DNS over; uncomment when the apex is live.)
+# [[redirects]]
+#   from = "https://tibers.netlify.app/*"
+#   to = "https://goldpricesarabia.com/:splat"
+#   status = 301
+#   force = true

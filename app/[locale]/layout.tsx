@@ -9,15 +9,16 @@ import { notFound } from "next/navigation";
 
 import { AutoTheme } from "@/components/AutoTheme";
 import { Footer } from "@/components/Footer";
+import { JsonLd } from "@/components/JsonLd";
 import { LivePriceProvider } from "@/components/LivePriceProvider";
 import { MotionRoot } from "@/components/motion/MotionRoot";
 import { ReduxProvider } from "@/components/ReduxProvider";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { routing } from "@/i18n/routing";
+import { SITE_URL, buildAlternates } from "@/lib/metadata";
 
 import "../globals.css";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://goldpricesarabia.com";
 const SITE_NAME = "Gold Prices Arabia";
 const TITLE_DEFAULT = "Gold Prices Arabia — Live Gold Prices Today (USD, JOD, SAR, AED, EGP)";
 const DESCRIPTION =
@@ -69,12 +70,7 @@ export const metadata: Metadata = {
   ],
   manifest: "/manifest.webmanifest",
   alternates: {
-    canonical: "/",
-    languages: {
-      ar: "/",
-      en: "/en",
-      "x-default": "/",
-    },
+    ...buildAlternates("ar", "/"),
     types: {
       "application/rss+xml": [{ url: "/rss.xml", title: "Gold market news" }],
     },
@@ -205,6 +201,29 @@ async function FooterGate() {
   return isEmbed ? null : <Footer />;
 }
 
+/**
+ * Site-wide structured data. Emits Org + WebSite + Service + Breadcrumb +
+ * WebPage + FAQ on every route. Page-level live-price schema (Product /
+ * FinancialProduct) is added separately by data-bearing pages inside their
+ * own Suspense boundaries.
+ */
+async function SiteJsonLd({ locale }: { locale: string }) {
+  const h = await headers();
+  const path = h.get("x-pathname") ?? "/";
+  // Don't emit on embeddable widgets — they're meant to live in third-party
+  // pages and shouldn't pollute the host's schema graph.
+  if (/\/widgets\/embed\//.test(path)) return null;
+  const pageUrl = path.startsWith("/") ? path : `/${path}`;
+  return (
+    <JsonLd
+      siteUrl={SITE_URL}
+      pageUrl={pageUrl}
+      pageName={locale === "en" ? "Gold Prices Arabia" : "أسعار الذهب العربية"}
+      pageType="WebPage"
+    />
+  );
+}
+
 export default async function LocaleLayout({
   children,
   params,
@@ -239,6 +258,9 @@ export default async function LocaleLayout({
         <link rel="dns-prefetch" href="https://api.coingecko.com" />
       </head>
       <body>
+        <Suspense fallback={null}>
+          <SiteJsonLd locale={locale} />
+        </Suspense>
         <ReduxProvider>
           <AutoTheme />
           <ThemeApplier />
