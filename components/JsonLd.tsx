@@ -16,16 +16,6 @@ const KARAT_PURITY: Record<string, string> = {
 
 type BreadcrumbItem = { name: string; url: string };
 
-/**
- * Renders a `<script type="application/ld+json">` block of structured data.
- * Two modes:
- *  - No `spot`: emits Org + WebSite + Service + (optional WebPage) + Breadcrumb
- *    + FAQ. Cheap, deterministic — render at the top of every page outside any
- *    Suspense boundary so it lands in the prerendered HTML for AI crawlers.
- *  - With `spot`: adds Product entries per karat + FinancialProduct entry for
- *    XAU/USD with live price + validFrom. Render inside a Suspense boundary
- *    that awaits the spot fetch.
- */
 export function JsonLd({
   spot,
   siteUrl,
