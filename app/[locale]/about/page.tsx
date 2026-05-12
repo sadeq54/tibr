@@ -71,6 +71,12 @@ export default async function AboutPage({
           </section>
           <nav className="mt-12 flex flex-wrap gap-3 border-t border-[var(--color-border)] pt-6 text-sm">
             <Link
+              href="/about/sadeq"
+              className="text-[var(--color-gold)] underline hover:no-underline"
+            >
+              {locale === "ar" ? "المؤسس: صادق سيد أحمد" : "Founder: Sadeq Sayed Ahmad"} →
+            </Link>
+            <Link
               href="/methodology"
               className="text-[var(--color-gold)] underline hover:no-underline"
             >

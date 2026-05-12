@@ -362,7 +362,7 @@
     "aboutMissionH2": "Our mission",
     "aboutMission": "Make the live spot gold price — and its retail equivalents in Saudi Riyal, Jordanian Dinar, UAE Dirham, Egyptian Pound and 36 more currencies — free, accurate and ad-light for every consumer, jeweller and trader in the Arab world and beyond.",
     "aboutTeamH2": "Editorial team",
-    "aboutTeamBody": "Gold Prices Arabia is operated by a small editorial + engineering team with a combined 15+ years of experience in commodities markets, MENA jewellery distribution and live-data infrastructure. We do not employ paid analysts; we publish prices, not advice.",
+    "aboutTeamBody": "Gold Prices Arabia was founded by Sadeq Sayed Ahmad, a software developer focused on transparent, ad-light financial reference tools for Arabic-speaking users. See the founder page for full background and contact details. The site publishes prices, not advice.",
     "aboutContactH2": "Contact",
     "aboutContact": "General enquiries: support@goldpricesarabia.com. Advertising: ads@goldpricesarabia.com. Press / corrections: support@goldpricesarabia.com.",
     "methodologyH1": "Methodology — How we calculate gold prices",
@@ -392,5 +392,23 @@
     "editorialPrivacyH2": "Privacy & cookies",
     "editorialPrivacy": "No personal data is collected without consent. Analytics use first-party cookies; advertising cookies require explicit opt-in under GDPR / Saudi PDPL. Email us at support@goldpricesarabia.com to request data deletion.",
     "lastUpdated": "Last updated"
+  },
+  "AuthorPage": {
+    "title": "Sadeq Sayed Ahmad — Founder of Gold Prices Arabia",
+    "description": "Sadeq Sayed Ahmad is the founder and lead developer of Gold Prices Arabia, building transparent live gold pricing infrastructure for Arabic-speaking users.",
+    "h1": "Sadeq Sayed Ahmad",
+    "role": "Founder & Lead Developer",
+    "bio1": "Sadeq Sayed Ahmad is a software developer and the founder of Gold Prices Arabia. He built the platform to make international gold pricing transparent and accessible to Arabic-speaking users across the MENA region.",
+    "bio2": "The site aggregates live spot gold (XAU/USD) from PAXG/USD WebSocket feeds on Binance, Coinbase and Kraken, then converts these prices into 40+ retail currencies — including Saudi Riyal, Jordanian Dinar, UAE Dirham and Egyptian Pound — using daily mid-market FX rates from open central-bank data.",
+    "bio3": "Sadeq does not provide trading or investment advice. The platform publishes observable market data, not financial guidance. Users seeking trading or investment recommendations should consult a licensed financial advisor in their jurisdiction.",
+    "expertiseH2": "Background",
+    "expertise1": "Software engineering — full-stack development with Next.js, TypeScript, real-time data infrastructure (WebSocket aggregation), serverless deployment on Netlify.",
+    "expertise2": "Data transparency — building open, ad-light, methodology-first reference sites for financial commodities. All calculation logic is documented publicly at /methodology.",
+    "expertise3": "Arabic-language web — focus on RTL accessibility, locale-aware UX and MENA-specific currency/jewellery conventions.",
+    "connectH2": "Connect",
+    "connectIntro": "For corrections, partnerships, or technical discussion:",
+    "linkedinLabel": "LinkedIn profile",
+    "emailLabel": "Email",
+    "contactNote": "All editorial corrections are issued within 24 hours and cached pages are purged. See /editorial-standards for full corrections policy."
   }
 }

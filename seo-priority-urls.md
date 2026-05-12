@@ -148,6 +148,10 @@ If quota hit: "Quota exceeded" message. Retry tomorrow.
 
 ## Day 7 — Trust + Editorial (E-E-A-T signals)
 
+**Priority 0.6 — Founder / Author page (E-E-A-T unlock)**
+- [ ] https://goldpricesarabia.com/about/sadeq
+- [ ] https://goldpricesarabia.com/en/about/sadeq
+
 **Priority 0.55 — Trust pages**
 - [ ] https://goldpricesarabia.com/about
 - [ ] https://goldpricesarabia.com/en/about

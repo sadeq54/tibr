@@ -92,11 +92,17 @@ export function JsonLd({
         availableLanguage: ["en", "ar"],
       },
     ],
-    sameAs: [
-      "https://twitter.com/goldpricesarabia",
-      "https://www.facebook.com/goldpricesarabia",
-      "https://www.linkedin.com/company/goldpricesarabia",
-    ],
+    sameAs: ["https://www.linkedin.com/in/sadeq-sayed-ahmad-309101233/"],
+    founder: {
+      "@type": "Person",
+      "@id": `${siteUrl}/#person-sadeq`,
+      name: "Sadeq Sayed Ahmad",
+      jobTitle: "Founder & Lead Developer",
+      url: `${siteUrl}/about/sadeq`,
+      image: `${siteUrl}/author/sadeq.jpeg`,
+      sameAs: ["https://www.linkedin.com/in/sadeq-sayed-ahmad-309101233/"],
+    },
+    foundingDate: "2026",
   };
 
   const website = {

@@ -196,6 +196,9 @@ export async function Footer() {
           <Link href="/about" className="transition-colors hover:text-[var(--color-gold)]">
             {locale === "ar" ? "عن الموقع" : "About"}
           </Link>
+          <Link href="/about/sadeq" className="transition-colors hover:text-[var(--color-gold)]">
+            {locale === "ar" ? "المؤسس" : "Founder"}
+          </Link>
           <Link href="/methodology" className="transition-colors hover:text-[var(--color-gold)]">
             {locale === "ar" ? "المنهجية" : "Methodology"}
           </Link>

@@ -106,6 +106,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Editorial / trust pages — change rarely, but signal E-E-A-T.
   out.push(...dual("about", "monthly", 0.5));
+  out.push(...dual("about/sadeq", "monthly", 0.6));
   out.push(...dual("methodology", "monthly", 0.55));
   out.push(...dual("editorial-standards", "monthly", 0.5));
 
