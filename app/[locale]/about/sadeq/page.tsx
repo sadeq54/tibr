@@ -56,13 +56,11 @@ export default async function AuthorPage({
     email: AUTHOR_EMAIL,
     worksFor: { "@id": `${SITE_URL}/#org` },
     knowsAbout: [
-      "Software engineering",
+      "Gold price data",
+      "Precious metals tracking",
       "Web development",
-      "Next.js",
-      "TypeScript",
-      "Real-time data infrastructure",
-      "WebSocket aggregation",
-      "Arabic-language web accessibility",
+      "Arabic-language web",
+      "MENA financial markets",
     ],
   };
 
