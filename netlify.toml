@@ -18,13 +18,14 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
 
-# HTML cache: edge-cache for 60s, serve stale up to 4 min while revalidating.
+# HTML cache: edge-cache for 120s, serve stale up to 10 min while revalidating.
 # Beats Next's `no-store` default for SEO + edge performance — search bots
-# and repeat visitors hit cache, live prices stay <60s stale.
+# and repeat visitors hit cache, live prices stay <2 min stale (still within
+# Bing/Google "fresh" tolerance for live-data pages).
 [[headers]]
   for = "/*"
   [headers.values]
-    Cache-Control = "public, s-maxage=60, stale-while-revalidate=240"
+    Cache-Control = "public, s-maxage=120, stale-while-revalidate=600"
 
 # Long-cache static assets
 [[headers]]

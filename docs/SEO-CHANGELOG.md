@@ -644,6 +644,40 @@ In normalised SEO score: **~97/100 today, 100/100 after 90 days of content caden
 
 ---
 
+## 2026-05-13 — Analytics live (GTM + GA4)
+
+### IDs
+
+| Service | ID |
+|---------|----|
+| Google Tag Manager Container | `GTM-K7LXLVCK` |
+| GA4 Measurement ID | `G-2XNDCBVQ4F` |
+| GA4 Property | Gold Prices Arabia |
+
+### Setup
+
+- GTM container loads via `strategy="worker"` (Partytown) in `app/[locale]/layout.tsx`
+- Inside GTM: 1 tag (`GA4 - All Pages`) of type "Google Tag" with trigger `All Pages` (page_view)
+- GA4 fires through GTM — `NEXT_PUBLIC_GA_ID` env NOT set (avoids double-load)
+- Env vars: `NEXT_PUBLIC_GTM_ID=GTM-K7LXLVCK` in both `.env.local` and Netlify Site config
+
+### Container versions
+
+- v1: empty container
+- v2: GA4 tag created with wrong trigger (Initialization - All Pages)
+- v3: same, published
+- v4: trigger fixed to All Pages (page_view) — currently Live
+
+### Future tags
+
+Add via GTM dashboard (zero code changes):
+- Microsoft Clarity (free heatmaps + AI insights) — recommended next
+- Google Ads conversion tracking (when running campaigns)
+- Meta Pixel (Facebook/Instagram ads)
+- LinkedIn Insight Tag (B2B retargeting)
+
+---
+
 ## Outstanding (from `sadeqblocker.md`)
 
 1. **Rotate exposed API keys** — `GOLDAPI_KEY` and `NEWSDATA_KEY` (deferred by user)

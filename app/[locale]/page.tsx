@@ -14,12 +14,14 @@ import { JsonLd } from "@/components/JsonLd";
 import { KaratGrid } from "@/components/KaratGrid";
 import dynamic from "next/dynamic";
 
+import { LazyMount } from "@/components/LazyMount";
 import { MetalsStrip } from "@/components/MetalsStrip";
 import { PriceChart } from "@/components/PriceChart";
 import { Sidebar } from "@/components/Sidebar";
 import { StoresMarquee } from "@/components/StoresMarquee";
 
 // Heavy / below-the-fold widgets — defer JS to improve LCP/FCP/TTI.
+// Wrapped in <LazyMount> below for IntersectionObserver-gated client mount.
 const TradingViewChart = dynamic(() =>
   import("@/components/TradingViewChart").then((m) => m.TradingViewChart),
 );
@@ -175,9 +177,59 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                   ),
                 })}
               </p>
+              <nav
+                aria-label={locale === "ar" ? "روابط سريعة" : "Quick links"}
+                className="mt-4 flex flex-wrap gap-x-3 gap-y-1.5 text-xs"
+              >
+                <Link href="/gold-price/24k" className="text-[var(--color-gold)] hover:underline">
+                  24K
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/gold-price/21k" className="text-[var(--color-gold)] hover:underline">
+                  21K
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/gold-price/18k" className="text-[var(--color-gold)] hover:underline">
+                  18K
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/gold-price/14k" className="text-[var(--color-gold)] hover:underline">
+                  14K
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/spot-gold" className="text-[var(--color-gold)] hover:underline">
+                  {locale === "ar" ? "السعر الفوري" : "Spot Gold"}
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/gold-price-chart" className="text-[var(--color-gold)] hover:underline">
+                  {locale === "ar" ? "الرسم البياني" : "Chart"}
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/gold-calculator" className="text-[var(--color-gold)] hover:underline">
+                  {locale === "ar" ? "الحاسبة" : "Calculator"}
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/saudi-arabia/gold-price/21k" className="text-[var(--color-gold)] hover:underline">
+                  🇸🇦 {locale === "ar" ? "السعودية" : "Saudi"}
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/uae/gold-price/21k" className="text-[var(--color-gold)] hover:underline">
+                  🇦🇪 {locale === "ar" ? "الإمارات" : "UAE"}
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/egypt/gold-price/21k" className="text-[var(--color-gold)] hover:underline">
+                  🇪🇬 {locale === "ar" ? "مصر" : "Egypt"}
+                </Link>
+                <span className="text-[var(--color-text-dim)]">·</span>
+                <Link href="/news" className="text-[var(--color-gold)] hover:underline">
+                  {locale === "ar" ? "الأخبار" : "News"}
+                </Link>
+              </nav>
             </header>
 
-            <LiveGoldStream />
+            <LazyMount minHeight={120}>
+              <LiveGoldStream />
+            </LazyMount>
 
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection promise={metalsPromise} />
@@ -187,27 +239,37 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <MetalsStripSection promise={metalsPromise} />
             </Suspense>
 
-            <TradingViewChart />
+            <LazyMount minHeight={500}>
+              <TradingViewChart />
+            </LazyMount>
 
             <AffiliateBanner />
 
-            <Suspense fallback={<PriceChartSkeleton />}>
-              <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
-            </Suspense>
+            <LazyMount minHeight={400} fallback={<PriceChartSkeleton />}>
+              <Suspense fallback={<PriceChartSkeleton />}>
+                <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
+              </Suspense>
+            </LazyMount>
 
-            <Suspense fallback={<BidAskGaugeSkeleton />}>
-              <BidAskSection promise={metalsPromise} />
-            </Suspense>
+            <LazyMount minHeight={200} fallback={<BidAskGaugeSkeleton />}>
+              <Suspense fallback={<BidAskGaugeSkeleton />}>
+                <BidAskSection promise={metalsPromise} />
+              </Suspense>
+            </LazyMount>
 
             <Suspense fallback={<KaratGridSkeleton />}>
               <KaratGridSection mPromise={metalsPromise} fxPromise={fxPromise} />
             </Suspense>
 
-            <Suspense fallback={<CalculatorSkeleton />}>
-              <CalculatorSection mPromise={metalsPromise} fxPromise={fxPromise} />
-            </Suspense>
+            <LazyMount minHeight={400} fallback={<CalculatorSkeleton />}>
+              <Suspense fallback={<CalculatorSkeleton />}>
+                <CalculatorSection mPromise={metalsPromise} fxPromise={fxPromise} />
+              </Suspense>
+            </LazyMount>
 
-            <StoresMarquee />
+            <LazyMount minHeight={140}>
+              <StoresMarquee />
+            </LazyMount>
 
             <section aria-labelledby="about-heading">
               <h2 id="about-heading" className="text-xl font-semibold text-[var(--color-text)]">
@@ -247,6 +309,85 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             </section>
 
             <Faq />
+
+            <section
+              aria-labelledby="sources-heading"
+              className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5"
+            >
+              <h2
+                id="sources-heading"
+                className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-dim)]"
+              >
+                {locale === "ar" ? "مصادر البيانات والمراجع" : "Data sources & references"}
+              </h2>
+              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-muted)]">
+                {locale === "ar"
+                  ? "تأتي أسعارنا من تجميع لحظي عبر WebSocket من بورصات تنظيمية كبرى. تحقّق من مصداقية البيانات من المصادر التالية:"
+                  : "Our prices are aggregated in real time from major regulated exchanges. Verify data authenticity at the following authoritative sources:"}
+              </p>
+              <ul className="mt-3 grid gap-1.5 text-xs sm:grid-cols-2 lg:grid-cols-3">
+                <li>
+                  <a
+                    href="https://www.lbma.org.uk/prices-and-data/precious-metal-prices"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--color-gold)] hover:underline"
+                  >
+                    LBMA — London Bullion Market Association ↗
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.gold.org/goldhub/data/gold-prices"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--color-gold)] hover:underline"
+                  >
+                    World Gold Council ↗
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://paxos.com/paxg/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--color-gold)] hover:underline"
+                  >
+                    Paxos — PAXG Trust ↗
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.brinks.com/en-us/services/bullion-vault-services"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--color-gold)] hover:underline"
+                  >
+                    Brink's Vault Services ↗
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.cmegroup.com/markets/metals/precious/gold.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--color-gold)] hover:underline"
+                  >
+                    COMEX Gold Futures (CME) ↗
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.en.sge.com.cn/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--color-gold)] hover:underline"
+                  >
+                    Shanghai Gold Exchange ↗
+                  </a>
+                </li>
+              </ul>
+            </section>
           </section>
 
           <Sidebar adClient={adsClient} />
