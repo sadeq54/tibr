@@ -1,8 +1,8 @@
-import { Languages } from "lucide-react";
 import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { BrandMark } from "@/components/BrandMark";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { MobileMenu } from "@/components/MobileMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "@/i18n/navigation";
@@ -28,18 +28,6 @@ export async function Header() {
   const path = h.get("x-pathname") ?? "";
   const country = extractCountrySlug(path);
   const base = country ? `/${country}/gold-price` : "/gold-price";
-
-  // Strip locale prefix from path so next-intl <Link locale={otherLocale}>
-  // re-applies the correct prefix. Example: "/en/spot-gold" -> "/spot-gold"
-  // -> rendered as "/spot-gold" (ar default) or "/en/spot-gold" (en).
-  function stripLocale(p: string): string {
-    const parts = p.split("/").filter(Boolean);
-    if (parts[0] && (routing.locales as readonly string[]).includes(parts[0])) {
-      parts.shift();
-    }
-    return "/" + parts.join("/");
-  }
-  const localeAgnosticPath = stripLocale(path) || "/";
 
   const navItems = [
     { href: `${base}/24k`, label: "24K" },
@@ -77,15 +65,7 @@ export async function Header() {
           <Link href="/historical-gold-prices/2026" className="hover:text-[var(--color-text)]">
             {t("historical")}
           </Link>
-          <Link
-            href={localeAgnosticPath as never}
-            locale={otherLocale}
-            aria-label={otherLabel}
-            title={otherLabel}
-            className="theme-toggle inline-flex h-8 w-8 items-center justify-center rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] text-[var(--color-text)]"
-          >
-            <Languages size={16} aria-hidden />
-          </Link>
+          <LanguageSwitcher otherLocale={otherLocale} label={otherLabel} />
           <ThemeToggle />
         </nav>
 
@@ -97,7 +77,6 @@ export async function Header() {
             historicalLabel={t("historical")}
             switchLabel={otherLabel}
             switchLocale={otherLocale}
-            switchHref={localeAgnosticPath}
             liveLabel={t("live")}
           />
         </div>

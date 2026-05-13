@@ -53,12 +53,15 @@ export function StoresMarqueeClient() {
         aria-hidden
       />
 
+      {/* Duplicate slides so loop has enough material (Swiper requires
+          slides > slidesPerView * 2 for loop). With 3 brokers we duplicate
+          to 9 for smooth infinite marquee with no warning. */}
       <Swiper
         modules={[Autoplay, FreeMode]}
         slidesPerView="auto"
         spaceBetween={16}
         loop
-        loopAdditionalSlides={BROKERS.length}
+        loopAdditionalSlides={BROKERS.length * 2}
         grabCursor
         freeMode={{ enabled: true, momentum: true, momentumRatio: 0.6 }}
         autoplay={{
@@ -70,8 +73,8 @@ export function StoresMarqueeClient() {
         allowTouchMove
         className="!py-4"
       >
-        {BROKERS.map((b) => (
-          <SwiperSlide key={b.name} style={{ width: 288 }}>
+        {[...BROKERS, ...BROKERS, ...BROKERS].map((b, i) => (
+          <SwiperSlide key={`${b.name}-${i}`} style={{ width: 288 }}>
             <div className="hover-gold-card-strong relative flex h-52 w-72 flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5">
               <div
                 aria-hidden
