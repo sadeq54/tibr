@@ -15,6 +15,7 @@ export function MobileMenu({
   historicalLabel,
   switchLabel,
   switchLocale,
+  switchHref = "/",
   liveLabel,
 }: {
   navItems: NavItem[];
@@ -22,6 +23,7 @@ export function MobileMenu({
   historicalLabel: string;
   switchLabel: string;
   switchLocale: "en" | "ar";
+  switchHref?: string;
   liveLabel: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -129,7 +131,7 @@ export function MobileMenu({
             <div className="my-3 h-px bg-[var(--color-border)]" />
 
             <Link
-              href="/"
+              href={switchHref as never}
               locale={switchLocale}
               aria-label={switchLabel}
               className="theme-toggle inline-flex items-center justify-center gap-2 rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] px-3 py-2 text-sm font-semibold text-[var(--color-text)]"

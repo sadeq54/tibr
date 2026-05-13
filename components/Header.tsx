@@ -29,6 +29,18 @@ export async function Header() {
   const country = extractCountrySlug(path);
   const base = country ? `/${country}/gold-price` : "/gold-price";
 
+  // Strip locale prefix from path so next-intl <Link locale={otherLocale}>
+  // re-applies the correct prefix. Example: "/en/spot-gold" -> "/spot-gold"
+  // -> rendered as "/spot-gold" (ar default) or "/en/spot-gold" (en).
+  function stripLocale(p: string): string {
+    const parts = p.split("/").filter(Boolean);
+    if (parts[0] && (routing.locales as readonly string[]).includes(parts[0])) {
+      parts.shift();
+    }
+    return "/" + parts.join("/");
+  }
+  const localeAgnosticPath = stripLocale(path) || "/";
+
   const navItems = [
     { href: `${base}/24k`, label: "24K" },
     { href: `${base}/21k`, label: "21K" },
@@ -66,7 +78,7 @@ export async function Header() {
             {t("historical")}
           </Link>
           <Link
-            href="/"
+            href={localeAgnosticPath as never}
             locale={otherLocale}
             aria-label={otherLabel}
             title={otherLabel}
@@ -85,6 +97,7 @@ export async function Header() {
             historicalLabel={t("historical")}
             switchLabel={otherLabel}
             switchLocale={otherLocale}
+            switchHref={localeAgnosticPath}
             liveLabel={t("live")}
           />
         </div>
