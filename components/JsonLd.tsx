@@ -151,6 +151,13 @@ export function JsonLd({
         "@id": `${siteUrl}/#product-${karat}`,
         name: KARAT_TO_NAME[karat] ?? `${karat} Gold`,
         description: `Live spot price of ${KARAT_TO_NAME[karat]} (${KARAT_PURITY[karat]} purity) per gram and per troy ounce, streamed in real time from Binance, Coinbase and Kraken.`,
+        // Required by Google's Product rich-result. Use per-karat dynamic OG.
+        image: [
+          `${siteUrl}/gold-price/${karat.toLowerCase()}/opengraph-image`,
+          `${siteUrl}/opengraph-image`,
+        ],
+        sku: `XAU-${karat}`,
+        mpn: `GOLD-${karat}`,
         category: "Precious Metals / Gold",
         brand: { "@type": "Brand", name: "Gold Prices Arabia" },
         manufacturer: { "@id": `${siteUrl}/#org` },
