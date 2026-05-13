@@ -38,12 +38,13 @@ export function AffiliateBanner() {
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       className="affiliate-bg card-shadow relative overflow-hidden rounded-xl border border-[var(--color-border)] p-5"
+      style={{ minHeight: 140 }}
     >
       <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
         {t("label")}
       </div>
 
-      <div className="relative mt-1 min-h-[3.25rem]">
+      <div className="relative mt-1" style={{ minHeight: 64 }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={i}

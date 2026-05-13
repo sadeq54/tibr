@@ -63,24 +63,31 @@ export async function Footer() {
               {t("worldHeading")}
             </h2>
           </header>
-          <ul className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {sortedCountries.map((c) => (
-              <li key={c.slug} className="py-0.5">
-                <Link
-                  href={`/${c.slug}/gold-price/21k`}
-                  className="group flex items-center gap-2 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-gold)]"
-                  title={`${countryName(c, locale)} · ${c.currency}`}
-                >
-                  <span className="text-base leading-none" aria-hidden>
-                    {c.flag}
-                  </span>
-                  <span className="truncate text-xs font-medium">
-                    {t("countryItem", { name: countryName(c, locale) })}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {/* Split countries into chunks of 50 to avoid the >60 children
+              DOM-size penalty flagged by Lighthouse. */}
+          {Array.from({ length: Math.ceil(sortedCountries.length / 50) }).map((_, chunkIdx) => (
+            <ul
+              key={chunkIdx}
+              className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+            >
+              {sortedCountries.slice(chunkIdx * 50, (chunkIdx + 1) * 50).map((c) => (
+                <li key={c.slug} className="py-0.5">
+                  <Link
+                    href={`/${c.slug}/gold-price/21k`}
+                    className="group flex items-center gap-2 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-gold)]"
+                    title={`${countryName(c, locale)} · ${c.currency}`}
+                  >
+                    <span className="text-base leading-none" aria-hidden>
+                      {c.flag}
+                    </span>
+                    <span className="truncate text-xs font-medium">
+                      {t("countryItem", { name: countryName(c, locale) })}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ))}
         </div>
       </section>
 

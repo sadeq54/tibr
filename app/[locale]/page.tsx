@@ -268,6 +268,86 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               </div>
             </section>
 
+            <section
+              aria-labelledby="how-it-works-heading"
+              className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5"
+            >
+              <h2
+                id="how-it-works-heading"
+                className="text-xl font-semibold text-[var(--color-text)]"
+              >
+                {locale === "ar" ? "كيف نحسب سعر الذهب" : "How we calculate gold prices"}
+              </h2>
+              <div className="mt-3 space-y-3 text-sm leading-relaxed text-[var(--color-text-muted)]">
+                <p>
+                  {locale === "ar"
+                    ? "السعر الفوري للذهب (XAU/USD) هو السعر العالمي للأونصة الترويسية بالدولار الأمريكي. نحسبه كمتوسط لحظي من ثلاث بورصات رئيسية — Binance و Coinbase و Kraken — عبر زوج PAXG/USD. PAXG هو رمز مدعوم 1:1 بسبائك ذهب فيزيائية من فئة London Good Delivery موجودة في خزائن Brink's، ويتتبّع تثبيت LBMA بفارق سنتات قليلة."
+                    : "Spot gold (XAU/USD) is the global price per troy ounce in US Dollars. We compute it as the per-tick median of three major exchanges — Binance, Coinbase, and Kraken — via the PAXG/USD pair. PAXG is a token backed 1:1 by physical London Good Delivery gold bars in Brink's vaults, tracking the LBMA fix within a few cents."}
+                </p>
+                <p>
+                  {locale === "ar"
+                    ? "لتحويل السعر الفوري إلى سعر الجرام لكل عيار، نقسم على 31.1035 (جرامات الأونصة) ثم نضرب بنسبة النقاء: 99.9% للعيار 24، 87.5% للعيار 21، 75% للعيار 18، و 58.3% للعيار 14. ثم نضرب بسعر صرف العملة اليومي من بيانات البنوك المركزية المفتوحة للحصول على سعر الجرام بأكثر من 40 عملة محلية تشمل الريال السعودي، الدينار الأردني، الدرهم الإماراتي، والجنيه المصري."
+                    : "To convert spot to per-gram per karat, we divide by 31.1035 (grams per ounce) and multiply by purity ratio: 99.9% for 24K, 87.5% for 21K, 75% for 18K, 58.3% for 14K. We then multiply by daily mid-market FX from open central-bank data, giving per-gram prices in 40+ retail currencies including SAR, JOD, AED, and EGP."}
+                </p>
+                <p>
+                  {locale === "ar"
+                    ? "النتيجة المعروضة هي السعر الفوري المكافئ — السعر الأرضي قبل أي هامش تجزئة. ستضيف محلات المجوهرات والصاغة المحليون مصنعية (5%-30%) وهامش بائع التجزئة (3%-10%) وضرائب القيمة المضافة المحلية (السعودية: 15%، الإمارات: 5%، مصر: لا ضريبة). راجع صفحة المنهجية للحصول على التفاصيل الكاملة وحدود البيانات."
+                    : "The displayed value is the spot-equivalent — the floor price before any retail premium. Jewelry shops and local goldsmiths add workmanship (5%-30%), retailer margin (3%-10%), and local VAT (Saudi: 15%, UAE: 5%, Egypt: none). See our methodology page for full details and data limitations."}
+                </p>
+              </div>
+            </section>
+
+            <section aria-labelledby="why-trust-heading">
+              <h2
+                id="why-trust-heading"
+                className="text-xl font-semibold text-[var(--color-text)]"
+              >
+                {locale === "ar" ? "لماذا تثق في Gold Prices Arabia" : "Why trust Gold Prices Arabia"}
+              </h2>
+              <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
+                <li>
+                  <strong className="text-[var(--color-text)]">
+                    {locale === "ar" ? "بيانات شفافة: " : "Transparent data: "}
+                  </strong>
+                  {locale === "ar"
+                    ? "كل حساب موثق في /methodology. لا أرقام مخفية، لا هوامش تسعير سرية."
+                    : "Every calculation documented at /methodology. No hidden numbers, no secret pricing margins."}
+                </li>
+                <li>
+                  <strong className="text-[var(--color-text)]">
+                    {locale === "ar" ? "مؤلف معروف: " : "Named author: "}
+                  </strong>
+                  {locale === "ar"
+                    ? "أسس الموقع صادق سيد أحمد. التواصل عبر LinkedIn متاح للتحقق من الهوية."
+                    : "Site founded by Sadeq Sayed Ahmad. LinkedIn contact available for identity verification."}
+                </li>
+                <li>
+                  <strong className="text-[var(--color-text)]">
+                    {locale === "ar" ? "ليست نصيحة مالية: " : "Not financial advice: "}
+                  </strong>
+                  {locale === "ar"
+                    ? "ننشر الأسعار، لا التوصيات. استشر مستشاراً مالياً مرخّصاً قبل اتخاذ قرارات الاستثمار."
+                    : "We publish prices, not recommendations. Consult a licensed financial advisor before investment decisions."}
+                </li>
+                <li>
+                  <strong className="text-[var(--color-text)]">
+                    {locale === "ar" ? "تحديث مستمر: " : "Continuously updated: "}
+                  </strong>
+                  {locale === "ar"
+                    ? "تجميع WebSocket لحظي للذهب — تحديث كل ثانية. الفضة والبلاتين والبلاديوم تحديث كل دقيقة."
+                    : "WebSocket aggregation for gold — updated every second. Silver, platinum, palladium updated every minute."}
+                </li>
+                <li>
+                  <strong className="text-[var(--color-text)]">
+                    {locale === "ar" ? "مجاني للجميع: " : "Free for everyone: "}
+                  </strong>
+                  {locale === "ar"
+                    ? "لا اشتراك، لا تسجيل دخول، لا حد للاستخدام. خدمة عامة لمنطقة الشرق الأوسط وشمال أفريقيا."
+                    : "No subscription, no login, no rate limits. A public service for the MENA region."}
+                </li>
+              </ul>
+            </section>
+
             <section aria-labelledby="countries-heading">
               <h2 id="countries-heading" className="text-xl font-semibold text-[var(--color-text)]">
                 {t("countriesH2")}

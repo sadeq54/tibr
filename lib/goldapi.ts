@@ -68,9 +68,13 @@ type SwissquoteRow = { bid: number; ask: number };
 
 async function fetchStooq(): Promise<Record<string, StooqRow>> {
   try {
+    // 120s shared edge cache. Stooq updates per minute; 2-min lag tolerable
+    // for SEO/auditor speed wins. Live WebSocket gives sub-second to logged-in
+    // users via /api/spot anyway.
     const r = await fetch(STOOQ_QUOTE, {
-      next: { revalidate: 60 },
+      next: { revalidate: 120 },
       headers: { "User-Agent": "Mozilla/5.0 GoldPricesArabia/1.0" },
+      signal: AbortSignal.timeout(2500),
     });
     if (!r.ok) return {};
     const text = await r.text();
@@ -102,8 +106,9 @@ async function fetchStooq(): Promise<Record<string, StooqRow>> {
 async function fetchSwissquoteXAU(): Promise<SwissquoteRow | null> {
   try {
     const r = await fetch(SWISSQUOTE_XAU, {
-      next: { revalidate: 60 },
+      next: { revalidate: 120 },
       headers: { "User-Agent": "Mozilla/5.0 GoldPricesArabia/1.0" },
+      signal: AbortSignal.timeout(2500),
     });
     if (!r.ok) return null;
     const data = (await r.json()) as Array<{

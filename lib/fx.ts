@@ -67,7 +67,10 @@ async function tryFetch(
   url: string,
 ): Promise<{ rates: Record<string, number>; date?: string } | null> {
   try {
-    const r = await fetch(url, { next: { revalidate: 3600 } });
+    const r = await fetch(url, {
+      next: { revalidate: 21600 },
+      signal: AbortSignal.timeout(2500),
+    });
     if (!r.ok) return null;
     const data = (await r.json()) as { date?: string; usd?: Record<string, number> };
     if (!data?.usd) return null;
