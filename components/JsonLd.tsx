@@ -117,7 +117,7 @@ export function JsonLd({
       },
       "query-input": "required name=search_term_string",
     },
-    copyrightYear: new Date().getFullYear(),
+    copyrightYear: 2026,
     copyrightHolder: { "@id": `${siteUrl}/#org` },
   };
 
