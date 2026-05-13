@@ -12,12 +12,20 @@ import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
 import { JsonLd } from "@/components/JsonLd";
 import { KaratGrid } from "@/components/KaratGrid";
-import { LiveGoldStream } from "@/components/LiveGoldStream";
+import dynamic from "next/dynamic";
+
 import { MetalsStrip } from "@/components/MetalsStrip";
 import { PriceChart } from "@/components/PriceChart";
 import { Sidebar } from "@/components/Sidebar";
 import { StoresMarquee } from "@/components/StoresMarquee";
-import { TradingViewChart } from "@/components/TradingViewChart";
+
+// Heavy / below-the-fold widgets — defer JS to improve LCP/FCP/TTI.
+const TradingViewChart = dynamic(() =>
+  import("@/components/TradingViewChart").then((m) => m.TradingViewChart),
+);
+const LiveGoldStream = dynamic(() =>
+  import("@/components/LiveGoldStream").then((m) => m.LiveGoldStream),
+);
 import { Reveal } from "@/components/motion/Reveal";
 import {
   BidAskGaugeSkeleton,

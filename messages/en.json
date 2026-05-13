@@ -433,5 +433,12 @@
     "jurisdiction": "This disclaimer is governed by the laws of the jurisdiction in which Gold Prices Arabia operates. We may update this disclaimer at any time without notice. The current version always lives at this URL — check the date below for the last revision.",
     "contactH2": "Contact",
     "contact": "Questions or corrections: support@goldpricesarabia.com. Editorial corrections are issued within 24 hours. See /editorial-standards for full corrections policy."
+  },
+  "NotFound": {
+    "h1": "Page not found",
+    "body": "The page you are looking for does not exist or has been moved. Try one of the popular pages below or return home.",
+    "home": "Back to home",
+    "popularH2": "Popular gold prices",
+    "exploreH2": "Explore the site"
   }
 }

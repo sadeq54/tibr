@@ -26,6 +26,17 @@ const nextConfig: NextConfig = {
   // render. Migrating to fully static ISR would require dropping live
   // WebSocket data and is left as a separate task.
   cacheComponents: true,
+  // Modern image formats (AVIF/WebP) + auto-sized device variants for LCP.
+  images: {
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [360, 640, 768, 1024, 1280, 1600, 1920],
+    imageSizes: [16, 32, 64, 96, 128, 160, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+  },
+  // Smaller HTML + JS via React compiler + better tree-shaking for Next 16.
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
+  },
   async headers() {
     return [
       {

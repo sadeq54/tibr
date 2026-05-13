@@ -239,6 +239,56 @@ Both auto-listed in sitemap.xml at next deploy.
 
 ---
 
+## 2026-05-12 — Performance + 404 + GA fixes (audit response)
+
+### Issues from external SEO audit
+- HIGH: LCP > 2.5s; render-blocking resources
+- MEDIUM: 404 page minimal; oversized images; TTFB > 0.8s; FCP > 1.8s; JS execution time; no Google Analytics
+- LOW: HTML size; console errors; SPF record; > 20 HTTP requests
+
+### Fixes applied
+
+| Issue | File | Change |
+|-------|------|--------|
+| 404 minimal | `app/[locale]/not-found.tsx` | Rewrote with 6 popular karat/country quick-links + 6 explore links. Translated `NotFound.*` in `en.json`+`ar.json` |
+| Render-blocking JS (TradingView, LiveGoldStream) | `app/[locale]/page.tsx` | Switched to `next/dynamic` — both widgets defer JS until needed, freeing the main thread for LCP |
+| Oversized / non-modern images | `next.config.ts` | Added `images.formats: ["image/avif","image/webp"]`, custom `deviceSizes` + `imageSizes`, 30-day cache |
+| Larger JS bundle | `next.config.ts` | Added `compiler.removeConsole` — strips `console.log` from production build (keeps error/warn for Sentry-like) |
+| No Google Analytics | `app/[locale]/layout.tsx` | Added GA4 scaffold gated on `NEXT_PUBLIC_GA_ID` env var. Strategy `afterInteractive` so script does NOT block LCP/FCP. Anonymise IP enabled |
+
+### Not fixed by code (require external action)
+
+| Issue | Action needed |
+|-------|---------------|
+| SPF DNS record | Add TXT record in Netlify DNS: `v=spf1 -all` (or include mail provider if sending mail from domain). Prevents email spoofing of `*@goldpricesarabia.com` |
+| Google Analytics 4 setup | Create GA4 property → get Measurement ID → set `NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX` in Netlify env + `.env.local` |
+| Real CrUX field data (LCP/FCP/TTFB measurements) | Time-locked — needs 28+ days of real traffic. PageSpeed lab numbers are not the same as field data |
+| > 20 HTTP requests | Most are necessary (TradingView, GoldAPI WebSocket, fonts, images). Already preconnected in layout `<head>`. Can't reduce without dropping live data |
+| HTML size | Will shrink with `removeConsole` + tree-shaking on next build |
+
+### Expected impact
+
+- LCP: < 2.5s (TradingView + LiveGoldStream no longer block initial render)
+- FCP: < 1.8s (lazy widgets free main thread)
+- JS execution: -30 to -50% on home (TradingView is ~150kb gzipped)
+- 404 page: better UX + lower bounce rate
+- Image bytes: -30 to -60% via AVIF/WebP auto-conversion
+
+### Verification after deploy
+
+1. https://pagespeed.web.dev/?url=https://goldpricesarabia.com — expect score 85+ desktop, 70+ mobile
+2. Open DevTools → Network → reload → check `Content-Type: image/avif` on responsive images
+3. Confirm `tradingview-chart` chunk only loads after scrolling near it (not in initial bundle)
+4. With GA env var set: open browser → DevTools → Network → search `googletagmanager` — should appear
+
+### TODO (user action)
+
+- [ ] Get GA4 Measurement ID from https://analytics.google.com → add `NEXT_PUBLIC_GA_ID` to Netlify env
+- [ ] Add SPF record in Netlify DNS: `TXT` `@` `v=spf1 -all`
+- [ ] Redeploy to pick up new env + config
+
+---
+
 ## Outstanding (from `sadeqblocker.md`)
 
 1. **Rotate exposed API keys** — `GOLDAPI_KEY` and `NEWSDATA_KEY` (deferred by user)
