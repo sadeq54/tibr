@@ -64,6 +64,48 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
+# Static trust pages — content rarely changes. Edge cache 24h, SWR 7d.
+# Pushes TTFB to <50ms after first warmup. Tier-1 pages still use 60s/SWR-240s.
+[[headers]]
+  for = "/about"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/en/about"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/about/*"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/en/about/*"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/methodology"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/en/methodology"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/editorial-standards"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/en/editorial-standards"
+  [headers.values]
+    Cache-Control = "public, s-maxage=86400, stale-while-revalidate=604800"
+
 # /favicon.ico → /appIcone.ico (file lives at non-default path in /public)
 [[redirects]]
   from = "/favicon.ico"

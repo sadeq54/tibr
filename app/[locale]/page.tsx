@@ -26,7 +26,6 @@ const TradingViewChart = dynamic(() =>
 const LiveGoldStream = dynamic(() =>
   import("@/components/LiveGoldStream").then((m) => m.LiveGoldStream),
 );
-import { Reveal } from "@/components/motion/Reveal";
 import {
   BidAskGaugeSkeleton,
   CalculatorSkeleton,
@@ -188,17 +187,13 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <MetalsStripSection promise={metalsPromise} />
             </Suspense>
 
-            <Reveal>
-              <TradingViewChart />
-            </Reveal>
+            <TradingViewChart />
 
             <AffiliateBanner />
 
-            <Reveal>
-              <Suspense fallback={<PriceChartSkeleton />}>
-                <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
-              </Suspense>
-            </Reveal>
+            <Suspense fallback={<PriceChartSkeleton />}>
+              <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
+            </Suspense>
 
             <Suspense fallback={<BidAskGaugeSkeleton />}>
               <BidAskSection promise={metalsPromise} />
@@ -208,11 +203,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <KaratGridSection mPromise={metalsPromise} fxPromise={fxPromise} />
             </Suspense>
 
-            <Reveal>
-              <Suspense fallback={<CalculatorSkeleton />}>
-                <CalculatorSection mPromise={metalsPromise} fxPromise={fxPromise} />
-              </Suspense>
-            </Reveal>
+            <Suspense fallback={<CalculatorSkeleton />}>
+              <CalculatorSection mPromise={metalsPromise} fxPromise={fxPromise} />
+            </Suspense>
 
             <StoresMarquee />
 
@@ -253,9 +246,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               </div>
             </section>
 
-            <Reveal>
-              <Faq />
-            </Reveal>
+            <Faq />
           </section>
 
           <Sidebar adClient={adsClient} />

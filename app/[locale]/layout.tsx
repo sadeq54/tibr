@@ -258,13 +258,38 @@ export default async function LocaleLayout({
         <link rel="dns-prefetch" href="https://api.coingecko.com" />
       </head>
       <body>
-        {process.env.NEXT_PUBLIC_GA_ID ? (
+        {/*
+          Tag Manager / Analytics. Prefer GTM (one container, configure GA + Ads
+          + Pixel inside GTM dashboard). Falls back to direct GA4 if no GTM.
+          Both load via `strategy="worker"` (Partytown) when nextScriptWorkers
+          is enabled — off main thread, no INP / LCP cost.
+        */}
+        {process.env.NEXT_PUBLIC_GTM_ID ? (
+          <>
+            <Script
+              id="gtm-base"
+              strategy="worker"
+              dangerouslySetInnerHTML={{
+                __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');`,
+              }}
+            />
+            <noscript>
+              <iframe
+                src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+                height="0"
+                width="0"
+                style={{ display: "none", visibility: "hidden" }}
+                title="GTM"
+              />
+            </noscript>
+          </>
+        ) : process.env.NEXT_PUBLIC_GA_ID ? (
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-              strategy="afterInteractive"
+              strategy="worker"
             />
-            <Script id="ga-init" strategy="afterInteractive">
+            <Script id="ga-init" strategy="worker">
               {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_ID}',{anonymize_ip:true});`}
             </Script>
           </>

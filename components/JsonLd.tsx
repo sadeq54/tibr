@@ -135,12 +135,6 @@ export function JsonLd({
     description:
       "Real-time gold price aggregation via WebSocket from Binance, Coinbase and Kraken with median computation across exchanges.",
     audience: { "@type": "Audience", audienceType: "Investors, Jewellers, Traders" },
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-      availability: "https://schema.org/InStock",
-    },
   };
 
   const products = spot
@@ -300,6 +294,21 @@ export function JsonLd({
     ],
   };
 
+  // Quotation = real-time entity signal. Tells Google "this is a live price
+  // snapshot at a specific time" — strengthens commodity-data entity graph.
+  const quotation = spot
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Quotation",
+        "@id": `${siteUrl}/#quote-xau`,
+        spokenByCharacter: { "@id": `${siteUrl}/#org` },
+        about: { "@id": `${siteUrl}/#xau` },
+        text: `Spot gold (XAU/USD): ${spot.price.toFixed(2)} per troy ounce, updated ${new Date(spot.timestamp * 1000).toISOString()}.`,
+        dateCreated: new Date(spot.timestamp * 1000).toISOString(),
+        inLanguage: ["en", "ar"],
+      }
+    : null;
+
   const payload: object[] = [];
   if (!pageOnly) {
     payload.push(organization, website, service);
@@ -309,6 +318,7 @@ export function JsonLd({
   if (!pageOnly) payload.push(faq);
   payload.push(...products);
   if (financialProduct) payload.push(financialProduct);
+  if (quotation) payload.push(quotation);
   const json = JSON.stringify(payload);
 
   return (

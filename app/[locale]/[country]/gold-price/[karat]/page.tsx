@@ -4,11 +4,14 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { BidAskGauge } from "@/components/BidAskGauge";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Calculator } from "@/components/Calculator";
 import { Faq } from "@/components/Faq";
 import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
+import { KaratSwitcher } from "@/components/KaratSwitcher";
+import { RelatedLinks } from "@/components/RelatedLinks";
 import { Sidebar } from "@/components/Sidebar";
 import { PriceChart } from "@/components/PriceChart";
 import { StoresMarquee } from "@/components/StoresMarquee";
@@ -172,6 +175,17 @@ export default async function CountryKaratPage({
     <>
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <Breadcrumb
+          locale={locale}
+          items={[
+            { name: locale === "en" ? "Home" : "الرئيسية", href: locale === "en" ? "/en" : "/" },
+            { name: name, href: `/${slug}/gold-price/21k` },
+            {
+              name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب ${upper}`,
+              href: `/${slug}/gold-price/${karat}`,
+            },
+          ]}
+        />
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="min-w-0 space-y-8">
             <header>
@@ -248,8 +262,22 @@ export default async function CountryKaratPage({
                 }
               />
             </Suspense>
+            <KaratSwitcher current={karat} basePath={`/${slug}/gold-price`} locale={locale} />
+
             <StoresMarquee />
             <Faq />
+
+            <RelatedLinks
+              heading={locale === "ar" ? `صفحات ذات صلة لـ ${name}` : `Related ${name} pages`}
+              items={[
+                { href: `/${slug}/gold-price/24k`, label: locale === "ar" ? `${name} 24K` : `${name} 24K`, note: locale === "ar" ? "أعلى نقاء" : "Highest purity" },
+                { href: `/${slug}/gold-price/21k`, label: locale === "ar" ? `${name} 21K` : `${name} 21K`, note: locale === "ar" ? "الأكثر تداولاً" : "Most traded" },
+                { href: "/spot-gold", label: locale === "ar" ? "السعر الفوري XAU/USD" : "Spot Gold (XAU/USD)", note: locale === "ar" ? "السعر العالمي بالدولار" : "Global USD reference" },
+                { href: "/gold-calculator", label: locale === "ar" ? "حاسبة الذهب" : "Gold calculator", note: locale === "ar" ? `بعملة ${country.currency}` : `In ${country.currency}` },
+                { href: "/news/spot-gold-vs-retail-jeweller-spread", label: locale === "ar" ? "هامش الصائغ" : "Spot vs retail spread", note: locale === "ar" ? "كيف يُحسب السعر" : "How prices are set" },
+                { href: "/methodology", label: locale === "ar" ? "المنهجية" : "Methodology", note: locale === "ar" ? "من أين تأتي الأسعار" : "Where prices come from" },
+              ]}
+            />
           </section>
           <Sidebar adClient={adsClient} />
         </div>

@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   // Drop X-Powered-By: Next header — leaks framework info, flagged by SEO audits.
   poweredByHeader: false,
+  // Run third-party scripts (GTM/GA/Pixel) in a Web Worker via Partytown.
+  // Frees main thread → improves INP + LCP. Requires `@builder.io/partytown`
+  // and `partytown copylib public/~partytown` (wired in `postinstall`).
+  experimental: {
+    nextScriptWorkers: true,
+  },
   // Modern image formats (AVIF/WebP) + auto-sized device variants for LCP.
   images: {
     formats: ["image/avif", "image/webp"],

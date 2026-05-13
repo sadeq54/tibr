@@ -8,7 +8,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { StoresMarquee } from "@/components/StoresMarquee";
 import { TradingViewChart } from "@/components/TradingViewChart";
 import { Link } from "@/i18n/navigation";
-import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
+import { buildAlternates, buildOpenGraph, SITE_URL } from "@/lib/metadata";
 
 const VALID_YEARS = [2024, 2025, 2026];
 
@@ -43,8 +43,51 @@ export default async function HistoricalPage({
   const t = await getTranslations("HistoricalPage");
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
+  const datasetSchema = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "@id": `${SITE_URL}/historical-gold-prices/${year}#dataset`,
+    name: `Historical Gold Price ${year} — Daily OHLC`,
+    description: `Daily open / high / low / close gold price (XAU/USD) data for ${year}, sourced from COMEX gold futures (GC=F) and LBMA spot equivalents. Aggregated by Gold Prices Arabia.`,
+    url: `${SITE_URL}/historical-gold-prices/${year}`,
+    isAccessibleForFree: true,
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    keywords: [
+      "gold price history",
+      "gold OHLC",
+      "XAU/USD historical",
+      `gold price ${year}`,
+      "COMEX gold futures",
+      "LBMA spot gold",
+    ],
+    temporalCoverage: `${year}-01-01/${year}-12-31`,
+    variableMeasured: [
+      { "@type": "PropertyValue", name: "Open", unitText: "USD per troy ounce" },
+      { "@type": "PropertyValue", name: "High", unitText: "USD per troy ounce" },
+      { "@type": "PropertyValue", name: "Low", unitText: "USD per troy ounce" },
+      { "@type": "PropertyValue", name: "Close", unitText: "USD per troy ounce" },
+      { "@type": "PropertyValue", name: "Volume", unitText: "contracts" },
+    ],
+    measurementTechnique:
+      "COMEX gold futures (GC=F) daily settlement; cross-verified against LBMA AM/PM fix.",
+    creator: { "@id": `${SITE_URL}/#org` },
+    publisher: { "@id": `${SITE_URL}/#org` },
+    distribution: [
+      {
+        "@type": "DataDownload",
+        encodingFormat: "application/json",
+        contentUrl: `${SITE_URL}/api/spot?symbol=XAU&year=${year}`,
+      },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetSchema) }}
+      />
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">

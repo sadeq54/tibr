@@ -118,6 +118,20 @@ If quota hit: "Quota exceeded" message. Retry tomorrow.
 - [ ] https://goldpricesarabia.com/best-gold-price
 - [ ] https://goldpricesarabia.com/en/best-gold-price
 
+**Priority 0.7 — Editorial articles (NewsArticle schema)**
+-  https://goldpricesarabia.com/news/saudi-gold-21k-may-2026-overview
+-  https://goldpricesarabia.com/en/news/saudi-gold-21k-may-2026-overview
+-  https://goldpricesarabia.com/news/spot-gold-vs-retail-jeweller-spread
+-  https://goldpricesarabia.com/en/news/spot-gold-vs-retail-jeweller-spread
+-  https://goldpricesarabia.com/news/ramadan-eid-2026-gold-demand-cycle
+-  https://goldpricesarabia.com/en/news/ramadan-eid-2026-gold-demand-cycle
+-  https://goldpricesarabia.com/news/egypt-18k-vs-21k-gold-shift
+-  https://goldpricesarabia.com/en/news/egypt-18k-vs-21k-gold-shift
+-  https://goldpricesarabia.com/news/5-home-tests-to-spot-fake-gold
+-  https://goldpricesarabia.com/en/news/5-home-tests-to-spot-fake-gold
+-  https://goldpricesarabia.com/news/silver-platinum-palladium-investment-comparison
+-  https://goldpricesarabia.com/en/news/silver-platinum-palladium-investment-comparison
+
 **Priority 0.65 — Specialty**
 - [ ] https://goldpricesarabia.com/shanghai-gold-exchange
 - [ ] https://goldpricesarabia.com/en/shanghai-gold-exchange

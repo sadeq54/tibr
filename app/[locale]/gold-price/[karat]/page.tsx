@@ -4,9 +4,12 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { BidAskGauge } from "@/components/BidAskGauge";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Calculator } from "@/components/Calculator";
 import { Faq } from "@/components/Faq";
 import { Header } from "@/components/Header";
+import { KaratSwitcher } from "@/components/KaratSwitcher";
+import { RelatedLinks } from "@/components/RelatedLinks";
 import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
 import { Sidebar } from "@/components/Sidebar";
@@ -133,6 +136,16 @@ export default async function KaratPage({
       />
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <Breadcrumb
+          locale={locale}
+          items={[
+            { name: locale === "en" ? "Home" : "الرئيسية", href: locale === "en" ? "/en" : "/" },
+            {
+              name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب ${upper}`,
+              href: pageUrl,
+            },
+          ]}
+        />
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="min-w-0 space-y-8">
             <SeoStaticHeader
@@ -143,6 +156,8 @@ export default async function KaratPage({
               titleVars={{ karat: upper }}
               introVars={{ karat: upper }}
             />
+
+            <KaratSwitcher current={karat} basePath="/gold-price" locale={locale} />
 
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection promise={spotPromise} />
@@ -163,6 +178,18 @@ export default async function KaratPage({
             </Suspense>
             <StoresMarquee />
             <Faq />
+
+            <RelatedLinks
+              heading={locale === "ar" ? "صفحات ذات صلة" : "Related pages"}
+              items={[
+                { href: "/spot-gold", label: locale === "ar" ? "السعر الفوري XAU/USD" : "Spot Gold (XAU/USD)", note: locale === "ar" ? "السعر الحي بالأونصة" : "Live per troy ounce" },
+                { href: "/gold-price-per-gram", label: locale === "ar" ? "سعر الجرام" : "Price per gram", note: locale === "ar" ? "كل العيارات والعملات" : "All karats and currencies" },
+                { href: "/gold-calculator", label: locale === "ar" ? "حاسبة الذهب" : "Gold calculator", note: locale === "ar" ? "احسب قيمة قطعتك" : "Calculate any weight" },
+                { href: "/saudi-arabia/gold-price/21k", label: locale === "ar" ? "أسعار السعودية" : "Saudi Arabia prices", note: locale === "ar" ? "بالريال السعودي" : "In Saudi Riyal" },
+                { href: "/news/spot-gold-vs-retail-jeweller-spread", label: locale === "ar" ? "هامش الصائغ" : "Spot vs retail spread", note: locale === "ar" ? "أين يذهب الفارق" : "Where the markup goes" },
+                { href: "/methodology", label: locale === "ar" ? "المنهجية" : "Methodology", note: locale === "ar" ? "كيف نحسب الأسعار" : "How we calculate prices" },
+              ]}
+            />
           </section>
           <Sidebar adClient={adsClient} />
         </div>

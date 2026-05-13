@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Header } from "@/components/Header";
 import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/i18n/navigation";
@@ -85,6 +86,14 @@ export default async function AuthorPage({
       />
       <Header />
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <Breadcrumb
+          locale={locale}
+          items={[
+            { name: locale === "en" ? "Home" : "الرئيسية", href: locale === "en" ? "/en" : "/" },
+            { name: tInfo("aboutH1"), href: locale === "en" ? "/en/about" : "/about" },
+            { name: t("h1"), href: pageUrl },
+          ]}
+        />
         <article>
           <header className="mb-8 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             <Image
