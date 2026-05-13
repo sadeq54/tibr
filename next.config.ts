@@ -26,6 +26,8 @@ const nextConfig: NextConfig = {
   // render. Migrating to fully static ISR would require dropping live
   // WebSocket data and is left as a separate task.
   cacheComponents: true,
+  // Drop X-Powered-By: Next header — leaks framework info, flagged by SEO audits.
+  poweredByHeader: false,
   // Modern image formats (AVIF/WebP) + auto-sized device variants for LCP.
   images: {
     formats: ["image/avif", "image/webp"],

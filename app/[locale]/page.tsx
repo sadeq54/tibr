@@ -163,7 +163,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="min-w-0 space-y-8">
-            <Reveal as="header">
+            <header>
               <h1 className="text-3xl font-bold tracking-tight text-[var(--color-gold)]">
                 {t("h1")}
               </h1>
@@ -176,7 +176,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                   ),
                 })}
               </p>
-            </Reveal>
+            </header>
 
             <LiveGoldStream />
 
