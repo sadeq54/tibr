@@ -179,51 +179,29 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               </p>
               <nav
                 aria-label={locale === "ar" ? "روابط سريعة" : "Quick links"}
-                className="mt-4 flex flex-wrap gap-x-3 gap-y-1.5 text-xs"
+                className="mt-4 flex flex-wrap gap-2 text-sm"
               >
-                <Link href="/gold-price/24k" className="text-[var(--color-gold)] hover:underline">
-                  24K
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/gold-price/21k" className="text-[var(--color-gold)] hover:underline">
-                  21K
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/gold-price/18k" className="text-[var(--color-gold)] hover:underline">
-                  18K
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/gold-price/14k" className="text-[var(--color-gold)] hover:underline">
-                  14K
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/spot-gold" className="text-[var(--color-gold)] hover:underline">
-                  {locale === "ar" ? "السعر الفوري" : "Spot Gold"}
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/gold-price-chart" className="text-[var(--color-gold)] hover:underline">
-                  {locale === "ar" ? "الرسم البياني" : "Chart"}
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/gold-calculator" className="text-[var(--color-gold)] hover:underline">
-                  {locale === "ar" ? "الحاسبة" : "Calculator"}
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/saudi-arabia/gold-price/21k" className="text-[var(--color-gold)] hover:underline">
-                  🇸🇦 {locale === "ar" ? "السعودية" : "Saudi"}
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/uae/gold-price/21k" className="text-[var(--color-gold)] hover:underline">
-                  🇦🇪 {locale === "ar" ? "الإمارات" : "UAE"}
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/egypt/gold-price/21k" className="text-[var(--color-gold)] hover:underline">
-                  🇪🇬 {locale === "ar" ? "مصر" : "Egypt"}
-                </Link>
-                <span className="text-[var(--color-text-dim)]">·</span>
-                <Link href="/news" className="text-[var(--color-gold)] hover:underline">
-                  {locale === "ar" ? "الأخبار" : "News"}
-                </Link>
+                {[
+                  { href: "/gold-price/24k", label: "24K" },
+                  { href: "/gold-price/21k", label: "21K" },
+                  { href: "/gold-price/18k", label: "18K" },
+                  { href: "/gold-price/14k", label: "14K" },
+                  { href: "/spot-gold", label: locale === "ar" ? "السعر الفوري" : "Spot Gold" },
+                  { href: "/gold-price-chart", label: locale === "ar" ? "الرسم البياني" : "Chart" },
+                  { href: "/gold-calculator", label: locale === "ar" ? "الحاسبة" : "Calculator" },
+                  { href: "/saudi-arabia/gold-price/21k", label: `🇸🇦 ${locale === "ar" ? "السعودية" : "Saudi"}` },
+                  { href: "/uae/gold-price/21k", label: `🇦🇪 ${locale === "ar" ? "الإمارات" : "UAE"}` },
+                  { href: "/egypt/gold-price/21k", label: `🇪🇬 ${locale === "ar" ? "مصر" : "Egypt"}` },
+                  { href: "/news", label: locale === "ar" ? "الأخبار" : "News" },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href as never}
+                    className="inline-flex min-h-11 items-center rounded-full border border-[var(--color-gold)]/40 bg-[var(--color-gold)]/5 px-4 py-2 font-medium text-[var(--color-gold)] transition hover:bg-[var(--color-gold)]/15"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
               </nav>
             </header>
 
@@ -390,7 +368,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             </section>
           </section>
 
-          <Sidebar adClient={adsClient} />
+          <LazyMount minHeight={300} className="hidden lg:block">
+            <Sidebar adClient={adsClient} />
+          </LazyMount>
         </div>
       </main>
 

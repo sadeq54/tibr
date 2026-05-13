@@ -24,9 +24,9 @@ export function Sidebar({ adClient }: { adClient: string }) {
       <AdSlot client={adClient} label={t("adTop")} adsenseLabel={t("adsense", { client: adClient })} />
 
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5">
-        <h4 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
+        <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
           {t("quickLinks")}
-        </h4>
+        </h2>
         <nav className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3 lg:grid-cols-1">
           {KARAT_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="text-[var(--color-gold)] hover:underline">
