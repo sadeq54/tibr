@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+/*
+ * Windows Chrome ships no native color glyphs for regional indicator
+ * codepoints (U+1F1E6-U+1F1FF) — flag emoji render as letter pairs in
+ * boxes. macOS/iOS/Android render flags via system color emoji.
+ *
+ * Load Twemoji Country Flags ONLY for the flag unicode ranges via
+ * unicode-range — non-flag glyphs continue to use the system stack
+ * below, so this adds no overhead to regular text rendering.
+ */
+@font-face {
+  font-family: "Twemoji Country Flags";
+  unicode-range: U+1F1E6-1F1FF, U+1F3F4, U+E0062-E007F;
+  src: url("/fonts/TwemojiCountryFlags.woff2") format("woff2");
+  font-display: swap;
+}
+
 @theme {
   --color-bg: #0a0a0a;
   --color-bg-card: #111111;
@@ -59,7 +75,7 @@ html, body {
   padding: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: "Twemoji Country Flags", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 

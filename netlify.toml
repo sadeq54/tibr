@@ -58,6 +58,13 @@
   [headers.values]
     Cache-Control = "public, max-age=2592000, immutable"
 
+# Self-hosted fonts (TwemojiCountryFlags.woff2 polyfills missing Windows
+# Chrome flag emoji glyphs) — versioned by filename, long cache safe.
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # Stable assets (logos, manifest, icons) — 1 day
 [[headers]]
   for = "/appIcone.*"
