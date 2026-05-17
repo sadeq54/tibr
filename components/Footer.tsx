@@ -2,6 +2,7 @@ import { Globe } from "lucide-react";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { Flag } from "@/components/Flag";
 import { Link } from "@/i18n/navigation";
 import { COUNTRIES, countryName } from "@/lib/countries";
 
@@ -77,9 +78,8 @@ export async function Footer() {
                     className="group flex items-center gap-2 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-gold)]"
                     title={`${countryName(c, locale)} · ${c.currency}`}
                   >
-                    <span className="text-base leading-none" aria-hidden>
-                      {c.flag}
-                    </span>
+                    <Flag cc={c.cc} size={14} />
+
                     <span className="truncate text-xs font-medium">
                       {t("countryItem", { name: countryName(c, locale) })}
                     </span>

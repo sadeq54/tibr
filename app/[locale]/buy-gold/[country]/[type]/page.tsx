@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { Flag } from "@/components/Flag";
 import { HeroSpot } from "@/components/HeroSpot";
 import { PageShell } from "@/components/PageShell";
 import { HeroSpotSkeleton } from "@/components/skeletons";
@@ -94,7 +95,7 @@ export default async function BuyGoldTypePage({
     <PageShell
       title={titleFor(type as Type, t, name)}
       intro={introFor(type as Type, t, name)}
-      badge={`${c.flag} ${name}`}
+      badge={<><Flag cc={c.cc} size={12} className="me-1" /> {name}</>}
     >
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => {

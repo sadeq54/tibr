@@ -16,7 +16,7 @@ export function PageShell({
 }: {
   title: string;
   intro?: React.ReactNode;
-  badge?: string;
+  badge?: React.ReactNode;
   children: React.ReactNode;
   showFaq?: boolean;
   showChart?: boolean;

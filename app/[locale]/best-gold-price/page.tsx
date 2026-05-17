@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
+import { Flag } from "@/components/Flag";
 import { PageShell } from "@/components/PageShell";
 import { Link } from "@/i18n/navigation";
 import { COUNTRIES, countryName } from "@/lib/countries";
@@ -79,7 +80,7 @@ export default async function BestGoldPricePage({
                       href={`/best-gold-price/${country.slug}`}
                       className="flex items-center gap-2 font-semibold text-[var(--color-gold)] hover:underline"
                     >
-                      <span aria-hidden>{country.flag}</span>
+                      <Flag cc={country.cc} size={14} />
                       <span>{countryName(country, lang)}</span>
                     </Link>
                   </td>

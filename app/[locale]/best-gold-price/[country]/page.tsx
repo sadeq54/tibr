@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { Flag } from "@/components/Flag";
 import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
 import { PageShell } from "@/components/PageShell";
@@ -59,7 +60,7 @@ export default async function BestPriceCountryPage({
     <PageShell
       title={t("bestPriceCountryH1", { country: name })}
       intro={t("bestPriceCountryIntro", { country: name, currency: c.currency })}
-      badge={`${c.flag} ${name}`}
+      badge={<><Flag cc={c.cc} size={12} className="me-1" /> {name}</>}
     >
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => {

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type React from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AffiliateBanner } from "@/components/AffiliateBanner";
@@ -6,6 +7,7 @@ import { BidAskGauge } from "@/components/BidAskGauge";
 import { Calculator } from "@/components/Calculator";
 import { DebugConsole } from "@/components/DebugConsole";
 import { Faq } from "@/components/Faq";
+import { Flag } from "@/components/Flag";
 import { GeoRedirect } from "@/components/GeoRedirect";
 import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
@@ -192,7 +194,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 aria-label={locale === "ar" ? "روابط سريعة" : "Quick links"}
                 className="mt-4 flex flex-wrap gap-2 text-sm"
               >
-                {[
+                {([
                   { href: "/gold-price/24k", label: "24K" },
                   { href: "/gold-price/21k", label: "21K" },
                   { href: "/gold-price/18k", label: "18K" },
@@ -200,11 +202,11 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                   { href: "/spot-gold", label: locale === "ar" ? "السعر الفوري" : "Spot Gold" },
                   { href: "/gold-price-chart", label: locale === "ar" ? "الرسم البياني" : "Chart" },
                   { href: "/gold-calculator", label: locale === "ar" ? "الحاسبة" : "Calculator" },
-                  { href: "/saudi-arabia/gold-price/21k", label: `🇸🇦 ${locale === "ar" ? "السعودية" : "Saudi"}` },
-                  { href: "/uae/gold-price/21k", label: `🇦🇪 ${locale === "ar" ? "الإمارات" : "UAE"}` },
-                  { href: "/egypt/gold-price/21k", label: `🇪🇬 ${locale === "ar" ? "مصر" : "Egypt"}` },
+                  { href: "/saudi-arabia/gold-price/21k", label: <><Flag cc="SA" size={12} className="me-1" /> {locale === "ar" ? "السعودية" : "Saudi"}</> },
+                  { href: "/uae/gold-price/21k", label: <><Flag cc="AE" size={12} className="me-1" /> {locale === "ar" ? "الإمارات" : "UAE"}</> },
+                  { href: "/egypt/gold-price/21k", label: <><Flag cc="EG" size={12} className="me-1" /> {locale === "ar" ? "مصر" : "Egypt"}</> },
                   { href: "/news", label: locale === "ar" ? "الأخبار" : "News" },
-                ].map((item) => (
+                ] satisfies Array<{ href: string; label: React.ReactNode }>).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href as never}

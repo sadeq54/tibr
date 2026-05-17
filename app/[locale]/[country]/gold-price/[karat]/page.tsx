@@ -7,6 +7,7 @@ import { BidAskGauge } from "@/components/BidAskGauge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Calculator } from "@/components/Calculator";
 import { Faq } from "@/components/Faq";
+import { Flag } from "@/components/Flag";
 import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
@@ -193,9 +194,7 @@ export default async function CountryKaratPage({
                 href="/"
                 className="text-xs text-[var(--color-text-dim)] hover:text-[var(--color-gold)]"
               >
-                <span className="me-1" aria-hidden>
-                  {country.flag}
-                </span>
+                <Flag cc={country.cc} size={12} className="me-1" />
                 {name}
               </Link>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-gold)]">
