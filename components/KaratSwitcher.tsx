@@ -10,26 +10,36 @@ const PURITY: Record<string, string> = {
 
 /**
  * Sibling-karat switcher rendered on every karat-specific page. Links the
- * current page to each other karat at the same country (or global). Increases
- * internal link density + helps users compare directly.
+ * current page to each other karat at the same country (or global), plus an
+ * optional Historical link for the same scope. Increases internal link
+ * density + helps users compare directly.
  *
  *   <KaratSwitcher current="24k" basePath="/gold-price" locale={locale} />
  *   // → links to /gold-price/24k|21k|18k|14k
  *
- *   <KaratSwitcher current="21k" basePath="/saudi-arabia/gold-price" locale={locale} />
- *   // → links to /saudi-arabia/gold-price/24k|21k|18k|14k
+ *   <KaratSwitcher
+ *     current="21k"
+ *     basePath="/saudi-arabia/gold-price"
+ *     locale={locale}
+ *     historicalHref="/historical-gold-prices/2026"
+ *   />
  */
 export function KaratSwitcher({
   current,
   basePath,
   locale,
+  historicalHref,
 }: {
   current: string;
   basePath: string;
   locale: string;
+  historicalHref?: string;
 }) {
   const heading =
     locale === "ar" ? "تصفّح حسب العيار" : "Browse by karat";
+  const historicalLabel = locale === "ar" ? "السجل" : "Historical";
+  const historicalSubLabel = locale === "ar" ? "بيانات تاريخية" : "OHLC by year";
+  const columns = historicalHref ? "sm:grid-cols-5" : "sm:grid-cols-4";
 
   return (
     <section
@@ -42,7 +52,7 @@ export function KaratSwitcher({
       >
         {heading}
       </h2>
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className={`mt-3 grid grid-cols-2 gap-2 ${columns}`}>
         {KARATS.map((k) => {
           const isActive = k === current.toLowerCase();
           return (
@@ -65,6 +75,19 @@ export function KaratSwitcher({
             </Link>
           );
         })}
+        {historicalHref ? (
+          <Link
+            href={historicalHref as never}
+            className="flex flex-col items-start gap-0.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] p-3 text-[var(--color-text)] transition hover:border-[var(--color-gold)]/40"
+          >
+            <span className="text-base font-bold uppercase tracking-wide">
+              {historicalLabel}
+            </span>
+            <span className="text-[10px] text-[var(--color-text-dim)]">
+              {historicalSubLabel}
+            </span>
+          </Link>
+        ) : null}
       </div>
     </section>
   );

@@ -219,7 +219,12 @@ export default async function KaratPage({
               introVars={{ karat: upper }}
             />
 
-            <KaratSwitcher current={karat} basePath="/gold-price" locale={locale} />
+            <KaratSwitcher
+              current={karat}
+              basePath="/gold-price"
+              locale={locale}
+              historicalHref="/historical-gold-prices/2026"
+            />
 
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection promise={spotPromise} />

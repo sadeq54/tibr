@@ -283,6 +283,13 @@ export default async function CountryKaratPage({
               ) : null}
             </header>
 
+            <KaratSwitcher
+              current={karat}
+              basePath={`/${slug}/gold-price`}
+              locale={locale}
+              historicalHref="/historical-gold-prices/2026"
+            />
+
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection
                 promise={spotPromise}
@@ -323,8 +330,6 @@ export default async function CountryKaratPage({
                 }
               />
             </Suspense>
-            <KaratSwitcher current={karat} basePath={`/${slug}/gold-price`} locale={locale} />
-
             <StoresMarquee />
             <Faq />
 
