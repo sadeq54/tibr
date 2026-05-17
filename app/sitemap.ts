@@ -127,10 +127,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }
 
   // Buy gold pages — bullion coin/bar pricing changes daily-ish.
-  for (const c of ["usa", "uk", "canada", "australia"]) {
-    out.push(...dual(`buy-gold/${c}`, "weekly", 0.65));
+  // MENA markets (matches Footer's featured set) get tier-1 priority.
+  for (const c of ["usa", "uk", "canada", "australia", "saudi-arabia", "uae", "egypt", "morocco"]) {
+    const tier1 = TIER1_COUNTRIES.has(c);
+    const pHub = tier1 ? 0.75 : 0.65;
+    const pSub = tier1 ? 0.65 : 0.55;
+    out.push(...dual(`buy-gold/${c}`, "weekly", pHub));
     for (const t of ["coins", "small-coins", "bars"]) {
-      out.push(...dual(`buy-gold/${c}/${t}`, "weekly", 0.55));
+      out.push(...dual(`buy-gold/${c}/${t}`, "weekly", pSub));
     }
   }
 
