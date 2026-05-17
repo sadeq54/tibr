@@ -156,39 +156,39 @@ export async function Footer() {
 
           <div className="space-y-6">
             <FooterColumn
-              title={t("buyUSAHeading")}
+              title={t("buySAHeading")}
               links={[
-                { label: t("coinPrices"), href: "/buy-gold/usa/coins" },
-                { label: t("usaGoldPrices"), href: "/buy-gold/usa" },
-                { label: t("smallCoins"), href: "/buy-gold/usa/small-coins" },
-                { label: t("barPrices"), href: "/buy-gold/usa/bars" },
+                { label: t("saPrices"), href: "/buy-gold/saudi-arabia" },
+                { label: t("saCoins"), href: "/buy-gold/saudi-arabia/coins" },
+                { label: t("saSmallCoins"), href: "/buy-gold/saudi-arabia/small-coins" },
+                { label: t("saBars"), href: "/buy-gold/saudi-arabia/bars" },
               ]}
             />
             <FooterColumn
-              title={t("buyUKHeading")}
+              title={t("buyAEHeading")}
               links={[
-                { label: t("ukPrices"), href: "/buy-gold/uk" },
-                { label: t("ukCoins"), href: "/buy-gold/uk/coins" },
-                { label: t("ukSmallCoins"), href: "/buy-gold/uk/small-coins" },
-                { label: t("ukBars"), href: "/buy-gold/uk/bars" },
+                { label: t("aePrices"), href: "/buy-gold/uae" },
+                { label: t("aeCoins"), href: "/buy-gold/uae/coins" },
+                { label: t("aeSmallCoins"), href: "/buy-gold/uae/small-coins" },
+                { label: t("aeBars"), href: "/buy-gold/uae/bars" },
               ]}
             />
             <FooterColumn
-              title={t("buyCAHeading")}
+              title={t("buyEGHeading")}
               links={[
-                { label: t("caPrices"), href: "/buy-gold/canada" },
-                { label: t("caCoins"), href: "/buy-gold/canada/coins" },
-                { label: t("caSmallCoins"), href: "/buy-gold/canada/small-coins" },
-                { label: t("caBars"), href: "/buy-gold/canada/bars" },
+                { label: t("egPrices"), href: "/buy-gold/egypt" },
+                { label: t("egCoins"), href: "/buy-gold/egypt/coins" },
+                { label: t("egSmallCoins"), href: "/buy-gold/egypt/small-coins" },
+                { label: t("egBars"), href: "/buy-gold/egypt/bars" },
               ]}
             />
             <FooterColumn
-              title={t("buyAUHeading")}
+              title={t("buyMAHeading")}
               links={[
-                { label: t("auPrices"), href: "/buy-gold/australia" },
-                { label: t("auCoins"), href: "/buy-gold/australia/coins" },
-                { label: t("auSmallCoins"), href: "/buy-gold/australia/small-coins" },
-                { label: t("auBars"), href: "/buy-gold/australia/bars" },
+                { label: t("maPrices"), href: "/buy-gold/morocco" },
+                { label: t("maCoins"), href: "/buy-gold/morocco/coins" },
+                { label: t("maSmallCoins"), href: "/buy-gold/morocco/small-coins" },
+                { label: t("maBars"), href: "/buy-gold/morocco/bars" },
               ]}
             />
           </div>

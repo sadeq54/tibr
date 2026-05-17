@@ -11,7 +11,10 @@ import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
-const SUPPORTED_COUNTRIES = ["usa", "uk", "canada", "australia"] as const;
+const SUPPORTED_COUNTRIES = [
+  "usa", "uk", "canada", "australia",
+  "saudi-arabia", "uae", "egypt", "morocco",
+] as const;
 const SUPPORTED_TYPES = ["coins", "small-coins", "bars"] as const;
 type Type = (typeof SUPPORTED_TYPES)[number];
 

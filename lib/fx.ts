@@ -54,6 +54,7 @@ const FALLBACK_RATES: Record<string, number> = {
   ILS: 3.7,
   LBP: 89500,
   LYD: 4.85,
+  MAD: 10.0,
   MXN: 17,
   ARS: 920,
   BRL: 5.05,

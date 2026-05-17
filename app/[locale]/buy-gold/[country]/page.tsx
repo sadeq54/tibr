@@ -16,7 +16,10 @@ import { fetchFxRates } from "@/lib/fx";
 import { fetchSpot } from "@/lib/goldapi";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
-const SUPPORTED = ["usa", "uk", "canada", "australia"] as const;
+const SUPPORTED = [
+  "usa", "uk", "canada", "australia",
+  "saudi-arabia", "uae", "egypt", "morocco",
+] as const;
 
 export function generateStaticParams() {
   return SUPPORTED.map((country) => ({ country }));
