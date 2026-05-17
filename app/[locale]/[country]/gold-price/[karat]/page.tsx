@@ -251,6 +251,13 @@ export default async function CountryKaratPage({
         />
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="min-w-0 space-y-8">
+            <KaratSwitcher
+              current={karat}
+              basePath={`/${slug}/gold-price`}
+              locale={locale}
+              historicalHref="/historical-gold-prices/2026"
+            />
+
             <header>
               <Link
                 href="/"
@@ -282,13 +289,6 @@ export default async function CountryKaratPage({
                 </section>
               ) : null}
             </header>
-
-            <KaratSwitcher
-              current={karat}
-              basePath={`/${slug}/gold-price`}
-              locale={locale}
-              historicalHref="/historical-gold-prices/2026"
-            />
 
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection

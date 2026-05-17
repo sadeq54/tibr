@@ -210,6 +210,13 @@ export default async function KaratPage({
         />
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="min-w-0 space-y-8">
+            <KaratSwitcher
+              current={karat}
+              basePath="/gold-price"
+              locale={locale}
+              historicalHref="/historical-gold-prices/2026"
+            />
+
             <SeoStaticHeader
               locale={locale}
               namespace="KaratPage"
@@ -217,13 +224,6 @@ export default async function KaratPage({
               introKey="intro"
               titleVars={{ karat: upper }}
               introVars={{ karat: upper }}
-            />
-
-            <KaratSwitcher
-              current={karat}
-              basePath="/gold-price"
-              locale={locale}
-              historicalHref="/historical-gold-prices/2026"
             />
 
             <Suspense fallback={<HeroSpotSkeleton />}>
