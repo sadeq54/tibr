@@ -57,6 +57,9 @@ export async function fetchHistory(
         Accept: "application/json",
       },
       next: { revalidate: 3600 },
+      // Cap upstream latency. Yahoo from some Netlify regions can hang
+      // for >10s; without a timeout the whole chart Suspense boundary blocks.
+      signal: AbortSignal.timeout(3000),
     });
     if (!r.ok) return [];
     const data = (await r.json()) as YahooResponse;

@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, Radio, Wifi, WifiOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useLivePrice, type SourceState } from "@/components/LivePriceProvider";
+import type { GoldApiResponse } from "@/lib/goldapi";
 
 function useNow(intervalMs = 1000): number {
   const [now, setNow] = useState(() =>
@@ -35,12 +36,16 @@ function fmtVol(n: number): string {
   return n.toFixed(2);
 }
 
-export function LiveGoldStream() {
+export function LiveGoldStream({ initialSpot }: { initialSpot?: GoldApiResponse | null } = {}) {
   const t = useTranslations("LiveStream");
   const live = useLivePrice();
   const valid = live.sources.filter((s) => s.last > 0);
   const connected = live.sources.filter((s) => s.connected).length;
-  const up = (live.changePct24 ?? 0) >= 0;
+  // Fall back to SSR snapshot until first WebSocket tick arrives — prevents
+  // blank "$0.00" flash above the fold on cold loads.
+  const xau = live.xau ?? initialSpot?.price ?? 0;
+  const chPct = live.changePct24 ?? initialSpot?.chp ?? 0;
+  const up = chPct >= 0;
   const trend = up ? "var(--color-up)" : "var(--color-down)";
 
   return (
@@ -65,14 +70,14 @@ export function LiveGoldStream() {
           <div className="mt-2 flex items-baseline gap-3">
             <AnimatePresence mode="popLayout">
               <motion.div
-                key={`med-${(live.xau ?? 0).toFixed(2)}`}
+                key={`med-${xau.toFixed(2)}`}
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
                 transition={{ duration: 0.18 }}
                 className="font-mono text-3xl font-bold tracking-tight text-[var(--color-text)] sm:text-5xl"
               >
-                {fmtUsd(live.xau ?? 0)}
+                {fmtUsd(xau)}
               </motion.div>
             </AnimatePresence>
             <span className="text-sm text-[var(--color-text-dim)]">{t("perOz")}</span>
@@ -84,7 +89,7 @@ export function LiveGoldStream() {
               style={{ color: trend, background: `${trend}1a` }}
             >
               {up ? <ArrowUp size={10} /> : <ArrowDown size={10} />}
-              {fmtPct(live.changePct24 ?? 0)}
+              {fmtPct(chPct)}
             </span>
             <span className="text-[var(--color-text-dim)]">
               {t("medianAcross", { n: valid.length })}

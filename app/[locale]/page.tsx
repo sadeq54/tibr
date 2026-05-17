@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { connection } from "next/server";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AffiliateBanner } from "@/components/AffiliateBanner";
@@ -37,9 +36,14 @@ import {
   PriceChartSkeleton,
 } from "@/components/skeletons";
 import { Link } from "@/i18n/navigation";
-import { fetchFxRates, type FxRates } from "@/lib/fx";
-import { fetchMetals, type MetalsBundle } from "@/lib/goldapi";
-import { fetchAllHistory, type MetalHistory } from "@/lib/history";
+import {
+  getCachedAllHistory,
+  getCachedFxRates,
+  getCachedMetals,
+} from "@/lib/cached-fetchers";
+import type { FxRates } from "@/lib/fx";
+import type { MetalsBundle } from "@/lib/goldapi";
+import type { MetalHistory } from "@/lib/history";
 import { buildAlternates, buildOpenGraph, SITE_URL } from "@/lib/metadata";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -60,6 +64,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 async function HeroSpotSection({ promise }: { promise: Promise<MetalsBundle> }) {
   const m = await promise;
   return <HeroSpot spot={m.XAU} />;
+}
+
+async function LiveGoldStreamSection({ promise }: { promise: Promise<MetalsBundle> }) {
+  const m = await promise;
+  return <LiveGoldStream initialSpot={m.XAU} />;
 }
 
 async function MetalsStripSection({ promise }: { promise: Promise<MetalsBundle> }) {
@@ -135,14 +144,16 @@ async function MetaSection({
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await connection();
 
   const t = await getTranslations("Page");
 
   // Kick off fetches in parallel; share promises with Suspense children.
-  const metalsPromise = fetchMetals();
-  const fxPromise = fetchFxRates();
-  const historyPromise = fetchAllHistory("1y");
+  // Cached wrappers ("use cache" + cacheLife) let Next prerender the shell
+  // and reuse data across requests via ISR — critical on serverless where
+  // raw fetch() caches don't persist across lambda instances.
+  const metalsPromise = getCachedMetals();
+  const fxPromise = getCachedFxRates();
+  const historyPromise = getCachedAllHistory("1y");
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
@@ -205,9 +216,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               </nav>
             </header>
 
-            <LazyMount minHeight={120}>
-              <LiveGoldStream />
-            </LazyMount>
+            <Suspense fallback={<HeroSpotSkeleton />}>
+              <LiveGoldStreamSection promise={metalsPromise} />
+            </Suspense>
 
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection promise={metalsPromise} />
