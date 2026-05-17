@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Calculator } from "@/components/Calculator";
-import { PageReviewer } from "@/components/PageReviewer";
 import { PageShell } from "@/components/PageShell";
 import { CalculatorSkeleton } from "@/components/skeletons";
 import { getCachedFxRates, getCachedSpot } from "@/lib/cached-fetchers";
@@ -167,7 +166,6 @@ export default async function GoldCalculatorPage({
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaPayload) }}
       />
-      <PageReviewer locale={locale} />
       <Suspense fallback={<CalculatorSkeleton />}>
         {(async () => {
           const [s, fx] = await Promise.all([spotPromise, fxPromise]);

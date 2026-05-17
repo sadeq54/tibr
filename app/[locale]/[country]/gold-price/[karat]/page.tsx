@@ -9,7 +9,6 @@ import { Calculator } from "@/components/Calculator";
 import { Faq } from "@/components/Faq";
 import { Flag } from "@/components/Flag";
 import { Header } from "@/components/Header";
-import { PageReviewer } from "@/components/PageReviewer";
 import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
 import { KaratSwitcher } from "@/components/KaratSwitcher";
@@ -269,7 +268,6 @@ export default async function CountryKaratPage({
               <div className="mt-3 inline-block rounded-md border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/10 px-3 py-1.5 text-xs text-[var(--color-gold)]">
                 {tPage("currencyNote", { currency: country.currency })}
               </div>
-              <PageReviewer locale={locale} />
               {note ? (
                 <section
                   aria-label={locale === "ar" ? "ملاحظات السوق المحلي" : "Local market notes"}

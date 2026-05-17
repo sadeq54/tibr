@@ -3,7 +3,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BidAskGauge } from "@/components/BidAskGauge";
 import { HeroSpot } from "@/components/HeroSpot";
-import { PageReviewer } from "@/components/PageReviewer";
 import { PageShell } from "@/components/PageShell";
 import { PriceChart } from "@/components/PriceChart";
 import {
@@ -117,7 +116,6 @@ export default async function SpotGoldPage({
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(spotFaqSchema) }}
       />
-      <PageReviewer locale={locale} />
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => <HeroSpot spot={await spotPromise} />)()}
       </Suspense>

@@ -24,7 +24,6 @@ import {
   PriceChartSkeleton,
 } from "@/components/skeletons";
 import { JsonLd } from "@/components/JsonLd";
-import { PageReviewer } from "@/components/PageReviewer";
 import { SeoStaticHeader } from "@/components/SeoStaticHeader";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
@@ -219,8 +218,6 @@ export default async function KaratPage({
               titleVars={{ karat: upper }}
               introVars={{ karat: upper }}
             />
-
-            <PageReviewer locale={locale} />
 
             <KaratSwitcher current={karat} basePath="/gold-price" locale={locale} />
 

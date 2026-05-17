@@ -3,7 +3,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Calculator } from "@/components/Calculator";
 import { KaratGrid } from "@/components/KaratGrid";
-import { PageReviewer } from "@/components/PageReviewer";
 import { PageShell } from "@/components/PageShell";
 import {
   CalculatorSkeleton,
@@ -95,7 +94,6 @@ export default async function PerGramPage({
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(perGramFaqSchema) }}
       />
-      <PageReviewer locale={locale} />
       <Suspense fallback={<KaratGridSkeleton />}>
         {(async () => {
           const [s, fx] = await Promise.all([spotPromise, fxPromise]);
