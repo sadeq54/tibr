@@ -1,10 +1,15 @@
 import { Globe } from "lucide-react";
-import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Flag } from "@/components/Flag";
 import { Link } from "@/i18n/navigation";
 import { COUNTRIES, countryName } from "@/lib/countries";
+
+// Hardcoded copyright year — using `new Date().getFullYear()` would require
+// either `connection()` (which forces the layout dynamic and poisons PPR
+// site-wide) or a `"use cache"` scope (which can't reach getLocale /
+// getTranslations). Bump annually at year boundary.
+const COPYRIGHT_YEAR = 2026;
 
 type LinkItem = { label: string; href: string; external?: boolean };
 
@@ -45,8 +50,7 @@ export async function Footer() {
   const t = await getTranslations("Footer");
   const tPage = await getTranslations("Page");
   const locale = await getLocale();
-  await connection();
-  const year = new Date().getFullYear();
+  const year = COPYRIGHT_YEAR;
 
   const sortedCountries = [...COUNTRIES].sort((a, b) =>
     locale === "ar"

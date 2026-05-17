@@ -1,13 +1,11 @@
 import { Suspense } from "react";
-import { connection } from "next/server";
 import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Flag } from "@/components/Flag";
 import { PageShell } from "@/components/PageShell";
 import { Link } from "@/i18n/navigation";
+import { getCachedFxRates, getCachedSpot } from "@/lib/cached-fetchers";
 import { COUNTRIES, countryName } from "@/lib/countries";
-import { fetchFxRates } from "@/lib/fx";
-import { fetchSpot } from "@/lib/goldapi";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
@@ -32,9 +30,8 @@ export default async function BestGoldPricePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("SubPage");
-  await connection();
 
-  const [spot, fx] = await Promise.all([fetchSpot("XAU"), fetchFxRates()]);
+  const [spot, fx] = await Promise.all([getCachedSpot("XAU"), getCachedFxRates()]);
   const lang = await getLocale();
 
   const rows = COUNTRIES.map((c) => {

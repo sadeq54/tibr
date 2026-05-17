@@ -1,8 +1,7 @@
-import { connection } from "next/server";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
-import { fetchMetals } from "@/lib/goldapi";
+import { getCachedMetals } from "@/lib/cached-fetchers";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
@@ -28,8 +27,7 @@ export default async function GoldSilverRatioPage({
   setRequestLocale(locale);
   const t = await getTranslations("SubPage");
 
-  await connection();
-  const metals = await fetchMetals();
+  const metals = await getCachedMetals();
   const xau = metals.XAU?.price ?? 0;
   const xag = metals.XAG?.price ?? 0;
   const ratio = xag > 0 ? xau / xag : null;

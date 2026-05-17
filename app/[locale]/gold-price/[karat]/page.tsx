@@ -24,11 +24,20 @@ import {
   PriceChartSkeleton,
 } from "@/components/skeletons";
 import { JsonLd } from "@/components/JsonLd";
+import { PageReviewer } from "@/components/PageReviewer";
 import { SeoStaticHeader } from "@/components/SeoStaticHeader";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
 import { buildAlternates, canonicalPath, SITE_URL, buildOpenGraph } from "@/lib/metadata";
+import { faqPageSchema } from "@/lib/schemas";
+
+const KARAT_PURITY: Record<string, string> = {
+  "24K": "99.9%",
+  "21K": "87.5%",
+  "18K": "75%",
+  "14K": "58.3%",
+};
 
 const VALID_KARATS = ["24k", "21k", "18k", "14k"] as const;
 type Karat = (typeof VALID_KARATS)[number];
@@ -120,9 +129,63 @@ export default async function KaratPage({
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
   const pageUrl = canonicalPath(locale, `/gold-price/${karat}`);
+  const purity = KARAT_PURITY[upper] ?? "";
+
+  const karatFaqs = locale === "ar"
+    ? [
+        {
+          q: `ما هو الذهب عيار ${upper}؟`,
+          a: `الذهب عيار ${upper} يعني نقاء الذهب ${purity}. الباقي معادن صلابة (نحاس، فضة، أو زنك) تجعل القطعة أقوى للمجوهرات اليومية. ${upper === "24K" ? "يستخدم بشكل رئيسي للسبائك الاستثمارية." : upper === "21K" ? "هو العيار الأكثر شيوعاً في المجوهرات الخليجية والشرق الأوسط." : upper === "18K" ? "يستخدم للمجوهرات الفاخرة في أوروبا والمجوهرات المرصعة." : "يستخدم في المجوهرات الأقل تكلفة والقابلة للارتداء يومياً."}`,
+        },
+        {
+          q: `كيف يُحسب سعر جرام الذهب عيار ${upper}؟`,
+          a: `سعر الجرام = (السعر الفوري للأونصة بالدولار ÷ 31.1035) × نسبة النقاء (${purity}) × سعر صرف العملة. مثلاً، إذا كان السعر الفوري 4500$/أونصة وسعر الصرف 3.75 ريال/دولار، فإن سعر جرام ${upper} ≈ (4500/31.1035) × ${(parseFloat(purity)/100).toFixed(3)} × 3.75 = ${((4500/31.1035) * (parseFloat(purity)/100) * 3.75).toFixed(2)} ريال.`,
+        },
+        {
+          q: `ما الفرق بين عيار ${upper} والعيارات الأخرى؟`,
+          a: `كل عيار له نسبة نقاء مختلفة: 24K=99.9%، 22K=91.7%، 21K=87.5%، 18K=75%، 14K=58.3%. كلما زادت النقاء، زاد السعر لنفس الوزن. عيار 21 هو الأكثر شيوعاً في المجوهرات الخليجية لتوازنه بين النقاء والصلابة والسعر.`,
+        },
+        {
+          q: `هل سعر عيار ${upper} المعروض هنا يشمل المصنعية؟`,
+          a: `لا. السعر المعروض هو السعر الفوري للذهب الخام فقط (سعر السوق العالمي). تضيف محلات المجوهرات مصنعية (5-30 ريال/جرام للمجوهرات المعقدة)، وضريبة القيمة المضافة (15% في السعودية، 5% في الإمارات، صفر في مصر). راجع صفحة المنهجية للتفاصيل.`,
+        },
+        {
+          q: `كم مرة يتم تحديث سعر عيار ${upper}؟`,
+          a: `يُحدّث السعر كل ثانية عبر WebSocket من Binance وCoinbase وKraken (متوسط من ثلاث بورصات لمنع الانحراف)، باستخدام رمز PAXG/USD المدعوم 1:1 بسبائك ذهب فيزيائية معتمدة من LBMA.`,
+        },
+      ]
+    : [
+        {
+          q: `What is ${upper} gold?`,
+          a: `${upper} gold means ${purity} pure gold. The remainder is hardening metals (typically copper, silver or zinc) that make the alloy strong enough for everyday jewellery. ${upper === "24K" ? "Used primarily for investment bullion bars." : upper === "21K" ? "The most popular karat across Gulf jewellery markets." : upper === "18K" ? "Common in European fine jewellery and gem-set pieces." : "Used in affordable everyday jewellery."}`,
+        },
+        {
+          q: `How is the ${upper} gold price per gram calculated?`,
+          a: `Per-gram price = (Spot price per troy ounce in USD / 31.1035) × purity ratio (${purity}) × local currency FX rate. For example, at a 4500 USD/oz spot and a 3.75 SAR/USD rate, ${upper} per gram in SAR is approximately (4500/31.1035) × ${(parseFloat(purity)/100).toFixed(3)} × 3.75 = ${((4500/31.1035) * (parseFloat(purity)/100) * 3.75).toFixed(2)} SAR.`,
+        },
+        {
+          q: `What is the difference between ${upper} and other karats?`,
+          a: `Each karat has a different purity ratio: 24K=99.9%, 22K=91.7%, 21K=87.5%, 18K=75%, 14K=58.3%. Higher purity equals higher price for the same weight. 21K is the most popular in Gulf jewellery for its balance of purity, hardness and price.`,
+        },
+        {
+          q: `Does the ${upper} price shown here include making charges?`,
+          a: `No. The displayed price is the spot-equivalent raw gold value only (world market price). Jewellery shops add making charges (typically 5-30 SAR/gram for complex pieces), and local VAT applies (Saudi: 15%, UAE: 5%, Egypt: none). See the methodology page for details.`,
+        },
+        {
+          q: `How often is the ${upper} price updated?`,
+          a: `The price updates every second via WebSocket aggregation from Binance, Coinbase and Kraken (median of three exchanges to prevent skew), using the PAXG/USD pair backed 1:1 by London Good Delivery gold bars.`,
+        },
+      ];
+
+  const karatFaqSchema = faqPageSchema(pageUrl, karatFaqs, locale === "ar" ? "ar" : "en");
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(karatFaqSchema) }}
+      />
       <JsonLd
         siteUrl={SITE_URL}
         pageType="ItemPage"
@@ -156,6 +219,8 @@ export default async function KaratPage({
               titleVars={{ karat: upper }}
               introVars={{ karat: upper }}
             />
+
+            <PageReviewer locale={locale} />
 
             <KaratSwitcher current={karat} basePath="/gold-price" locale={locale} />
 

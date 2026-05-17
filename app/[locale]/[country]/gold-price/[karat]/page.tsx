@@ -9,6 +9,7 @@ import { Calculator } from "@/components/Calculator";
 import { Faq } from "@/components/Faq";
 import { Flag } from "@/components/Flag";
 import { Header } from "@/components/Header";
+import { PageReviewer } from "@/components/PageReviewer";
 import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
 import { KaratSwitcher } from "@/components/KaratSwitcher";
@@ -29,7 +30,15 @@ import { COUNTRIES, COUNTRY_BY_SLUG, countryName, countryNote } from "@/lib/coun
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
-import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
+import { buildAlternates, buildOpenGraph, canonicalPath } from "@/lib/metadata";
+import { faqPageSchema } from "@/lib/schemas";
+
+const COUNTRY_VAT: Record<string, { rate: string; en: string; ar: string }> = {
+  "saudi-arabia": { rate: "15%", en: "Saudi Arabia applies 15% VAT on jewellery (not on investment bullion ≥99.5% purity)", ar: "تطبق المملكة العربية السعودية ضريبة قيمة مضافة 15% على المجوهرات (لا تُطبق على السبائك الاستثمارية ≥99.5%)" },
+  uae: { rate: "5%", en: "UAE applies 5% VAT on jewellery making charges (raw gold is zero-rated)", ar: "تطبق الإمارات ضريبة قيمة مضافة 5% على رسوم تصنيع المجوهرات (الذهب الخام معفى)" },
+  egypt: { rate: "0%", en: "Egypt does not apply VAT on gold purchases", ar: "لا تطبق مصر ضريبة قيمة مضافة على شراء الذهب" },
+  jordan: { rate: "16%", en: "Jordan applies 16% General Sales Tax on jewellery (investment bullion exempt)", ar: "تطبق الأردن ضريبة مبيعات عامة 16% على المجوهرات (السبائك الاستثمارية معفاة)" },
+};
 
 const VALID_KARATS = ["24k", "21k", "18k", "14k"] as const;
 type Karat = (typeof VALID_KARATS)[number];
@@ -172,8 +181,62 @@ export default async function CountryKaratPage({
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
+  const pageUrl = canonicalPath(locale, `/${slug}/gold-price/${karat}`);
+  const vat = COUNTRY_VAT[slug];
+  const ckFaqs = locale === "ar"
+    ? [
+        {
+          q: `كم سعر الذهب عيار ${upper} اليوم في ${name}؟`,
+          a: `سعر الذهب عيار ${upper} في ${name} يُحدّث كل ثانية في الجدول أعلاه بـ${country.currency}. السعر مشتق من السعر الفوري العالمي للأونصة (XAU/USD) من Binance وCoinbase وKraken، مقسوماً على 31.1035 جرام لكل أونصة، مضروباً بنسبة النقاء (${upper === "24K" ? "99.9%" : upper === "21K" ? "87.5%" : upper === "18K" ? "75%" : "58.3%"})، ثم مضروباً بسعر صرف ${country.currency}/USD اليومي.`,
+        },
+        {
+          q: `هل سعر الذهب في ${name} يشمل المصنعية وضريبة القيمة المضافة؟`,
+          a: `لا. السعر المعروض هو السعر الفوري للذهب الخام فقط. ${vat ? vat.ar + ". " : ""}تضيف محلات المجوهرات أيضاً مصنعية (تتراوح من 5 إلى 30 وحدة عملة محلية للجرام للقطع المعقدة) وهامش بائع التجزئة (3-10%).`,
+        },
+        {
+          q: `لماذا يختلف سعر عيار ${upper} في ${name} عن السعر العالمي؟`,
+          a: `سعر الذهب العالمي بالدولار. سعر ${name} المعروض هو نفس السعر العالمي محوّلاً إلى ${country.currency} بسعر الصرف اليومي، ثم مقسوماً لكل جرام بنسبة النقاء ${upper}. لا يوجد فرق سعر حقيقي — فقط تحويل وحدات وعملة.`,
+        },
+        {
+          q: `أين أشتري الذهب عيار ${upper} في ${name}؟`,
+          a: `الذهب يُباع في ${name} في أسواق الذهب المحلية ومحلات الصاغة المرخصة. تحقق دائماً من الختم (الهولمارك) للتأكد من العيار، واحصل على فاتورة موثقة. السعر الفوري المعروض هنا هو مرجعك لتقييم سعر المحل قبل المصنعية.`,
+        },
+        {
+          q: `كم مرة يُحدّث سعر الذهب في ${name}؟`,
+          a: `السعر الفوري يُحدّث كل ثانية عبر WebSocket. سعر صرف ${country.currency}/USD يُحدّث كل ساعة من بيانات البنوك المركزية المفتوحة. السعر الذي تراه هو السعر اللحظي العالمي مُحوّلاً للعملة المحلية.`,
+        },
+      ]
+    : [
+        {
+          q: `What is the ${upper} gold price today in ${name}?`,
+          a: `${upper} gold price in ${name} updates every second in the table above, denominated in ${country.currency}. The price is derived from the global spot ounce price (XAU/USD) sourced from Binance, Coinbase and Kraken, divided by 31.1035 grams per troy ounce, multiplied by the purity ratio (${upper === "24K" ? "99.9%" : upper === "21K" ? "87.5%" : upper === "18K" ? "75%" : "58.3%"}), and converted at the daily ${country.currency}/USD FX rate.`,
+        },
+        {
+          q: `Does the ${name} gold price include making charges and VAT?`,
+          a: `No. The displayed price is the raw spot-equivalent gold value only. ${vat ? vat.en + ". " : ""}Jewellery shops add making charges (typically 5-30 local currency units per gram for complex pieces) and retailer margin (3-10%).`,
+        },
+        {
+          q: `Why does ${upper} gold in ${name} differ from the global price?`,
+          a: `Global gold is priced in USD. The ${name} price shown here is the same global price converted to ${country.currency} at the daily FX rate, then divided to a per-gram value at the ${upper} purity ratio. There is no real price difference — just unit and currency conversion.`,
+        },
+        {
+          q: `Where do I buy ${upper} gold in ${name}?`,
+          a: `Gold is sold in ${name} at local gold souks and licensed goldsmiths. Always check the hallmark stamp to confirm karat, and obtain a documented receipt. The spot price shown here is your reference for evaluating the shop's price before making charges.`,
+        },
+        {
+          q: `How often is the ${name} gold price updated?`,
+          a: `Spot price updates every second via WebSocket. The ${country.currency}/USD exchange rate updates hourly from open central-bank data. The price you see is the live global price converted to the local currency.`,
+        },
+      ];
+  const ckFaqSchema = faqPageSchema(pageUrl, ckFaqs, locale === "ar" ? "ar" : "en");
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ckFaqSchema) }}
+      />
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <Breadcrumb
@@ -206,6 +269,7 @@ export default async function CountryKaratPage({
               <div className="mt-3 inline-block rounded-md border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/10 px-3 py-1.5 text-xs text-[var(--color-gold)]">
                 {tPage("currencyNote", { currency: country.currency })}
               </div>
+              <PageReviewer locale={locale} />
               {note ? (
                 <section
                   aria-label={locale === "ar" ? "ملاحظات السوق المحلي" : "Local market notes"}

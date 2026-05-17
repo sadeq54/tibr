@@ -10,6 +10,10 @@ const FEEDS: Array<{ source: string; url: string }> = [
   { source: "Kitco News", url: "https://www.kitco.com/rss/KitcoNews.xml" },
   { source: "Mining.com", url: "https://www.mining.com/feed/" },
   { source: "BullionVault", url: "https://www.bullionvault.com/news/rss" },
+  // Yahoo Finance gold futures (GC=F) — high-frequency market headlines.
+  { source: "Yahoo Finance", url: "https://feeds.finance.yahoo.com/rss/2.0/headline?s=GC=F&region=US&lang=en-US" },
+  // CoinDesk gold-related crypto coverage (PAXG, gold-backed tokens).
+  { source: "CoinDesk", url: "https://www.coindesk.com/arc/outboundfeeds/rss/category/markets/" },
 ];
 
 export async function fetchNews(limit = 24): Promise<NewsItem[]> {
@@ -20,6 +24,7 @@ export async function fetchNews(limit = 24): Promise<NewsItem[]> {
         const r = await fetch(feed.url, {
           next: { revalidate: 1800 },
           headers: { "User-Agent": "Mozilla/5.0 GoldPricesArabia/1.0" },
+          signal: AbortSignal.timeout(5000),
         });
         if (!r.ok) return;
         const text = await r.text();

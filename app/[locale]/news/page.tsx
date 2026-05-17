@@ -1,10 +1,14 @@
-import { connection } from "next/server";
 import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
 import { Link } from "@/i18n/navigation";
-import { fetchNews } from "@/lib/news";
-import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
+import { getCachedNews } from "@/lib/cached-fetchers";
+import {
+  buildAlternates,
+  buildOpenGraph,
+  canonicalPath,
+  SITE_URL,
+} from "@/lib/metadata";
 import { ARTICLES } from "@/content/news/articles";
 
 export async function generateMetadata({
@@ -29,14 +33,50 @@ export default async function NewsPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("SubPage");
-  await connection();
 
-  const items = await fetchNews(30);
+  const items = await getCachedNews(30);
   const lang = await getLocale();
   const editorial = [...ARTICLES].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
+  const pageUrl = canonicalPath(locale, "/news");
+
+  // ItemList schema enriches the aggregated headlines as a curated list
+  // of NewsArticle citations — gives Google a structured signal that
+  // /news is a news hub, not generic content. Each item points to its
+  // original source via `url`, so we explicitly do NOT claim authorship.
+  const itemListSchema = items.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "@id": `${SITE_URL}${pageUrl}#headlines`,
+        name: lang === "ar" ? "آخر أخبار سوق الذهب" : "Latest gold market headlines",
+        description: lang === "ar"
+          ? "تجميع لحظي لعناوين أخبار الذهب من Kitco، Mining.com، BullionVault، Yahoo Finance، CoinDesk"
+          : "Aggregated real-time gold market headlines from Kitco, Mining.com, BullionVault, Yahoo Finance and CoinDesk",
+        numberOfItems: items.length,
+        itemListElement: items.slice(0, 10).map((n, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: {
+            "@type": "NewsArticle",
+            headline: n.title,
+            url: n.link,
+            datePublished: n.pubDate,
+            publisher: { "@type": "Organization", name: n.source },
+          },
+        })),
+      }
+    : null;
+
   return (
     <PageShell title={t("newsH1")} intro={t("newsIntro")} showFaq={false}>
+      {itemListSchema ? (
+        <script
+          type="application/ld+json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+        />
+      ) : null}
       {editorial.length > 0 ? (
         <section className="mb-10">
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-gold)]">

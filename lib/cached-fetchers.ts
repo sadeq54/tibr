@@ -15,6 +15,7 @@ import {
   type MetalsBundle,
 } from "./goldapi";
 import { fetchAllHistory, type HistoryRange, type MetalHistory } from "./history";
+import { fetchNews, type NewsItem } from "./news";
 
 // Spot/metals — revalidate >= 300s qualifies for static prerender shell on
 // serverless platforms (Netlify lambdas) where in-memory cache doesn't
@@ -47,4 +48,13 @@ export async function getCachedAllHistory(
   "use cache";
   cacheLife({ stale: 600, revalidate: 3600, expire: 21600 });
   return fetchAllHistory(range);
+}
+
+// RSS news aggregation — headlines from Kitco / Mining.com / BullionVault.
+// Cache 30-min revalidate, 6h expire matches the upstream feed refresh
+// cadence; longer than spot but shorter than FX/history.
+export async function getCachedNews(limit = 30): Promise<NewsItem[]> {
+  "use cache";
+  cacheLife({ stale: 300, revalidate: 1800, expire: 21600 });
+  return fetchNews(limit);
 }

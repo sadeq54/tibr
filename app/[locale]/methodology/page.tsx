@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Header } from "@/components/Header";
+import { PageReviewer } from "@/components/PageReviewer";
 import { Link } from "@/i18n/navigation";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
@@ -53,6 +54,7 @@ export default async function MethodologyPage({
             <p className="mt-4 text-base leading-relaxed text-[var(--color-text)]">
               {t("methodologyIntro")}
             </p>
+            <PageReviewer locale={locale} lastReviewed={now} />
           </header>
           {sections.map((s) => (
             <section key={s.h2} className="mt-8">
