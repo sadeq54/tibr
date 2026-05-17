@@ -7,8 +7,9 @@ import { HeroSpot } from "@/components/HeroSpot";
 import { PageShell } from "@/components/PageShell";
 import { HeroSpotSkeleton } from "@/components/skeletons";
 import { COUNTRY_BY_SLUG, countryName } from "@/lib/countries";
-import { fetchFxRates, type FxRates } from "@/lib/fx";
-import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
+import { getCachedFxRates, getCachedSpot } from "@/lib/cached-fetchers";
+import type { FxRates } from "@/lib/fx";
+import type { GoldApiResponse } from "@/lib/goldapi";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 const SUPPORTED_COUNTRIES = [
@@ -91,8 +92,8 @@ export default async function BuyGoldTypePage({
   const t = await getTranslations("SubPage");
   const name = countryName(c, locale);
 
-  const spotPromise = fetchSpot("XAU");
-  const fxPromise = fetchFxRates();
+  const spotPromise = getCachedSpot("XAU");
+  const fxPromise = getCachedFxRates();
 
   return (
     <PageShell

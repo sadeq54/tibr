@@ -4,8 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Calculator } from "@/components/Calculator";
 import { PageShell } from "@/components/PageShell";
 import { CalculatorSkeleton } from "@/components/skeletons";
-import { fetchFxRates } from "@/lib/fx";
-import { fetchSpot } from "@/lib/goldapi";
+import { getCachedFxRates, getCachedSpot } from "@/lib/cached-fetchers";
 import { buildAlternates, buildOpenGraph, SITE_URL } from "@/lib/metadata";
 
 export async function generateMetadata({
@@ -31,8 +30,8 @@ export default async function GoldCalculatorPage({
   setRequestLocale(locale);
   const t = await getTranslations("SubPage");
 
-  const spotPromise = fetchSpot("XAU");
-  const fxPromise = fetchFxRates();
+  const spotPromise = getCachedSpot("XAU");
+  const fxPromise = getCachedFxRates();
 
   const howToSchema = {
     "@context": "https://schema.org",

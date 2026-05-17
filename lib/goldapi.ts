@@ -54,6 +54,33 @@ const PURITY = {
 const STOOQ_QUOTE = "https://stooq.com/q/l/?s=xauusd+xagusd+xptusd+xpdusd&f=sd2t2ohlcpv&h&e=csv";
 const SWISSQUOTE_XAU = "https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD";
 
+// Last-known-good spot prices (USD/oz) baked into the bundle so that pages
+// rendered when every upstream source times out (cold lambda, network blip)
+// still emit a sensible price in HTML instead of "$0.00" — Googlebot reads
+// the static HTML and would otherwise classify the page as a broken tool.
+// Update these manually when the long-term price drifts significantly.
+const FALLBACK_USD_OZ: Record<"XAU" | "XAG" | "XPT" | "XPD", number> = {
+  XAU: 4530,
+  XAG: 76,
+  XPT: 1980,
+  XPD: 1420,
+};
+
+function buildFallback(metal: "XAU" | "XAG" | "XPT" | "XPD"): GoldApiResponse {
+  const close = FALLBACK_USD_OZ[metal];
+  const now = Math.floor(Date.now() / 1000);
+  const row: StooqRow = {
+    symbol: `${metal}USD`,
+    open: close,
+    high: close,
+    low: close,
+    close,
+    prev: close,
+    ts: now,
+  };
+  return buildResponse(metal, row, null);
+}
+
 type StooqRow = {
   symbol: string;
   open: number;
@@ -172,7 +199,7 @@ export async function fetchSpot(
     metal === "XAU" ? fetchSwissquoteXAU() : Promise.resolve(null),
   ]);
   const row = stooq[`${metal}USD`];
-  if (!row) return null;
+  if (!row) return buildFallback(metal);
   return buildResponse(metal, row, sq);
 }
 
@@ -180,7 +207,7 @@ export async function fetchMetals(): Promise<MetalsBundle> {
   const [stooq, sq] = await Promise.all([fetchStooq(), fetchSwissquoteXAU()]);
   const get = (m: "XAU" | "XAG" | "XPT" | "XPD") => {
     const row = stooq[`${m}USD`];
-    if (!row) return null;
+    if (!row) return buildFallback(m);
     return buildResponse(m, row, m === "XAU" ? sq : null);
   };
   return { XAU: get("XAU"), XAG: get("XAG"), XPT: get("XPT"), XPD: get("XPD") };
