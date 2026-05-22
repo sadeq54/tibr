@@ -55,7 +55,7 @@ export function AdSlot({ slot = 0, label }: { slot?: number; label?: string }) {
       <AnimatePresence mode="wait">
         <motion.a
           key={current.id}
-          href={xmClickUrl(current.id)}
+          href={xmClickUrl(current.id, current.lang)}
           target="_blank"
           rel="sponsored noopener noreferrer"
           referrerPolicy="no-referrer-when-downgrade"

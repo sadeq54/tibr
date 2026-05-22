@@ -30,9 +30,14 @@ export interface XmBanner {
   size: XmSize;
 }
 
-/** Resolved click-through URL for a banner id. */
-export function xmClickUrl(id: number): string {
-  return `https://clicks.pipaffiliates.com/c?m=${id}&c=${XM_CAMPAIGN_ID}`;
+/**
+ * Resolved click-through URL for a banner. Pass the banner language so XM
+ * lands the visitor on the matching localized registration page; without it
+ * pipaffiliates falls back to the campaign default language.
+ */
+export function xmClickUrl(id: number, lang?: XmLang): string {
+  const base = `https://clicks.pipaffiliates.com/c?m=${id}&c=${XM_CAMPAIGN_ID}`;
+  return lang ? `${base}&l=${lang}` : base;
 }
 
 /** Resolved (tracked) image URL for a banner id. */
