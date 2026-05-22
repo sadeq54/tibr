@@ -65,6 +65,61 @@ export const COUNTRY_BY_CC: Record<string, Country> = Object.fromEntries(
   COUNTRIES.map((c) => [c.cc, c])
 );
 
+/**
+ * Best-match XM affiliate-banner language per country slug. XM ships banners
+ * in a fixed language set only; countries without a dedicated language fall
+ * back to English. Language codes match XmLang in lib/xm-banners.ts.
+ */
+export const COUNTRY_XM_LANG: Record<string, string> = {
+  argentina: "es",
+  australia: "en",
+  bahrain: "ar",
+  brazil: "pt",
+  canada: "en",
+  china: "zh-hans",
+  colombia: "es",
+  croatia: "en",
+  denmark: "en",
+  egypt: "ar",
+  europe: "en",
+  "hong-kong": "zh-hant",
+  hungary: "hu",
+  india: "hi",
+  indonesia: "id",
+  japan: "en",
+  jordan: "ar",
+  kuwait: "ar",
+  lebanon: "ar",
+  libya: "ar",
+  macau: "zh-hant",
+  malaysia: "ms",
+  mexico: "es",
+  morocco: "ar",
+  myanmar: "en",
+  "new-zealand": "en",
+  nigeria: "en",
+  "north-macedonia": "en",
+  norway: "en",
+  pakistan: "ur",
+  philippines: "tl",
+  qatar: "ar",
+  russia: "ru",
+  "saudi-arabia": "ar",
+  serbia: "en",
+  singapore: "en",
+  "south-africa": "en",
+  "south-korea": "ko",
+  sweden: "sv",
+  switzerland: "de",
+  taiwan: "zh-hant",
+  thailand: "th",
+  turkey: "tr",
+  uae: "ar",
+  uk: "en",
+  usa: "en",
+  vietnam: "vi",
+};
+
 export const ALL_CURRENCIES: string[] = Array.from(
   new Set(COUNTRIES.map((c) => c.currency)),
 );
