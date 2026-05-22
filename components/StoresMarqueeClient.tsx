@@ -12,6 +12,7 @@ type Broker = {
   name: string;
   logo: string;
   islamic: boolean;
+  url: string;
 };
 
 const BROKERS: Broker[] = [
@@ -19,16 +20,19 @@ const BROKERS: Broker[] = [
     name: "Exness",
     logo: "https://arabinvest.net/uc_files/image/resize/100/60/app_files/exness_logo_dark_clear_newpng_17407596135891311645731.png",
     islamic: true,
+    url: "https://www.exness.com/ar/?utm_source=partners&ex_ol=1",
   },
   {
     name: "XM",
     logo: "https://arabinvest.net/uc_files/image/resize/100/60/app_files/custom-fields/inner_logo/xm_15years_logo_black300_209png_17467925716283250661726.png",
     islamic: true,
+    url: "https://affs.click/fpvct",
   },
   {
     name: "Evest",
     logo: "https://arabinvest.net/uc_files/image/resize/100/60/app_files/custom-fields/inner_logo/evest_logo_eng_inside_300_180png_168605907102691232733738.png",
     islamic: true,
+    url: "https://www.evest.com/ar?referal_id=40295_136518_6a0f3f89d97f5d71f1a238f5&affiliate_id=40295&Aff_id=40295&campaign_id=136518&clickid=6a0f3f89d97f5d71f1a238f5&partner_id=c1a486dd6c8f128d0be36f669aa221fe&utm_source=mobile_agency",
   },
 ];
 
@@ -75,7 +79,13 @@ export function StoresMarqueeClient() {
       >
         {[...BROKERS, ...BROKERS, ...BROKERS].map((b, i) => (
           <SwiperSlide key={`${b.name}-${i}`} style={{ width: 288 }}>
-            <div className="hover-gold-card-strong relative flex h-52 w-72 flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5">
+            <a
+              href={b.url}
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              aria-label={`${b.name} — ${t("openAccount")}`}
+              className="hover-gold-card-strong relative flex h-52 w-72 flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5"
+            >
               <div
                 aria-hidden
                 className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-30 blur-2xl"
@@ -101,17 +111,16 @@ export function StoresMarqueeClient() {
               </div>
 
               <div className="mt-auto">
-                <button
-                  type="button"
-                  className="w-full rounded-md py-1.5 text-center text-xs font-bold text-black transition-opacity hover:opacity-90"
+                <span
+                  className="block w-full rounded-md py-1.5 text-center text-xs font-bold text-black transition-opacity group-hover:opacity-90"
                   style={{
                     background: "linear-gradient(135deg, #f5c518 0%, #d4a82a 70%, #5a3a08 100%)",
                   }}
                 >
-                  Open Account
-                </button>
+                  {t("openAccount")}
+                </span>
               </div>
-            </div>
+            </a>
           </SwiperSlide>
         ))}
       </Swiper>
