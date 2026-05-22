@@ -45,24 +45,46 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
   },
+  async redirects() {
+    return [
+      // Legacy WebSocket embed widgets were removed — they cannot run inside an
+      // iframe after the LivePriceProvider iframe guard. 301 any old embed code
+      // (grabbed during the dev phase) to the new polling ticker, never a 404.
+      {
+        source: "/widgets/embed/:path*",
+        destination: "/embed/ticker",
+        statusCode: 301,
+      },
+      {
+        source: "/en/widgets/embed/:path*",
+        destination: "/en/embed/ticker",
+        statusCode: 301,
+      },
+    ];
+  },
   async headers() {
     return [
+      // Embed routes must be iframable on ANY partner domain. `frame-ancestors *`
+      // is the real control; X-Frame-Options is set permissive for old browsers.
+      // CRITICAL: these routes must NOT receive the global X-Frame-Options:
+      // SAMEORIGIN below, or cross-origin embedding breaks in production.
       {
-        source: "/:locale/widgets/embed/:widget*",
+        source: "/:locale(en)/embed/:path*",
         headers: [
           { key: "Content-Security-Policy", value: "frame-ancestors *;" },
           { key: "X-Frame-Options", value: "ALLOWALL" },
         ],
       },
       {
-        source: "/widgets/embed/:widget*",
+        source: "/embed/:path*",
         headers: [
           { key: "Content-Security-Policy", value: "frame-ancestors *;" },
           { key: "X-Frame-Options", value: "ALLOWALL" },
         ],
       },
       {
-        source: "/((?!widgets/embed).*)",
+        // Strict security headers for everything EXCEPT the embed routes.
+        source: "/((?!(?:en/)?embed/).*)",
         headers: SECURITY_HEADERS,
       },
     ];
