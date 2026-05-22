@@ -24,6 +24,8 @@ export function JsonLd({
   pageUrl,
   pageName,
   pageOnly = false,
+  priceCurrency = "USD",
+  fxRate = 1,
 }: {
   spot?: GoldApiResponse | null;
   siteUrl: string;
@@ -33,6 +35,14 @@ export function JsonLd({
   pageName?: string;
   /** When true, skip global schemas (Organization, WebSite, Service, FAQ) — use on pages where layout already emits them. Still emits WebPage, BreadcrumbList, and live-price schemas (Product/FinancialProduct). */
   pageOnly?: boolean;
+  /** ISO-4217 currency for the per-karat Product offers. Defaults to "USD".
+   *  Pass the country currency on localized pages so the structured-data price
+   *  matches the currency the page actually renders (no schema/UI mismatch). */
+  priceCurrency?: string;
+  /** USD→priceCurrency multiplier applied to Product offer prices. Defaults to
+   *  1 (USD). This is the same conversion the UI uses — HeroSpot/KaratGrid
+   *  render `usdValue × fxRate`. */
+  fxRate?: number;
 }) {
   const organization = {
     "@context": "https://schema.org",
@@ -137,6 +147,10 @@ export function JsonLd({
     audience: { "@type": "Audience", audienceType: "Investors, Jewellers, Traders" },
   };
 
+  // FX multiplier for localized Product offers. Invalid/zero rate falls back to
+  // USD parity so a schema price is never silently zeroed or NaN.
+  const fxMul = Number.isFinite(fxRate) && fxRate > 0 ? fxRate : 1;
+
   const products = spot
     ? (
         [
@@ -168,12 +182,12 @@ export function JsonLd({
         ],
         offers: {
           "@type": "Offer",
-          priceCurrency: "USD",
-          price: grams.toFixed(4),
+          priceCurrency,
+          price: (grams * fxMul).toFixed(4),
           priceSpecification: {
             "@type": "UnitPriceSpecification",
-            priceCurrency: "USD",
-            price: grams.toFixed(4),
+            priceCurrency,
+            price: (grams * fxMul).toFixed(4),
             unitCode: "GRM",
             referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: "GRM" },
           },

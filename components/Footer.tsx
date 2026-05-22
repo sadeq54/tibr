@@ -67,6 +67,12 @@ export async function Footer() {
             <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">
               {t("worldHeading")}
             </h2>
+            <Link
+              href="/gold-price"
+              className="ms-auto text-xs font-semibold text-[var(--color-gold)] transition-colors hover:underline"
+            >
+              {locale === "ar" ? "أسعار الذهب حسب الدولة ←" : "Gold price by country →"}
+            </Link>
           </header>
           {/* Split countries into chunks of 50 to avoid the >60 children
               DOM-size penalty flagged by Lighthouse. */}

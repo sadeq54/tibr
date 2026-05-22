@@ -125,6 +125,12 @@ export function LivePriceProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Embedded widgets render inside a third-party <iframe>. Opening 3 exchange
+    // WebSockets from every embed would bloat the host page and risk exchange
+    // rate-limits — embeds use the polling ticker (EmbedTicker) instead. Skip
+    // all WS work when we are not the top-level window.
+    if (typeof window !== "undefined" && window.self !== window.top) return;
+
     let stopped = false;
     const sockets: WebSocket[] = [];
 

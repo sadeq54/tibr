@@ -183,9 +183,490 @@ export const COUNTRY_NOTES: Record<string, CountryNote> = {
   },
 };
 
-/** Return the country-specific note or null if no commentary exists yet. */
+/**
+ * Return per-country market commentary. Prefers the hand-written long-form
+ * COUNTRY_NOTES entry; otherwise falls back to a note composed from
+ * COUNTRY_FACTS so every country gets unique copy — no thin/duplicate
+ * programmatic pages. Returns null only when neither source has the slug.
+ */
 export function countryNote(slug: string, locale: string): string | null {
   const note = COUNTRY_NOTES[slug];
-  if (!note) return null;
-  return locale === "ar" ? note.ar : note.en;
+  if (note) return locale === "ar" ? note.ar : note.en;
+  return composeCountryNote(slug, locale);
+}
+
+/** Karat → purity label, shared by composed country notes. */
+const KARAT_PURITY: Record<string, string> = {
+  "24K": "99.9%",
+  "23K": "96.5%",
+  "22K": "91.6%",
+  "21K": "87.5%",
+  "18K": "75%",
+  "14K": "58.3%",
+};
+
+/**
+ * Structured, stable market facts per country — data source for
+ * `composeCountryNote`. Deliberately EXCLUDES volatile tax/VAT rates (those
+ * live in the hand-verified COUNTRY_NOTES / COUNTRY_VAT). `karat`, the
+ * currency-peg regime and the distinctive `note` are textbook-stable facts.
+ *
+ * NOTE: dominant-karat and market facts here are well-documented but should
+ * be spot-checked by the site owner before any are promoted into a full
+ * COUNTRY_NOTES entry or relied on as authoritative.
+ */
+export type CountryFacts = {
+  /** Most-traded retail gold purity in this market. */
+  karat: keyof typeof KARAT_PURITY;
+  /** Currency-peg regime — drives the peg sentence. Omit for free-floating. */
+  peg?: "usd" | "eur" | "hkd";
+  /** One distinctive, verifiable market fact — locale-pair translated. */
+  note: { en: string; ar: string };
+};
+
+export const COUNTRY_FACTS: Record<string, CountryFacts> = {
+  europe: {
+    karat: "18K",
+    note: {
+      en: "Across the eurozone, 24K bars dominate investment while 18K is the jewellery norm, and pricing references the twice-daily LBMA auction in London.",
+      ar: "في منطقة اليورو، تهيمن سبائك عيار 24 على الاستثمار بينما يُعد عيار 18 معيار المجوهرات، ويعتمد التسعير على مزاد LBMA في لندن مرتين يوميًا.",
+    },
+  },
+  argentina: {
+    karat: "18K",
+    note: {
+      en: "Chronic inflation makes gold a key store of value for Argentines, and local premiums over the world spot price can be unusually wide.",
+      ar: "يجعل التضخم المزمن الذهب مخزنًا رئيسيًا للقيمة لدى الأرجنتينيين، وقد تكون العلاوات المحلية فوق السعر العالمي واسعة بشكل غير معتاد.",
+    },
+  },
+  australia: {
+    karat: "18K",
+    note: {
+      en: "The government-owned Perth Mint is one of the world's largest gold refiners and the source of the Australian Kangaroo bullion coin.",
+      ar: "دار سك بيرث المملوكة للحكومة من أكبر مصافي الذهب في العالم وهي مصدر عملة الكنغر الأسترالية السبائكية.",
+    },
+  },
+  brazil: {
+    karat: "18K",
+    note: {
+      en: "Brazilian law sets 18K (750) as the minimum gold-jewellery standard, while investment gold trades on the B3 exchange in Sao Paulo.",
+      ar: "يحدد القانون البرازيلي عيار 18 (750) كحد أدنى لمعيار مجوهرات الذهب، بينما يُتداول الذهب الاستثماري في بورصة B3 بساو باولو.",
+    },
+  },
+  canada: {
+    karat: "18K",
+    note: {
+      en: "The Royal Canadian Mint produces the Gold Maple Leaf, one of the purest bullion coins in the world at 99.99%.",
+      ar: "تنتج دار سك العملة الملكية الكندية عملة ورقة القيقب الذهبية، إحدى أنقى عملات السبائك في العالم بنقاء 99.99%.",
+    },
+  },
+  china: {
+    karat: "24K",
+    note: {
+      en: "The Shanghai Gold Exchange sets the yuan-denominated Shanghai Gold Benchmark Price, and high-purity gold dominates retail demand.",
+      ar: "تحدد بورصة شنغهاي للذهب السعر المرجعي لذهب شنغهاي المقوّم باليوان، ويهيمن الذهب عالي النقاء على طلب التجزئة.",
+    },
+  },
+  colombia: {
+    karat: "18K",
+    note: {
+      en: "Colombia is a major Latin American gold producer, and its domestic jewellery retail is built around 18K.",
+      ar: "كولومبيا من كبار منتجي الذهب في أمريكا اللاتينية، وتقوم تجارة المجوهرات المحلية على عيار 18.",
+    },
+  },
+  croatia: {
+    karat: "18K",
+    note: {
+      en: "Croatia adopted the euro in 2023, so gold is now priced in EUR and tracks the wider eurozone market.",
+      ar: "اعتمدت كرواتيا اليورو في 2023، لذا يُسعَّر الذهب الآن باليورو ويتتبع سوق منطقة اليورو الأوسع.",
+    },
+  },
+  denmark: {
+    karat: "18K",
+    peg: "eur",
+    note: {
+      en: "Danish retail jewellery centres on 18K and 14K, and the krone's euro peg keeps gold prices aligned with the eurozone.",
+      ar: "تتركز مجوهرات التجزئة الدنماركية على عيارَي 18 و14، ويبقي ربط الكرونة باليورو أسعار الذهب متوافقة مع منطقة اليورو.",
+    },
+  },
+  "hong-kong": {
+    karat: "24K",
+    peg: "usd",
+    note: {
+      en: "The Chinese Gold & Silver Exchange Society, founded in 1910, trades 'four-nines' 99.99 gold at the heart of one of Asia's oldest bullion markets.",
+      ar: "تتداول جمعية تبادل الذهب والفضة الصينية، التي تأسست عام 1910، ذهب التسع نقاط الأربع 99.99 في قلب أحد أقدم أسواق السبائك في آسيا.",
+    },
+  },
+  hungary: {
+    karat: "14K",
+    note: {
+      en: "Hungarian retail jewellery follows the Central European norm of 14K, with 18K and investment bars also available.",
+      ar: "تتبع مجوهرات التجزئة المجرية المعيار الأوروبي الأوسط لعيار 14، مع توافر عيار 18 وسبائك الاستثمار أيضًا.",
+    },
+  },
+  india: {
+    karat: "22K",
+    note: {
+      en: "India is the world's second-largest gold consumer; 22K (916) jewellery dominates and is traditionally weighed by the tola, with Mumbai's Zaveri Bazaar setting influential regional rates.",
+      ar: "الهند ثاني أكبر مستهلك للذهب في العالم؛ تهيمن مجوهرات عيار 22 (916) وتُوزن تقليديًا بالتولة، ويحدد سوق زافيري بازار في مومباي أسعارًا إقليمية مؤثرة.",
+    },
+  },
+  indonesia: {
+    karat: "22K",
+    note: {
+      en: "Indonesian jewellery spans 22K to 24K, and cast bars from state miner Antam are the benchmark investment product.",
+      ar: "تتراوح المجوهرات الإندونيسية بين عيار 22 و24، وتُعد سبائك أنتام المصبوبة المملوكة للدولة المنتج الاستثماري المرجعي.",
+    },
+  },
+  japan: {
+    karat: "24K",
+    note: {
+      en: "Japan prizes pure 24K 'junkin'; Tanaka Kikinzoku, established in 1885, is the dominant bullion retailer and publishes a closely watched daily price.",
+      ar: "تُقدّر اليابان الذهب الخالص عيار 24 'جونكين'؛ وتُعد تاناكا كيكينزوكو، المؤسسة عام 1885، أكبر بائع تجزئة للسبائك وتنشر سعرًا يوميًا يُتابَع عن كثب.",
+    },
+  },
+  lebanon: {
+    karat: "21K",
+    note: {
+      en: "Lebanon's gold trade, long centred on Beirut's souks, runs largely in cash and US dollars amid currency instability, with 21K the jewellery standard.",
+      ar: "تجارة الذهب في لبنان، المتمركزة منذ زمن في أسواق بيروت، تجري غالبًا بالنقد والدولار الأمريكي وسط عدم استقرار العملة، وعيار 21 هو معيار المجوهرات.",
+    },
+  },
+  libya: {
+    karat: "21K",
+    note: {
+      en: "Libyan gold demand centres on 21K jewellery, with the dinar's value shaped by oil revenues and parallel exchange rates.",
+      ar: "يتركز الطلب على الذهب في ليبيا على مجوهرات عيار 21، وتتشكل قيمة الدينار من عائدات النفط وأسعار الصرف الموازية.",
+    },
+  },
+  macau: {
+    karat: "24K",
+    peg: "hkd",
+    note: {
+      en: "Macau's gold retail mirrors neighbouring Hong Kong, favouring 999.9 pure gold, and the pataca is pegged to the Hong Kong dollar.",
+      ar: "تجارة الذهب بالتجزئة في ماكاو تعكس هونغ كونغ المجاورة، مع تفضيل الذهب النقي 999.9، والباتاكا مربوطة بدولار هونغ كونغ.",
+    },
+  },
+  malaysia: {
+    karat: "22K",
+    note: {
+      en: "Malaysian jewellery favours 22K and 24K, and Bank Negara's Kijang Emas bullion coin anchors the investment market.",
+      ar: "تفضل المجوهرات الماليزية عيارَي 22 و24، وترسي عملة كيجانغ إيماس السبائكية الصادرة عن بنك نيجارا سوق الاستثمار.",
+    },
+  },
+  mexico: {
+    karat: "14K",
+    note: {
+      en: "Banco de Mexico issues the Centenario and Libertad gold coins, while retail jewellery centres on 14K and 18K.",
+      ar: "يصدر بنك المكسيك عملتي سنتيناريو وليبرتاد الذهبيتين، بينما تتركز مجوهرات التجزئة على عيارَي 14 و18.",
+    },
+  },
+  morocco: {
+    karat: "18K",
+    note: {
+      en: "Moroccan gold markets in Casablanca and Fez trade mainly 18K and 21K, and the dirham is managed against a euro-and-dollar currency basket.",
+      ar: "تتداول أسواق الذهب المغربية في الدار البيضاء وفاس عياري 18 و21 بشكل رئيسي، والدرهم مُدار مقابل سلة عملات من اليورو والدولار.",
+    },
+  },
+  myanmar: {
+    karat: "24K",
+    note: {
+      en: "Myanmar trades gold at very high purity, traditionally by the kyattha weight (about 16.6 g), with Yangon's market setting daily reference rates.",
+      ar: "تتداول ميانمار الذهب بنقاء عالٍ جدًا، تقليديًا بوحدة الكياتثا (نحو 16.6 جم)، ويحدد سوق يانغون الأسعار المرجعية اليومية.",
+    },
+  },
+  "new-zealand": {
+    karat: "18K",
+    note: {
+      en: "New Zealand retail jewellery commonly uses 9K and 18K, while investment bullion follows the Australian and global markets.",
+      ar: "تستخدم مجوهرات التجزئة في نيوزيلندا عادةً عيارَي 9 و18، بينما تتبع سبائك الاستثمار الأسواق الأسترالية والعالمية.",
+    },
+  },
+  nigeria: {
+    karat: "18K",
+    note: {
+      en: "Nigeria is a fast-growing gold producer, and the naira's volatility makes gold a popular hedge, with retail jewellery around 18K.",
+      ar: "نيجيريا منتج للذهب سريع النمو، ويجعل تقلب النايرا الذهب أداة تحوّط شائعة، مع مجوهرات تجزئة قرب عيار 18.",
+    },
+  },
+  "north-macedonia": {
+    karat: "14K",
+    note: {
+      en: "Retail gold in North Macedonia follows Balkan and Central European norms, with 14K jewellery the most common.",
+      ar: "تتبع تجارة الذهب بالتجزئة في مقدونيا الشمالية معايير البلقان وأوروبا الوسطى، وعيار 14 هو الأكثر شيوعًا في المجوهرات.",
+    },
+  },
+  norway: {
+    karat: "18K",
+    note: {
+      en: "Norway's central bank sold its entire gold reserves in 2004, and domestic demand now centres on 18K jewellery.",
+      ar: "باع البنك المركزي النرويجي كامل احتياطياته من الذهب عام 2004، ويتركز الطلب المحلي الآن على مجوهرات عيار 18.",
+    },
+  },
+  pakistan: {
+    karat: "22K",
+    note: {
+      en: "Pakistan trades gold by the tola (about 11.66 g) with 22K dominant, and the All Pakistan Sarafa Association publishes daily rates.",
+      ar: "تتداول باكستان الذهب بالتولة (نحو 11.66 جم) مع هيمنة عيار 22، وتنشر جمعية صرافة عموم باكستان الأسعار اليومية.",
+    },
+  },
+  philippines: {
+    karat: "18K",
+    note: {
+      en: "Philippine jewellery favours 18K and 21K, and the Bangko Sentral buys domestically mined gold to build its reserves.",
+      ar: "تفضل المجوهرات الفلبينية عيارَي 18 و21، ويشتري المصرف المركزي الفلبيني الذهب المُعدَّن محليًا لبناء احتياطياته.",
+    },
+  },
+  russia: {
+    karat: "14K",
+    note: {
+      en: "Russian hallmarking uses the metric 585 (14K) and 750 (18K) standards, and the central bank is among the world's largest official gold buyers.",
+      ar: "يستخدم الدمغ الروسي المعيارين المتريين 585 (عيار 14) و750 (عيار 18)، والبنك المركزي من أكبر مشتري الذهب الرسميين في العالم.",
+    },
+  },
+  serbia: {
+    karat: "14K",
+    note: {
+      en: "Serbian retail gold follows Central European 14K norms, with investment bars priced against the dinar.",
+      ar: "تتبع تجارة الذهب بالتجزئة في صربيا معايير عيار 14 الأوروبية الوسطى، وتُسعَّر سبائك الاستثمار مقابل الدينار.",
+    },
+  },
+  singapore: {
+    karat: "24K",
+    note: {
+      en: "Singapore exempts investment-grade precious metals from GST, making it a regional bullion hub where 999 fine gold dominates investment demand.",
+      ar: "تعفي سنغافورة المعادن الثمينة ذات الجودة الاستثمارية من ضريبة السلع والخدمات، مما يجعلها مركزًا إقليميًا للسبائك حيث يهيمن الذهب النقي 999 على الطلب الاستثماري.",
+    },
+  },
+  "south-africa": {
+    karat: "22K",
+    note: {
+      en: "South Africa's Krugerrand, minted since 1967 at 22K, was the world's first modern bullion coin, reflecting the country's deep gold-mining heritage.",
+      ar: "كانت عملة الكروغراند الجنوب أفريقية، المسكوكة منذ 1967 بعيار 22، أول عملة سبائك حديثة في العالم، وتعكس إرث تعدين الذهب العريق في البلاد.",
+    },
+  },
+  "south-korea": {
+    karat: "24K",
+    note: {
+      en: "Korean gold is traditionally weighed by the 'don' (3.75 g), and pure 24K is favoured for both gifts and investment.",
+      ar: "يُوزن الذهب الكوري تقليديًا بوحدة 'الدون' (3.75 جم)، ويُفضَّل الذهب الخالص عيار 24 للهدايا والاستثمار معًا.",
+    },
+  },
+  sweden: {
+    karat: "18K",
+    note: {
+      en: "Swedish retail jewellery centres on 18K, and the freely floating krona means local gold prices move with the SEK/USD rate.",
+      ar: "تتركز مجوهرات التجزئة السويدية على عيار 18، ويعني التعويم الحر للكرونة أن أسعار الذهب المحلية تتحرك مع سعر صرف الكرونة/الدولار.",
+    },
+  },
+  switzerland: {
+    karat: "24K",
+    note: {
+      en: "Switzerland refines an estimated two-thirds of the world's gold, and bars from Valcambi, PAMP and Argor-Heraeus are a global investment standard.",
+      ar: "تكرر سويسرا ما يُقدَّر بثلثي ذهب العالم، وتُعد سبائك Valcambi وPAMP وArgor-Heraeus معيارًا استثماريًا عالميًا.",
+    },
+  },
+  taiwan: {
+    karat: "24K",
+    note: {
+      en: "Taiwan favours 99.99 pure gold, traditionally traded by the tael, and the Bank of Taiwan offers gold passbook accounts and bars.",
+      ar: "تفضل تايوان الذهب النقي 99.99، الذي يُتداول تقليديًا بوحدة التَيل، ويوفر بنك تايوان حسابات دفتر الذهب والسبائك.",
+    },
+  },
+  thailand: {
+    karat: "23K",
+    note: {
+      en: "Thai 'baht gold' is sold by the baht weight (15.244 g), and Bangkok's Yaowarat Chinatown is the trading centre where the Gold Traders Association sets daily prices.",
+      ar: "يُباع 'ذهب الباهت' التايلاندي بوحدة وزن الباهت (15.244 جم)، وحي ياوارات الصيني في بانكوك هو مركز التداول حيث تحدد جمعية تجار الذهب الأسعار اليومية.",
+    },
+  },
+  turkey: {
+    karat: "22K",
+    note: {
+      en: "Turkey is among the world's top-five gold consumers; 22K is the cultural standard, and the Istanbul Grand Bazaar alongside the Borsa Istanbul gold market anchors pricing amid high lira inflation.",
+      ar: "تركيا من أكبر خمسة مستهلكين للذهب في العالم؛ عيار 22 هو المعيار الثقافي، ويرسي البازار الكبير في إسطنبول إلى جانب سوق الذهب في بورصة إسطنبول التسعير وسط تضخم مرتفع في الليرة.",
+    },
+  },
+  vietnam: {
+    karat: "24K",
+    note: {
+      en: "Vietnamese gold trades mainly as SJC-branded bars by the tael ('cay', about 37.5 g), and SJC gold often carries a notable premium over the world spot price.",
+      ar: "يُتداول الذهب الفيتنامي بشكل رئيسي كسبائك بعلامة SJC بوحدة التَيل ('كاي'، نحو 37.5 جم)، وغالبًا ما يحمل ذهب SJC علاوة ملحوظة فوق السعر العالمي الفوري.",
+    },
+  },
+};
+
+/**
+ * Compose a unique ~3-sentence market note from COUNTRY_FACTS. Combines the
+ * dominant karat, the currency-peg regime and a distinctive per-country fact
+ * so each programmatic country×karat page carries non-duplicate copy.
+ * Returns null when no facts entry exists for the slug.
+ */
+export function composeCountryNote(slug: string, locale: string): string | null {
+  const country = COUNTRY_BY_SLUG[slug];
+  const facts = COUNTRY_FACTS[slug];
+  if (!country || !facts) return null;
+
+  const ar = locale === "ar";
+  const name = ar ? country.name_ar : country.name_en;
+  const cur = country.currency;
+  const purity = KARAT_PURITY[facts.karat];
+  const k = facts.karat.replace("K", "");
+
+  const karatSentence = ar
+    ? `يتركز سوق الذهب بالتجزئة في ${name} على عيار ${k} (نقاء ${purity})، ويُسعَّر محليًا لكل جرام بعملة ${cur}.`
+    : `${name}'s retail gold market centres on ${facts.karat} gold (${purity} pure), quoted locally per gram in ${cur}.`;
+
+  let pegSentence: string;
+  if (facts.peg === "usd") {
+    pegSentence = ar
+      ? `ولأن ${cur} مربوط بالدولار الأمريكي، تتبع تلك الأسعار السعر الفوري العالمي بدقة كبيرة.`
+      : `Because the ${cur} is pegged to the US dollar, those prices track the international spot rate almost exactly.`;
+  } else if (facts.peg === "eur") {
+    pegSentence = ar
+      ? `${cur} مربوط باليورو، لذا تتبع الأسعار السوق المقوّمة باليورو.`
+      : `The ${cur} is pegged to the euro, so prices follow the euro-denominated market.`;
+  } else if (facts.peg === "hkd") {
+    pegSentence = ar
+      ? `${cur} مربوط بدولار هونغ كونغ، مما يبقي الأسعار قريبة من السعر العالمي الفوري.`
+      : `The ${cur} is pegged to the Hong Kong dollar, which keeps prices close to global spot.`;
+  } else {
+    pegSentence = ar
+      ? `وبما أن ${cur} عملة حرة التعويم، تعكس الأسعار أيضًا تحركات صرف ${cur}/الدولار اليومية.`
+      : `As a free-floating currency, the ${cur} means prices also reflect daily ${cur}/USD exchange-rate moves.`;
+  }
+
+  const note = ar ? facts.note.ar : facts.note.en;
+  return `${karatSentence} ${pegSentence} ${note}`;
+}
+
+/* ----------------------------- Region grouping ---------------------------- *
+ * Geographic / economic clusters used by the country hub page and RelatedLinks
+ * cross-linking. Turns the footer's flat 47-country list into a structured
+ * internal-link graph so every country×karat page gains contextual inbound
+ * links — the signal that makes programmatic pages index and stay indexed.
+ * -------------------------------------------------------------------------- */
+
+export type Region =
+  | "gcc"
+  | "levant"
+  | "north-africa"
+  | "africa"
+  | "asia"
+  | "europe"
+  | "americas"
+  | "oceania";
+
+export type RegionMeta = { id: Region; en: string; ar: string };
+
+/** Hub display order — MENA-first to match the site's primary audience. */
+export const REGIONS: RegionMeta[] = [
+  { id: "gcc", en: "Gulf (GCC)", ar: "دول الخليج" },
+  { id: "levant", en: "Levant", ar: "بلاد الشام" },
+  { id: "north-africa", en: "North Africa", ar: "شمال أفريقيا" },
+  { id: "africa", en: "Sub-Saharan Africa", ar: "أفريقيا جنوب الصحراء" },
+  { id: "asia", en: "Asia", ar: "آسيا" },
+  { id: "europe", en: "Europe", ar: "أوروبا" },
+  { id: "americas", en: "Americas", ar: "الأمريكتان" },
+  { id: "oceania", en: "Oceania", ar: "أوقيانوسيا" },
+];
+
+/** Country slug → region. Every COUNTRIES entry is mapped exactly once. */
+export const COUNTRY_REGION: Record<string, Region> = {
+  "saudi-arabia": "gcc",
+  uae: "gcc",
+  qatar: "gcc",
+  kuwait: "gcc",
+  bahrain: "gcc",
+  jordan: "levant",
+  lebanon: "levant",
+  egypt: "north-africa",
+  libya: "north-africa",
+  morocco: "north-africa",
+  nigeria: "africa",
+  "south-africa": "africa",
+  china: "asia",
+  "hong-kong": "asia",
+  macau: "asia",
+  taiwan: "asia",
+  japan: "asia",
+  "south-korea": "asia",
+  india: "asia",
+  pakistan: "asia",
+  indonesia: "asia",
+  malaysia: "asia",
+  singapore: "asia",
+  thailand: "asia",
+  vietnam: "asia",
+  philippines: "asia",
+  myanmar: "asia",
+  europe: "europe",
+  uk: "europe",
+  croatia: "europe",
+  denmark: "europe",
+  hungary: "europe",
+  "north-macedonia": "europe",
+  norway: "europe",
+  russia: "europe",
+  serbia: "europe",
+  sweden: "europe",
+  switzerland: "europe",
+  turkey: "europe",
+  usa: "americas",
+  canada: "americas",
+  mexico: "americas",
+  brazil: "americas",
+  argentina: "americas",
+  colombia: "americas",
+  australia: "oceania",
+  "new-zealand": "oceania",
+};
+
+/** All countries in a region, in COUNTRIES declaration order (deterministic). */
+export function countriesInRegion(region: Region): Country[] {
+  return COUNTRIES.filter((c) => COUNTRY_REGION[c.slug] === region);
+}
+
+/** Region for a slug, or null if unmapped. */
+export function regionOf(slug: string): Region | null {
+  return COUNTRY_REGION[slug] ?? null;
+}
+
+/** Adjacency used to top up RelatedLinks when a region is too small (Levant
+ *  and Oceania have only 2 members) so every page still gets a full set. */
+const REGION_NEIGHBOURS: Record<Region, Region[]> = {
+  gcc: ["levant", "north-africa", "asia"],
+  levant: ["gcc", "north-africa"],
+  "north-africa": ["levant", "gcc", "africa"],
+  africa: ["north-africa", "europe"],
+  asia: ["gcc", "oceania", "europe"],
+  europe: ["levant", "asia", "africa"],
+  americas: ["europe", "asia"],
+  oceania: ["asia"],
+};
+
+/**
+ * Up to `count` sibling countries for cross-linking — same region first, then
+ * topped up from neighbouring regions. Excludes the source country. Output is
+ * deterministic (declaration order) so the static build stays stable.
+ */
+export function relatedCountries(slug: string, count = 4): Country[] {
+  const region = COUNTRY_REGION[slug];
+  if (!region) return [];
+  const seen = new Set<string>([slug]);
+  const out: Country[] = [];
+  const take = (list: Country[]) => {
+    for (const c of list) {
+      if (out.length >= count) break;
+      if (seen.has(c.slug)) continue;
+      seen.add(c.slug);
+      out.push(c);
+    }
+  };
+  take(countriesInRegion(region));
+  for (const nb of REGION_NEIGHBOURS[region]) {
+    if (out.length >= count) break;
+    take(countriesInRegion(nb));
+  }
+  return out.slice(0, count);
 }

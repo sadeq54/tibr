@@ -10,6 +10,7 @@ import { Faq } from "@/components/Faq";
 import { Flag } from "@/components/Flag";
 import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
+import { JsonLd } from "@/components/JsonLd";
 import { KaratGrid } from "@/components/KaratGrid";
 import { KaratSwitcher } from "@/components/KaratSwitcher";
 import { RelatedLinks } from "@/components/RelatedLinks";
@@ -25,17 +26,23 @@ import {
   PriceChartSkeleton,
 } from "@/components/skeletons";
 import { Link } from "@/i18n/navigation";
-import { COUNTRIES, COUNTRY_BY_SLUG, countryName, countryNote } from "@/lib/countries";
+import {
+  COUNTRIES,
+  COUNTRY_BY_SLUG,
+  countryName,
+  countryNote,
+  relatedCountries,
+} from "@/lib/countries";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
-import { buildAlternates, buildOpenGraph, canonicalPath } from "@/lib/metadata";
+import { buildAlternates, buildOpenGraph, canonicalPath, SITE_URL } from "@/lib/metadata";
 import { faqPageSchema } from "@/lib/schemas";
 
 const COUNTRY_VAT: Record<string, { rate: string; en: string; ar: string }> = {
   "saudi-arabia": { rate: "15%", en: "Saudi Arabia applies 15% VAT on jewellery (not on investment bullion ≥99.5% purity)", ar: "تطبق المملكة العربية السعودية ضريبة قيمة مضافة 15% على المجوهرات (لا تُطبق على السبائك الاستثمارية ≥99.5%)" },
   uae: { rate: "5%", en: "UAE applies 5% VAT on jewellery making charges (raw gold is zero-rated)", ar: "تطبق الإمارات ضريبة قيمة مضافة 5% على رسوم تصنيع المجوهرات (الذهب الخام معفى)" },
-  egypt: { rate: "0%", en: "Egypt does not apply VAT on gold purchases", ar: "لا تطبق مصر ضريبة قيمة مضافة على شراء الذهب" },
+  egypt: { rate: "14%", en: "Egypt applies 14% VAT on jewellery making-charges only (raw gold value is exempt)", ar: "تطبق مصر ضريبة قيمة مضافة 14% على رسوم تصنيع المجوهرات فقط (قيمة الذهب الخام معفاة)" },
   jordan: { rate: "16%", en: "Jordan applies 16% General Sales Tax on jewellery (investment bullion exempt)", ar: "تطبق الأردن ضريبة مبيعات عامة 16% على المجوهرات (السبائك الاستثمارية معفاة)" },
 };
 
@@ -159,6 +166,51 @@ async function CalculatorSection({
   );
 }
 
+/**
+ * Live-price + breadcrumb + WebPage JSON-LD for the country×karat page.
+ * Awaits the spot + FX promises inside its own Suspense boundary so the schema
+ * carries real prices without blocking the page's streamed HTML. `pageOnly`
+ * skips Organization/WebSite/Service/FAQ — the layout already emits those.
+ *
+ * Product offer prices are emitted in the country's local currency (USD value ×
+ * FX rate — the same conversion HeroSpot/KaratGrid render) so the structured
+ * data matches the visible page. An undocumented or invalid rate falls back to
+ * USD so the schema never publishes a wrong or zeroed price.
+ */
+async function CountrySchema({
+  spotPromise,
+  fxPromise,
+  currency,
+  crumbs,
+  pageUrl,
+  pageName,
+}: {
+  spotPromise: Promise<GoldApiResponse | null>;
+  fxPromise: Promise<FxRates>;
+  currency: string;
+  crumbs: { name: string; url: string }[];
+  pageUrl: string;
+  pageName: string;
+}) {
+  const [spot, fx] = await Promise.all([spotPromise, fxPromise]);
+  const rate = fx[currency];
+  const useLocal =
+    currency !== "USD" && typeof rate === "number" && Number.isFinite(rate) && rate > 0;
+  return (
+    <JsonLd
+      spot={spot}
+      siteUrl={SITE_URL}
+      pageOnly
+      pageType="ItemPage"
+      pageUrl={pageUrl}
+      pageName={pageName}
+      breadcrumb={crumbs}
+      priceCurrency={useLocal ? currency : "USD"}
+      fxRate={useLocal ? (rate as number) : 1}
+    />
+  );
+}
+
 export default async function CountryKaratPage({
   params,
 }: {
@@ -182,6 +234,18 @@ export default async function CountryKaratPage({
 
   const pageUrl = canonicalPath(locale, `/${slug}/gold-price/${karat}`);
   const vat = COUNTRY_VAT[slug];
+
+  // Breadcrumb + WebPage name for the structured-data block. Mirrors the
+  // visible <Breadcrumb> but uses canonical (locale-prefixed) URLs.
+  const schemaCrumbs = [
+    { name: locale === "en" ? "Home" : "الرئيسية", url: locale === "en" ? "/en" : "/" },
+    { name, url: canonicalPath(locale, `/${slug}/gold-price/21k`) },
+    {
+      name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب ${upper}`,
+      url: pageUrl,
+    },
+  ];
+  const schemaPageName = tPage("h1", { karat: upper, country: name });
   const ckFaqs = locale === "ar"
     ? [
         {
@@ -236,6 +300,16 @@ export default async function CountryKaratPage({
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ckFaqSchema) }}
       />
+      <Suspense fallback={null}>
+        <CountrySchema
+          spotPromise={spotPromise}
+          fxPromise={fxPromise}
+          currency={country.currency}
+          crumbs={schemaCrumbs}
+          pageUrl={pageUrl}
+          pageName={schemaPageName}
+        />
+      </Suspense>
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <Breadcrumb
@@ -342,6 +416,27 @@ export default async function CountryKaratPage({
                 { href: "/gold-calculator", label: locale === "ar" ? "حاسبة الذهب" : "Gold calculator", note: locale === "ar" ? `بعملة ${country.currency}` : `In ${country.currency}` },
                 { href: "/news/spot-gold-vs-retail-jeweller-spread", label: locale === "ar" ? "هامش الصائغ" : "Spot vs retail spread", note: locale === "ar" ? "كيف يُحسب السعر" : "How prices are set" },
                 { href: "/methodology", label: locale === "ar" ? "المنهجية" : "Methodology", note: locale === "ar" ? "من أين تأتي الأسعار" : "Where prices come from" },
+              ]}
+            />
+
+            <RelatedLinks
+              heading={
+                locale === "ar"
+                  ? `سعر الذهب عيار ${upper} في دول قريبة`
+                  : `${upper} gold price in nearby countries`
+              }
+              items={[
+                ...relatedCountries(slug, 4).map((nb) => ({
+                  href: `/${nb.slug}/gold-price/${karat}`,
+                  label: countryName(nb, locale),
+                  note: locale === "ar" ? `بعملة ${nb.currency}` : `In ${nb.currency}`,
+                  flag: nb.cc,
+                })),
+                {
+                  href: "/gold-price",
+                  label: locale === "ar" ? "كل الدول" : "All countries",
+                  note: locale === "ar" ? "تصفّح جميع الأسواق" : "Browse every market",
+                },
               ]}
             />
           </section>

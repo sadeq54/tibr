@@ -87,6 +87,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Karats — top live-price pages. Hourly because prices stream live.
   for (const k of KARATS) out.push(...dual(`gold-price/${k}`, "hourly", 0.9));
 
+  // Country hub — internal-linking entry point for all country markets.
+  out.push(...dual("gold-price", "daily", 0.75));
+
   // Live + spot + chart routes — high-traffic SEO targets.
   out.push(...dual("spot-gold", "hourly", 0.85));
   out.push(...dual("live-gold-price", "hourly", 0.85));

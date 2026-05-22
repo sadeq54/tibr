@@ -1,19 +1,28 @@
 import { ArrowRight } from "lucide-react";
 
+import { Flag } from "@/components/Flag";
 import { Link } from "@/i18n/navigation";
 
-type Item = { href: string; label: string; note?: string };
+type Item = {
+  href: string;
+  label: string;
+  note?: string;
+  /** ISO-3166 country code — renders a flag, for country cross-links. */
+  flag?: string;
+};
 
 /**
- * Contextual related-page block. Renders 3–6 internal links with optional
- * one-line context. Boosts internal link density (key SEO signal) and helps
- * users discover sibling content.
+ * Contextual related-page block. Renders internal links with optional one-line
+ * context and an optional country flag. Boosts internal link density (key SEO
+ * signal) and helps users discover sibling content. Links use
+ * `prefetch={false}` — related links sit below the fold and are exploratory,
+ * so eager route-payload prefetching on scroll only wastes mobile bandwidth.
  *
  *   <RelatedLinks
  *     heading={t("relatedH2")}
  *     items={[
  *       { href: "/gold-price/24k", label: "24K Gold", note: "99.9% purity" },
- *       ...
+ *       { href: "/uae/gold-price/21k", label: "UAE", note: "AED", flag: "AE" },
  *     ]}
  *   />
  */
@@ -42,8 +51,12 @@ export function RelatedLinks({
           <li key={item.href}>
             <Link
               href={item.href as never}
+              prefetch={false}
               className="group flex items-start gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] p-3 text-sm transition hover:border-[var(--color-gold)]/40"
             >
+              {item.flag ? (
+                <Flag cc={item.flag} size={16} className="mt-0.5 flex-shrink-0" />
+              ) : null}
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-[var(--color-gold)]">
                   {item.label}

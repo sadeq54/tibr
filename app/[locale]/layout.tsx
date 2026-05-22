@@ -500,11 +500,63 @@ async function I18nProvider({
   );
 }
 
+/** Embed routes (`/embed/*` and legacy `/widgets/embed/*`) are loaded inside
+ *  third-party iframes — they must not render site chrome or analytics. */
+const EMBED_PATH = /\/embed\//;
+
 async function FooterGate() {
   const h = await headers();
   const path = h.get("x-pathname") ?? "";
-  const isEmbed = /\/widgets\/embed\//.test(path);
-  return isEmbed ? null : <Footer />;
+  return EMBED_PATH.test(path) ? null : <Footer />;
+}
+
+/**
+ * Tag Manager / Analytics, path-gated. Skipped on `/embed/*` widget routes so
+ * a widget never drags our GTM/GA into a partner's page (privacy + page
+ * weight). Reading headers() here, inside a Suspense boundary, keeps the
+ * static shell / PPR intact — same pattern as FooterGate / SiteJsonLd.
+ */
+async function AnalyticsGate() {
+  const h = await headers();
+  const path = h.get("x-pathname") ?? "";
+  if (EMBED_PATH.test(path)) return null;
+
+  if (process.env.NEXT_PUBLIC_GTM_ID) {
+    return (
+      <>
+        <Script
+          id="gtm-base"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');`,
+          }}
+        />
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+            title="GTM"
+          />
+        </noscript>
+      </>
+    );
+  }
+  if (process.env.NEXT_PUBLIC_GA_ID) {
+    return (
+      <>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_ID}',{anonymize_ip:true});`}
+        </Script>
+      </>
+    );
+  }
+  return null;
 }
 
 /**
@@ -518,7 +570,7 @@ async function SiteJsonLd({ locale }: { locale: string }) {
   const path = h.get("x-pathname") ?? "/";
   // Don't emit on embeddable widgets — they're meant to live in third-party
   // pages and shouldn't pollute the host's schema graph.
-  if (/\/widgets\/embed\//.test(path)) return null;
+  if (EMBED_PATH.test(path)) return null;
   const pageUrl = path.startsWith("/") ? path : `/${path}`;
   return (
     <JsonLd
@@ -565,48 +617,13 @@ export default async function LocaleLayout({
       </head>
       <body>
         {/*
-          Tag Manager / Analytics. Prefer GTM (one container, configure GA + Ads
-          + Pixel inside GTM dashboard). Falls back to direct GA4 if no GTM.
-          Both load via `strategy="worker"` (Partytown) when nextScriptWorkers
-          is enabled — off main thread, no INP / LCP cost.
+          Tag Manager / Analytics — rendered via AnalyticsGate so it is skipped
+          on /embed/* widget routes (no GTM/GA inside partner iframes). GTM uses
+          `afterInteractive`: runs after hydration, no LCP/FCP cost.
         */}
-        {process.env.NEXT_PUBLIC_GTM_ID ? (
-          <>
-            {/*
-              GTM uses `afterInteractive` (not `worker`/Partytown) because Tag
-              Assistant, GA4 Realtime debug, and most Google debug tools require
-              GTM on the main thread. `afterInteractive` runs after hydration so
-              LCP/FCP are unaffected. Marginal INP cost (~30-80ms) is acceptable
-              for analytics flexibility.
-            */}
-            <Script
-              id="gtm-base"
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');`,
-              }}
-            />
-            <noscript>
-              <iframe
-                src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
-                height="0"
-                width="0"
-                style={{ display: "none", visibility: "hidden" }}
-                title="GTM"
-              />
-            </noscript>
-          </>
-        ) : process.env.NEXT_PUBLIC_GA_ID ? (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga-init" strategy="afterInteractive">
-              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_ID}',{anonymize_ip:true});`}
-            </Script>
-          </>
-        ) : null}
+        <Suspense fallback={null}>
+          <AnalyticsGate />
+        </Suspense>
         <Suspense fallback={null}>
           <SiteJsonLd locale={locale} />
         </Suspense>
