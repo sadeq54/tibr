@@ -48,12 +48,12 @@ export function KaratSwitcher({
       }}
     >
       <div className="mb-4 flex items-center justify-between">
-        <h2
+        <h3
           id="karat-switcher-heading"
           className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-gold)]"
         >
           {heading}
-        </h2>
+        </h3>
         <span
           aria-hidden
           className="h-px flex-1 ms-4 bg-gradient-to-r from-[var(--color-gold)]/40 to-transparent"

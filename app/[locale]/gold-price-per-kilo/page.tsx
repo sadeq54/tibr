@@ -91,7 +91,7 @@ export default async function PerKiloPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(perKiloFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(perKiloFaqSchema).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => <HeroSpot spot={await spotPromise} />)()}

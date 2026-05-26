@@ -340,11 +340,16 @@ export function JsonLd({
   payload.push(...products);
   if (financialProduct) payload.push(financialProduct);
   if (quotation) payload.push(quotation);
-  const json = JSON.stringify(payload);
+  // Escape `<` so a stray "</script>" inside any string (descriptions, notes,
+  // dynamic text) cannot close the tag early. If it did, the HTML parser pours
+  // following <head> content into <body> — root cause of "head outside" bugs.
+  const json = JSON.stringify(payload).replace(/</g, "\\u003c");
 
   return (
-    <script type="application/ld+json" suppressHydrationWarning>
-      {json}
-    </script>
+    <script
+      type="application/ld+json"
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: json }}
+    />
   );
 }

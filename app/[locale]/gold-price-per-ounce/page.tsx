@@ -91,7 +91,7 @@ export default async function PerOzPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(perOzFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(perOzFaqSchema).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => <HeroSpot spot={await spotPromise} />)()}

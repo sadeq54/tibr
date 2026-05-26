@@ -429,16 +429,6 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 </li>
                 <li>
                   <a
-                    href="https://www.brinks.com/en-us/services/bullion-vault-services"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[var(--color-gold)] hover:underline"
-                  >
-                    Brink's Vault Services ↗
-                  </a>
-                </li>
-                <li>
-                  <a
                     href="https://www.cmegroup.com/markets/metals/precious/gold.html"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -449,7 +439,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 </li>
                 <li>
                   <a
-                    href="https://www.en.sge.com.cn/"
+                    href="https://www.sge.com.cn/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--color-gold)] hover:underline"

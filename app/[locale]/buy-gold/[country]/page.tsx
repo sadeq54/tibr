@@ -116,7 +116,7 @@ export default async function BuyGoldCountryPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(buyFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buyFaqSchema).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => {

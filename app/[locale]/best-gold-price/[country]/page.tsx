@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -50,7 +49,6 @@ export default async function BestPriceCountryPage({
   if (!c) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("SubPage");
-  await connection();
 
   const name = countryName(c, locale);
   const spotPromise = getCachedSpot("XAU");
@@ -113,7 +111,7 @@ export default async function BestPriceCountryPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(bestFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(bestFaqSchema).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => {

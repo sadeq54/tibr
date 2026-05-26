@@ -22,8 +22,8 @@ import {
  */
 
 const TITLE = {
-  en: "Gold Price by Country — Live Rates Across 46 Markets",
-  ar: "أسعار الذهب حسب الدولة — أسعار حية في 46 سوقًا",
+  en: "Gold Price by Country — Live Rates",
+  ar: "أسعار الذهب حسب الدولة — أسعار حية",
 } as const;
 
 const INTRO = {

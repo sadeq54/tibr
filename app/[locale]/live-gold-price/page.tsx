@@ -19,7 +19,7 @@ import { faqPageSchema } from "@/lib/schemas";
 // long-tail where this site has authority.
 function localizedTitle(locale: string, t: (k: string) => string) {
   return locale === "en"
-    ? "Live Gold Price MENA — XAU/SAR XAU/AED XAU/EGP Real-Time"
+    ? "Live Gold Price MENA (Real-Time XAU)"
     : t("livePriceH1");
 }
 function localizedIntro(locale: string, t: (k: string) => string) {
@@ -108,7 +108,7 @@ export default async function LiveGoldPricePage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(liveFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(liveFaqSchema).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => {

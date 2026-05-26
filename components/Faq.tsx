@@ -11,12 +11,12 @@ export function Faq() {
         <span className="inline-flex items-center rounded-full border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] px-4 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
           {t("badge")}
         </span>
-        <h2
+        <h3
           id="faq-heading"
           className="mt-5 max-w-3xl text-3xl font-bold tracking-tight text-[var(--color-text)] md:text-4xl"
         >
           {t("heading")}
-        </h2>
+        </h3>
         <p className="mt-3 max-w-xl text-sm text-[var(--color-text-muted)] md:text-base">
           {t("subtitle")}
         </p>

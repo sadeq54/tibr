@@ -43,7 +43,7 @@ export const ARTICLES: Article[] = [
     slug: "saudi-gold-21k-may-2026-overview",
     publishedAt: "2026-05-13T08:00:00Z",
     title_en: "Saudi Gold 21K — Why MENA Jewellery Buyers Still Anchor on This Karat",
-    title_ar: "الذهب السعودي 21 قيراط — لماذا يظل هذا العيار محور سوق المجوهرات في الشرق الأوسط",
+    title_ar: "الذهب السعودي عيار 21 — معيار مجوهرات الشرق الأوسط",
     description_en:
       "21K gold dominates Saudi, UAE, Egyptian, and Jordanian jewellery markets. We break down why the 87.5% purity standard persists, how spot price translates to per-gram retail, and what to verify before buying.",
     description_ar:
@@ -143,7 +143,7 @@ A handmade design from a named goldsmith carries genuine craftsmanship value abo
     slug: "spot-gold-vs-retail-jeweller-spread",
     publishedAt: "2026-05-13T10:00:00Z",
     title_en: "Spot Gold vs. Your Jeweller's Price — Where the Spread Goes",
-    title_ar: "السعر الفوري للذهب مقابل سعر الصائغ — أين يذهب الفارق",
+    title_ar: "السعر الفوري للذهب مقابل سعر الصائغ",
     description_en:
       "The gap between the live XAU/USD spot price and what you pay at the counter can run 5–20%. We decompose every component: refining loss, workmanship, retailer margin, VAT, and dealer arbitrage.",
     description_ar:
@@ -254,7 +254,7 @@ ARTICLES.push(
     slug: "ramadan-eid-2026-gold-demand-cycle",
     publishedAt: "2026-05-13T11:00:00Z",
     title_en: "Ramadan & Eid 2026 — How the MENA Gold Demand Cycle Moves Prices",
-    title_ar: "رمضان وعيد 2026 — كيف تحرّك دورة الطلب على الذهب في الشرق الأوسط الأسعار",
+    title_ar: "رمضان وعيد 2026 — دورة الطلب على الذهب في الشرق الأوسط",
     description_en:
       "Two of the largest annual gold-buying spikes in the Arab world happen on Ramadan/Eid and the wedding season. We map how local demand interacts with global spot prices and what to watch for in 2026.",
     description_ar:
@@ -344,7 +344,7 @@ Check the [Saudi 21K page](/saudi-arabia/gold-price/21k) and [UAE 21K page](/uae
     slug: "egypt-18k-vs-21k-gold-shift",
     publishedAt: "2026-05-13T13:00:00Z",
     title_en: "Why 18K Is Gaining Ground in Egyptian Gold — A Quiet Market Shift",
-    title_ar: "لماذا يكتسب عيار 18 قيراط أرضاً في سوق الذهب المصري — تحوّل هادئ",
+    title_ar: "عيار 18 قيراط يكتسب أرضاً في سوق الذهب المصري",
     description_en:
       "Traditionally an 21K market, Egypt has seen growing 18K demand over the past decade. We unpack the EGP weakness, designer trend, and what it means for buyers in 2026.",
     description_ar:
@@ -440,7 +440,7 @@ Always cross-check your local jeweller's per-gram rate against our [Egypt page](
     slug: "5-home-tests-to-spot-fake-gold",
     publishedAt: "2026-05-13T14:00:00Z",
     title_en: "5 At-Home Tests to Spot Fake Gold Before You Sell or Buy",
-    title_ar: "5 اختبارات منزلية لاكتشاف الذهب المزيّف قبل البيع أو الشراء",
+    title_ar: "5 اختبارات منزلية لاكتشاف الذهب المزيّف",
     description_en:
       "You don't need a professional assay to catch obvious fakes. Five quick tests using items in your kitchen distinguish gold-plated, gold-filled, and pure-gold pieces with high reliability.",
     description_ar:
@@ -600,7 +600,7 @@ Bookmark [our 24K page](/gold-price/24k) for the daily reference, and check it b
     slug: "silver-platinum-palladium-investment-comparison",
     publishedAt: "2026-05-13T15:00:00Z",
     title_en: "Silver vs Platinum vs Palladium — A Practical Investment Comparison",
-    title_ar: "الفضة مقابل البلاتين مقابل البلاديوم — مقارنة استثمارية عملية",
+    title_ar: "الفضة والبلاتين والبلاديوم — مقارنة استثمارية",
     description_en:
       "Beyond gold, three other precious metals trade actively. We compare silver, platinum, and palladium on volatility, industrial demand, MENA availability, and long-term hold characteristics.",
     description_ar:

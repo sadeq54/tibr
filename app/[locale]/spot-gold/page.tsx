@@ -24,7 +24,7 @@ import { faqPageSchema } from "@/lib/schemas";
 // version keeps the original keyword which still ranks well in /ar SERPs.
 function localizedTitle(locale: string, t: (k: string) => string) {
   return locale === "en"
-    ? "Spot Gold Price in Saudi Arabia (XAU/SAR Live)"
+    ? "Spot Gold Price (XAU/SAR Live)"
     : t("spotGoldH1");
 }
 function localizedIntro(locale: string, t: (k: string) => string) {
@@ -114,7 +114,7 @@ export default async function SpotGoldPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(spotFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(spotFaqSchema).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => <HeroSpot spot={await spotPromise} />)()}

@@ -375,8 +375,10 @@ export const metadata: Metadata = {
     "محول الذهب",
   ],
   manifest: "/manifest.webmanifest",
+  // No `languages` here — pages emit their own per-route hreflang via
+  // buildAlternates(locale, path). Including it at layout level duplicated
+  // every hreflang entry on every page (SF: 287 pages w/ multiple entries).
   alternates: {
-    ...buildAlternates("ar", "/"),
     types: {
       "application/rss+xml": [{ url: "/rss.xml", title: "Gold market news" }],
     },

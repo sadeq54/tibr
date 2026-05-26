@@ -138,7 +138,7 @@ export default async function CryptoCoinPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(cryptoFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(cryptoFaqSchema).replace(/</g, "\\u003c") }}
       />
       <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6">
         {quote ? (

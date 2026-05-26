@@ -74,7 +74,7 @@ export default async function NewsPage({
         <script
           type="application/ld+json"
           suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema).replace(/</g, "\\u003c") }}
         />
       ) : null}
       {editorial.length > 0 ? (
@@ -149,7 +149,7 @@ export default async function NewsPage({
               <a
                 href={n.link}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="nofollow noopener noreferrer"
                 className="mt-1 block font-semibold text-[var(--color-text)] hover:text-[var(--color-gold)]"
               >
                 {n.title}
@@ -162,7 +162,7 @@ export default async function NewsPage({
               <a
                 href={n.link}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="nofollow noopener noreferrer"
                 className="mt-2 inline-block text-xs text-[var(--color-gold)] hover:underline"
               >
                 {t("newsReadMore")}

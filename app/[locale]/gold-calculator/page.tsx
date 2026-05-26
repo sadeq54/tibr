@@ -164,7 +164,7 @@ export default async function GoldCalculatorPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaPayload) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaPayload).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={<CalculatorSkeleton />}>
         {(async () => {

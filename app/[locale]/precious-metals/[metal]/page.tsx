@@ -140,7 +140,7 @@ export default async function MetalPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(metalFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(metalFaqSchema).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => <HeroSpot spot={await spotPromise} />)()}

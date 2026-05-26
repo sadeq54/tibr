@@ -82,7 +82,7 @@ export default async function AuthorPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema).replace(/</g, "\\u003c") }}
       />
       <Header />
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">

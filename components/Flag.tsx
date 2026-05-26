@@ -19,16 +19,20 @@ export function Flag({
 }) {
   const code = cc.toLowerCase();
   const w = Math.round(size * 1.5);
+  // Default alt = "{CC} flag" so SF / Lighthouse stop flagging empty alts.
+  // Callers can pass alt="" explicitly for genuinely decorative cases (next to
+  // visible country-name text — most uses) and the screen reader will skip it.
+  const resolvedAlt = alt === undefined ? `${cc.toUpperCase()} flag` : alt;
   return (
     <img
       src={`/flags/${code}.svg`}
-      alt={alt ?? ""}
+      alt={resolvedAlt}
       width={w}
       height={size}
       loading="lazy"
       decoding="async"
       className={`inline-block align-text-bottom ${className ?? ""}`}
-      role={alt ? undefined : "presentation"}
+      role={resolvedAlt === "" ? "presentation" : undefined}
     />
   );
 }

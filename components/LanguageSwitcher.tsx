@@ -36,6 +36,9 @@ export function LanguageSwitcher({
       }
     >
       <Languages size={16} aria-hidden />
+      {/* Visually hidden but in DOM textContent — gives SF/Screaming Frog real
+          anchor text (it doesn't read aria-label) and keeps SR users covered. */}
+      <span className="sr-only">{label}</span>
     </Link>
   );
 }

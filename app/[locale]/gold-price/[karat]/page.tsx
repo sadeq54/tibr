@@ -183,7 +183,7 @@ export default async function KaratPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(karatFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(karatFaqSchema).replace(/</g, "\\u003c") }}
       />
       <JsonLd
         siteUrl={SITE_URL}

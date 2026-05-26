@@ -298,7 +298,7 @@ export default async function CountryKaratPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ckFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ckFaqSchema).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={null}>
         <CountrySchema

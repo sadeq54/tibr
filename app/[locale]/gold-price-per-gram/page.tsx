@@ -92,7 +92,7 @@ export default async function PerGramPage({
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(perGramFaqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(perGramFaqSchema).replace(/</g, "\\u003c") }}
       />
       <Suspense fallback={<KaratGridSkeleton />}>
         {(async () => {
