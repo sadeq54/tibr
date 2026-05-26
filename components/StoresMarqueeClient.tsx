@@ -57,9 +57,10 @@ export function StoresMarqueeClient() {
         aria-hidden
       />
 
-      {/* Duplicate slides so loop has enough material (Swiper requires
-          slides > slidesPerView * 2 for loop). With 3 brokers we duplicate
-          to 9 for smooth infinite marquee with no warning. */}
+      {/* Duplicate slides so loop has enough material. With `slidesPerView="auto"`
+          Swiper measures at runtime; on wide viewports 9 (3×3) isn't always
+          enough → warning. Bumped to 5× (15 slides) — silences the warning
+          across all screen sizes while keeping the marquee smooth. */}
       <Swiper
         modules={[Autoplay, FreeMode]}
         slidesPerView="auto"
@@ -77,7 +78,7 @@ export function StoresMarqueeClient() {
         allowTouchMove
         className="!py-4"
       >
-        {[...BROKERS, ...BROKERS, ...BROKERS].map((b, i) => (
+        {[...BROKERS, ...BROKERS, ...BROKERS, ...BROKERS, ...BROKERS].map((b, i) => (
           <SwiperSlide key={`${b.name}-${i}`} style={{ width: 288 }}>
             <a
               href={b.url}
