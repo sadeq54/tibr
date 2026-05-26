@@ -2,8 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-import { useRouter } from "@/i18n/navigation";
-
 const COUNTRY_TO_PATH: Record<string, string> = {
   JO: "/jordan/gold-price/21k",
   SA: "/saudi-arabia/gold-price/21k",
@@ -61,7 +59,6 @@ async function detectCountry(): Promise<string | null> {
 }
 
 export function GeoRedirect() {
-  const router = useRouter();
   const ran = useRef(false);
 
   useEffect(() => {
@@ -96,13 +93,18 @@ export function GeoRedirect() {
       }
 
       writeCookie(COOKIE, "1");
-      router.replace(path as never);
+      // `window.location.replace` not next-intl `router.replace` — calling the
+      // App Router from inside an async useEffect chain races with router
+      // initialisation and throws "Internal Next.js error: Router action
+      // dispatched before initialization". This redirect runs once per session
+      // (cookie-gated), so a full nav is the right primitive anyway.
+      window.location.replace(path);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, []);
 
   return null;
 }

@@ -9,15 +9,20 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import reduxStorage from "redux-persist/lib/storage";
+import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
-const noopStorage = {
-  getItem: (_key: string) => Promise.resolve(null),
+// `redux-persist/lib/storage` does a window check at IMPORT time and logs
+// "failed to create sync storage, falling back to noop storage" during SSR.
+// Use the factory directly so the web storage is only instantiated on the
+// client and the noop has zero import-time side effects on the server.
+const createNoopStorage = () => ({
+  getItem: (_key: string) => Promise.resolve<string | null>(null),
   setItem: (_key: string, value: string) => Promise.resolve(value),
   removeItem: (_key: string) => Promise.resolve(),
-};
+});
 
-const storage = typeof window !== "undefined" ? reduxStorage : noopStorage;
+const storage =
+  typeof window !== "undefined" ? createWebStorage("local") : createNoopStorage();
 
 import themeReducer from "./themeSlice";
 
