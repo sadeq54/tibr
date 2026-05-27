@@ -87,7 +87,12 @@ export default async function PerOzPage({
   const perOzFaqSchema = faqPageSchema(pageUrl, perOzFaqs, locale === "ar" ? "ar" : "en");
 
   return (
-    <PageShell title={t("perOzH1")} intro={t("perOzIntro")}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="perOzH1"
+      introKey="perOzIntro"
+    >
       <script
         type="application/ld+json"
         suppressHydrationWarning

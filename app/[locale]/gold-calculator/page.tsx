@@ -160,7 +160,12 @@ export default async function GoldCalculatorPage({
   const schemaPayload = bundleSchemas(howToSchema, calcWebApp, calcFaqSchema);
 
   return (
-    <PageShell title={t("calcH1")} intro={t("calcIntro")}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="calcH1"
+      introKey="calcIntro"
+    >
       <script
         type="application/ld+json"
         suppressHydrationWarning

@@ -104,8 +104,12 @@ export default async function BestPriceCountryPage({
 
   return (
     <PageShell
-      title={t("bestPriceCountryH1", { country: name })}
-      intro={t("bestPriceCountryIntro", { country: name, currency: c.currency })}
+      locale={locale}
+      namespace="SubPage"
+      titleKey="bestPriceCountryH1"
+      introKey="bestPriceCountryIntro"
+      titleVars={{ country: name }}
+      introVars={{ country: name, currency: c.currency }}
       badge={<><Flag cc={c.cc} size={12} className="me-1" /> {name}</>}
     >
       <script

@@ -109,8 +109,12 @@ export default async function BuyGoldCountryPage({
 
   return (
     <PageShell
-      title={t("buyH1", { country: name })}
-      intro={t("buyIntro", { country: name })}
+      locale={locale}
+      namespace="SubPage"
+      titleKey="buyH1"
+      introKey="buyIntro"
+      titleVars={{ country: name }}
+      introVars={{ country: name }}
       badge={<><Flag cc={c.cc} size={12} className="me-1" /> {name}</>}
     >
       <script

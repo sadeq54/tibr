@@ -40,7 +40,12 @@ export default async function PreciousMetalsPage({
   const metalsPromise = fetchMetals();
 
   return (
-    <PageShell title={tFooter("metalsHeading")} showFaq={false}>
+    <PageShell
+      locale={locale}
+      namespace="Footer"
+      titleKey="metalsHeading"
+      showFaq={false}
+    >
       <Suspense fallback={<MetalsStripSkeleton />}>
         {(async () => <MetalsStrip metals={await metalsPromise} />)()}
       </Suspense>

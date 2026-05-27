@@ -29,7 +29,13 @@ export default async function WidgetsPage({
   const t = await getTranslations("SubPage");
 
   return (
-    <PageShell title={t("widgetsH1")} intro={t("widgetsIntro")} showFaq={false}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="widgetsH1"
+      introKey="widgetsIntro"
+      showFaq={false}
+    >
       <WidgetBuilder locale={locale} />
     </PageShell>
   );

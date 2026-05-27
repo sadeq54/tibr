@@ -1,5 +1,8 @@
 import { cacheLife } from "next/cache";
-import { getTranslations } from "next-intl/server";
+import { createTranslator } from "next-intl";
+
+import arMessages from "@/messages/ar.json";
+import enMessages from "@/messages/en.json";
 
 import { canonicalPath, SITE_URL } from "@/lib/metadata";
 
@@ -35,7 +38,12 @@ export async function SeoStaticHeader({
 }) {
   "use cache";
   cacheLife({ stale: 3600, revalidate: 3600, expire: 86400 });
-  const t = await getTranslations({ locale, namespace });
+  // `createTranslator` not `getTranslations` — request-free, safe in cache.
+  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
+    string,
+    Record<string, string>
+  >;
+  const t = createTranslator({ locale, namespace, messages });
   return (
     <header className="mb-6">
       {breadcrumb && breadcrumb.length > 0 ? (

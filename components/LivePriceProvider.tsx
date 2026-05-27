@@ -97,6 +97,16 @@ function medianSigned(arr: number[]): number | null {
 }
 
 export function LivePriceProvider({ children }: { children: React.ReactNode }) {
+  // Hydration gate: server renders EMPTY (no live data), so the client's first
+  // render after hydration must also be EMPTY — otherwise WebSocket ticks that
+  // arrived before commit flip values/colours and trigger hydration mismatch
+  // warnings in HeroSpot, BidAskGauge, KaratGrid, Calculator. After mount, the
+  // real live values take over.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
   const [sources, setSources] = useState<Record<SourceKey, SourceState>>({
     binance: initial("binance", "Binance"),
     coinbase: initial("coinbase", "Coinbase"),

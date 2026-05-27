@@ -88,7 +88,12 @@ export default async function PerGramPage({
   const perGramFaqSchema = faqPageSchema(pageUrl, perGramFaqs, locale === "ar" ? "ar" : "en");
 
   return (
-    <PageShell title={t("perGramH1")} intro={t("perGramIntro")}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="perGramH1"
+      introKey="perGramIntro"
+    >
       <script
         type="application/ld+json"
         suppressHydrationWarning

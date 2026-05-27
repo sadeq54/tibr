@@ -11,6 +11,7 @@ import { Flag } from "@/components/Flag";
 import { GeoRedirect } from "@/components/GeoRedirect";
 import { Header } from "@/components/Header";
 import { HeroSpot } from "@/components/HeroSpot";
+import { HomepageSeoHeader } from "@/components/HomepageSeoHeader";
 import { JsonLd } from "@/components/JsonLd";
 import { KaratGrid } from "@/components/KaratGrid";
 import dynamic from "next/dynamic";
@@ -177,46 +178,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="min-w-0 space-y-8">
-            <header>
-              <h1 className="text-3xl font-bold tracking-tight text-[var(--color-gold)]">
-                {t("h1")}
-              </h1>
-              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[var(--color-text-muted)]">
-                {t.rich("intro", {
-                  ar: (chunks) => (
-                    <span lang={locale === "ar" ? "en" : "ar"} className="text-[var(--color-text)]">
-                      {chunks}
-                    </span>
-                  ),
-                })}
-              </p>
-              <nav
-                aria-label={locale === "ar" ? "روابط سريعة" : "Quick links"}
-                className="mt-4 flex flex-wrap gap-2 text-sm"
-              >
-                {([
-                  { href: "/gold-price/24k", label: "24K" },
-                  { href: "/gold-price/21k", label: "21K" },
-                  { href: "/gold-price/18k", label: "18K" },
-                  { href: "/gold-price/14k", label: "14K" },
-                  { href: "/spot-gold", label: locale === "ar" ? "السعر الفوري" : "Spot Gold" },
-                  { href: "/gold-price-chart", label: locale === "ar" ? "الرسم البياني" : "Chart" },
-                  { href: "/gold-calculator", label: locale === "ar" ? "الحاسبة" : "Calculator" },
-                  { href: "/saudi-arabia/gold-price/21k", label: <><Flag cc="SA" size={12} className="me-1" /> {locale === "ar" ? "السعودية" : "Saudi"}</> },
-                  { href: "/uae/gold-price/21k", label: <><Flag cc="AE" size={12} className="me-1" /> {locale === "ar" ? "الإمارات" : "UAE"}</> },
-                  { href: "/egypt/gold-price/21k", label: <><Flag cc="EG" size={12} className="me-1" /> {locale === "ar" ? "مصر" : "Egypt"}</> },
-                  { href: "/news", label: locale === "ar" ? "الأخبار" : "News" },
-                ] satisfies Array<{ href: string; label: React.ReactNode }>).map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href as never}
-                    className="inline-flex min-h-11 items-center rounded-full border border-[var(--color-gold)]/40 bg-[var(--color-gold)]/5 px-4 py-2 font-medium text-[var(--color-gold)] transition hover:bg-[var(--color-gold)]/15"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-            </header>
+            <HomepageSeoHeader locale={locale} />
 
             <Suspense fallback={<HeroSpotSkeleton />}>
               <LiveGoldStreamSection promise={metalsPromise} />

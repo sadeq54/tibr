@@ -87,7 +87,12 @@ export default async function PerKiloPage({
   const perKiloFaqSchema = faqPageSchema(pageUrl, perKiloFaqs, locale === "ar" ? "ar" : "en");
 
   return (
-    <PageShell title={t("perKiloH1")} intro={t("perKiloIntro")}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="perKiloH1"
+      introKey="perKiloIntro"
+    >
       <script
         type="application/ld+json"
         suppressHydrationWarning

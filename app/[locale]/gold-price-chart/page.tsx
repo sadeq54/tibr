@@ -35,7 +35,12 @@ export default async function GoldPriceChartPage({
   const historyPromise = fetchAllHistory("1y");
 
   return (
-    <PageShell title={t("priceChartH1")} intro={t("priceChartIntro")}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="priceChartH1"
+      introKey="priceChartIntro"
+    >
       <Suspense fallback={<PriceChartSkeleton />}>
         {(async () => {
           const [h, fx] = await Promise.all([historyPromise, fxPromise]);

@@ -33,7 +33,12 @@ export default async function GoldSilverRatioPage({
   const ratio = xag > 0 ? xau / xag : null;
 
   return (
-    <PageShell title={t("ratioH1")} intro={t("ratioIntro")}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="ratioH1"
+      introKey="ratioIntro"
+    >
       <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6">
         <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
           {t("ratioCurrent")}

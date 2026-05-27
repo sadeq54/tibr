@@ -95,10 +95,19 @@ export default async function BuyGoldTypePage({
   const spotPromise = getCachedSpot("XAU");
   const fxPromise = getCachedFxRates();
 
+  const titleKey =
+    type === "coins" ? "buyCoinsH1" : type === "small-coins" ? "buySmallH1" : "buyBarsH1";
+  const introKey =
+    type === "coins" ? "buyCoinsIntro" : type === "small-coins" ? "buySmallIntro" : "buyBarsIntro";
+
   return (
     <PageShell
-      title={titleFor(type as Type, t, name)}
-      intro={introFor(type as Type, t, name)}
+      locale={locale}
+      namespace="SubPage"
+      titleKey={titleKey}
+      introKey={introKey}
+      titleVars={{ country: name }}
+      introVars={{ country: name }}
       badge={<><Flag cc={c.cc} size={12} className="me-1" /> {name}</>}
     >
       <Suspense fallback={<HeroSpotSkeleton />}>

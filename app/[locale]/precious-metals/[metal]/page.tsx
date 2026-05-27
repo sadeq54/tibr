@@ -134,8 +134,12 @@ export default async function MetalPage({
 
   return (
     <PageShell
-      title={t("metalH1", { metal: name })}
-      intro={t("metalIntro", { metal: name })}
+      locale={locale}
+      namespace="SubPage"
+      titleKey="metalH1"
+      introKey="metalIntro"
+      titleVars={{ metal: name }}
+      introVars={{ metal: name }}
     >
       <script
         type="application/ld+json"

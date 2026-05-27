@@ -46,7 +46,13 @@ export default async function BestGoldPricePage({
   );
 
   return (
-    <PageShell title={t("bestPriceH1")} intro={t("bestPriceIntro")} showFaq={false}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="bestPriceH1"
+      introKey="bestPriceIntro"
+      showFaq={false}
+    >
       <Suspense fallback={null}>
         <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4 sm:p-6">
           <table className="w-full text-sm">

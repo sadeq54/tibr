@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AffiliateBanner } from "@/components/AffiliateBanner";
+import { CountryGoldPriceHeader } from "@/components/CountryGoldPriceHeader";
 import { BidAskGauge } from "@/components/BidAskGauge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Calculator } from "@/components/Calculator";
@@ -332,37 +333,7 @@ export default async function CountryKaratPage({
               historicalHref="/historical-gold-prices/2026"
             />
 
-            <header>
-              <Link
-                href="/"
-                className="text-xs text-[var(--color-text-dim)] hover:text-[var(--color-gold)]"
-              >
-                <Flag cc={country.cc} size={12} className="me-1" />
-                {name}
-              </Link>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-gold)]">
-                {tPage("h1", { karat: upper, country: name })}
-              </h1>
-              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[var(--color-text-muted)]">
-                {tPage("intro", { karat: upper, country: name, currency: country.currency })}
-              </p>
-              <div className="mt-3 inline-block rounded-md border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/10 px-3 py-1.5 text-xs text-[var(--color-gold)]">
-                {tPage("currencyNote", { currency: country.currency })}
-              </div>
-              {note ? (
-                <section
-                  aria-label={locale === "ar" ? "ملاحظات السوق المحلي" : "Local market notes"}
-                  className="mt-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4"
-                >
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--color-gold)]">
-                    {locale === "ar" ? `سوق الذهب في ${name}` : `${name} gold market`}
-                  </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
-                    {note}
-                  </p>
-                </section>
-              ) : null}
-            </header>
+            <CountryGoldPriceHeader locale={locale} slug={slug} karat={karat} />
 
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection

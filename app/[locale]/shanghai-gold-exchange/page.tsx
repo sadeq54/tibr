@@ -39,7 +39,12 @@ export default async function ShanghaiGoldPage({
   const fxPromise = fetchFxRates();
 
   return (
-    <PageShell title={t("sgeH1")} intro={t("sgeIntro")}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="sgeH1"
+      introKey="sgeIntro"
+    >
       <Suspense fallback={<HeroSpotSkeleton />}>
         {(async () => {
           const [s, fx] = await Promise.all([spotPromise, fxPromise]);

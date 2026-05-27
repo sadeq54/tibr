@@ -69,7 +69,13 @@ export default async function NewsPage({
     : null;
 
   return (
-    <PageShell title={t("newsH1")} intro={t("newsIntro")} showFaq={false}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="newsH1"
+      introKey="newsIntro"
+      showFaq={false}
+    >
       {itemListSchema ? (
         <script
           type="application/ld+json"

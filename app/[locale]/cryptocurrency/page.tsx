@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
@@ -28,7 +27,6 @@ export default async function CryptoListPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("SubPage");
-  await connection();
 
   const quotes = await fetchCryptos();
   const byId: Record<string, typeof quotes[number]> = Object.fromEntries(
@@ -36,7 +34,13 @@ export default async function CryptoListPage({
   );
 
   return (
-    <PageShell title={t("cryptoListH1")} intro={t("cryptoListIntro")} showFaq={false}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="cryptoListH1"
+      introKey="cryptoListIntro"
+      showFaq={false}
+    >
       <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6">
         <table className="w-full text-sm">
           <thead>
