@@ -401,12 +401,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 </li>
                 <li>
                   <a
-                    href="https://www.sge.com.cn/"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="/shanghai-gold-exchange"
                     className="text-[var(--color-gold)] hover:underline"
                   >
-                    Shanghai Gold Exchange ↗
+                    Shanghai Gold Exchange
                   </a>
                 </li>
               </ul>
