@@ -1,5 +1,4 @@
 import type React from "react";
-import { cacheLife } from "next/cache";
 import { createTranslator } from "next-intl";
 
 import arMessages from "@/messages/ar.json";
@@ -64,9 +63,10 @@ const STATIC_FAQS_AR = [
   },
 ];
 
-export async function HomepageSeoHeader({ locale }: { locale: string }) {
-  "use cache";
-  cacheLife({ stale: 3600, revalidate: 3600, expire: 86400 });
+export function HomepageSeoHeader({ locale }: { locale: string }) {
+  // SYNCHRONOUS. Async components stream as hidden Suspense reveals AFTER
+  // </main>, which non-JS crawlers (Seobility, Bing fallback, AI bots) skip
+  // → "0 words, 0 H1, 0 links". Sync = inlined directly in static prerender.
   const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
     string,
     Record<string, string>

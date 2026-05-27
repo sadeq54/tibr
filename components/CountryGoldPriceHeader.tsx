@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import { createTranslator } from "next-intl";
 
 import arMessages from "@/messages/ar.json";
@@ -25,7 +24,7 @@ import {
  * This component is fully deterministic in (locale, slug, karat), so the
  * cache covers every variant from one build.
  */
-export async function CountryGoldPriceHeader({
+export function CountryGoldPriceHeader({
   locale,
   slug,
   karat,
@@ -34,13 +33,12 @@ export async function CountryGoldPriceHeader({
   slug: string;
   karat: string;
 }) {
-  "use cache";
-  cacheLife({ stale: 3600, revalidate: 3600, expire: 86400 });
-
   const country = COUNTRY_BY_SLUG[slug];
   if (!country) return null;
 
-  // `createTranslator` not `getTranslations` — request-free, safe in cache.
+  // SYNCHRONOUS server component (no "use cache", no async). Async children
+  // get wrapped in Suspense and stream as hidden reveal payloads after
+  // </main>, which crawlers without JS skip → empty SEO. Sync = inlined.
   const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
     string,
     Record<string, string>

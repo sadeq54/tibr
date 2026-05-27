@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import { createTranslator } from "next-intl";
 
 import arMessages from "@/messages/ar.json";
@@ -111,7 +110,7 @@ export function PageShell(props: PageShellProps) {
  * a `"use cache"` boundary so the rendered HTML lands in the PPR static shell
  * — non-JS crawlers see real H1 text instead of an empty <main>.
  */
-async function CachedPageHero({
+function CachedPageHero({
   locale,
   namespace,
   titleKey,
@@ -128,11 +127,11 @@ async function CachedPageHero({
   introVars?: Record<string, string | number | Date>;
   badge?: React.ReactNode;
 }) {
-  "use cache";
-  cacheLife({ stale: 3600, revalidate: 3600, expire: 86400 });
-  // `createTranslator` is request-free — required inside "use cache".
-  // `getTranslations()` would call headers() via i18n/request.ts which Next 16
-  // forbids in cache scopes.
+  // SYNCHRONOUS. Async components get wrapped in implicit Suspense and stream
+  // as hidden reveal payloads AFTER </main>, which non-JS crawlers (Seobility,
+  // Bing fallback, AI bots) skip → "0 words / 0 H1". Sync server component =
+  // inlined directly into the static prerender. Messages are static imports,
+  // createTranslator is sync → zero perf cost.
   const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
     string,
     Record<string, string>

@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import { createTranslator } from "next-intl";
 
 import arMessages from "@/messages/ar.json";
@@ -19,7 +18,7 @@ import { canonicalPath, SITE_URL } from "@/lib/metadata";
  * statically at build time per locale/param combo, so the H1 lands in the
  * HTML response that AI crawlers actually parse.
  */
-export async function SeoStaticHeader({
+export function SeoStaticHeader({
   locale,
   namespace,
   titleKey,
@@ -36,9 +35,8 @@ export async function SeoStaticHeader({
   introVars?: Record<string, string | number>;
   breadcrumb?: Array<{ name: string; path: string }>;
 }) {
-  "use cache";
-  cacheLife({ stale: 3600, revalidate: 3600, expire: 86400 });
-  // `createTranslator` not `getTranslations` — request-free, safe in cache.
+  // SYNCHRONOUS — same reason as HomepageSeoHeader / CountryGoldPriceHeader:
+  // async children stream as hidden reveals after </main>, killing non-JS SEO.
   const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
     string,
     Record<string, string>
