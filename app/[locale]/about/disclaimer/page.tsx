@@ -1,4 +1,8 @@
+import { createTranslator } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+
+import arMessages from "@/messages/ar.json";
+import enMessages from "@/messages/en.json";
 
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Header } from "@/components/Header";
@@ -28,9 +32,13 @@ export default async function DisclaimerPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("DisclaimerPage");
+  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
+    string,
+    Record<string, string>
+  >;
+  const t = createTranslator({ locale, namespace: "DisclaimerPage", messages });
   const tInfo = await getTranslations("InfoPage");
-  const now = new Date().toISOString().slice(0, 10);
+  const now = "2026-05-27";
   const pageUrl = canonicalPath(locale, "/about/disclaimer");
 
   const sections: Array<{ h: string; body: string }> = [

@@ -1,4 +1,8 @@
+import { createTranslator } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+
+import arMessages from "@/messages/ar.json";
+import enMessages from "@/messages/en.json";
 
 import { Header } from "@/components/Header";
 import { Link } from "@/i18n/navigation";
@@ -26,8 +30,15 @@ export default async function AboutPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("InfoPage");
-  const now = new Date().toISOString().slice(0, 10);
+  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
+    string,
+    Record<string, string>
+  >;
+  const t = createTranslator({ locale, namespace: "InfoPage", messages });
+  // Hardcoded build date — `new Date()` forbidden in pure-static server
+  // components per Next 16 (would make output non-deterministic). Bump on
+  // major content updates; harmless for low-change info pages.
+  const now = "2026-05-27";
 
   return (
     <>

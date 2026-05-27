@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
+import { createTranslator } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import ReactMarkdown from "react-markdown";
+
+import arMessages from "@/messages/ar.json";
+import enMessages from "@/messages/en.json";
 import remarkGfm from "remark-gfm";
 
 import { AuthorByline } from "@/components/AuthorByline";
@@ -52,7 +56,11 @@ export default async function NewsArticlePage({
   if (!article) notFound();
   setRequestLocale(locale);
 
-  const t = await getTranslations("SubPage");
+  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
+    string,
+    Record<string, string>
+  >;
+  const t = createTranslator({ locale, namespace: "SubPage", messages });
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
   const title = locale === "ar" ? article.title_ar : article.title_en;

@@ -1,6 +1,10 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { createTranslator } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+
+import arMessages from "@/messages/ar.json";
+import enMessages from "@/messages/en.json";
 
 import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { Faq } from "@/components/Faq";
@@ -55,7 +59,11 @@ export default async function HistoricalPage({
   if (!VALID_YEARS.includes(yearNum)) notFound();
   setRequestLocale(locale);
 
-  const t = await getTranslations("HistoricalPage");
+  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
+    string,
+    Record<string, string>
+  >;
+  const t = createTranslator({ locale, namespace: "HistoricalPage", messages });
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
   // 5y range from Yahoo Finance covers 2021-2026 — enough for any VALID_YEARS entry.
