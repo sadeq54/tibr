@@ -87,6 +87,61 @@ export async function CountryGoldPriceHeader({
           </p>
         </section>
       ) : null}
+
+      {/* Static SEO content — ensures non-JS crawlers (Seobility, Bing
+          fallback, AI bots) see rich text on every one of the 188 country
+          pages, not just an empty <main> + the prices that stream via RSC. */}
+      <section
+        aria-labelledby={`country-faq-heading-${slug}-${karat}`}
+        className="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6"
+      >
+        <h2
+          id={`country-faq-heading-${slug}-${karat}`}
+          className="text-lg font-semibold text-[var(--color-text)]"
+        >
+          {locale === "ar"
+            ? `أسئلة شائعة عن سعر الذهب عيار ${upper} في ${name}`
+            : `Common questions about ${upper} gold in ${name}`}
+        </h2>
+        <dl className="mt-4 space-y-4 text-sm">
+          <div>
+            <dt className="font-semibold text-[var(--color-text)]">
+              {locale === "ar"
+                ? `كيف يُحسب سعر الذهب عيار ${upper} في ${name}؟`
+                : `How is the ${upper} gold price in ${name} calculated?`}
+            </dt>
+            <dd className="mt-1 leading-relaxed text-[var(--color-text-muted)]">
+              {locale === "ar"
+                ? `يُحسب سعر عيار ${upper} للجرام في ${name} عبر معادلة: السعر الفوري للأونصة (XAU/USD) ÷ 31.1035 جرام × نسبة نقاء العيار × سعر صرف ${country.currency}/USD. السعر الفوري مأخوذ من Binance و Coinbase و Kraken عبر PAXG/USD، ومُحدّث كل ثانية تقريبًا.`
+                : `The ${upper} per-gram price in ${name} is computed as: spot ounce price (XAU/USD) ÷ 31.1035 g × purity ratio × ${country.currency}/USD FX rate. The spot price is sourced from Binance, Coinbase and Kraken via PAXG/USD, refreshed every second.`}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-[var(--color-text)]">
+              {locale === "ar"
+                ? `لماذا يختلف سعر الذهب بين محلات ${name}؟`
+                : `Why does the gold price differ between shops in ${name}?`}
+            </dt>
+            <dd className="mt-1 leading-relaxed text-[var(--color-text-muted)]">
+              {locale === "ar"
+                ? `السعر الفوري متطابق لدى جميع المحلات. الفرق ينشأ من ثلاثة عوامل: (1) المصنعية (5-30 وحدة عملة محلية للجرام)، (2) هامش بائع التجزئة (3-10%)، (3) ضريبة محلية إن وجدت. السعر المعروض هنا هو الحد الأدنى المرجعي قبل أي إضافات.`
+                : `The raw spot price is the same across all shops. Differences come from three factors: (1) making charges (5-30 local units per gram), (2) retailer margin (3-10%), (3) local tax if applicable. The price shown here is the floor reference before any add-ons.`}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-[var(--color-text)]">
+              {locale === "ar"
+                ? `كم مرة يُحدّث سعر الذهب لـ${name}؟`
+                : `How often is the ${name} gold price updated?`}
+            </dt>
+            <dd className="mt-1 leading-relaxed text-[var(--color-text-muted)]">
+              {locale === "ar"
+                ? `السعر الفوري للأونصة يُحدّث لحظيًا عبر WebSocket (عدة مرات بالثانية). سعر صرف ${country.currency}/USD يُحدّث كل ساعة من بيانات البنوك المركزية المفتوحة. الجدول أعلاه يعكس آخر سعر متاح.`
+                : `The spot ounce price refreshes in real time via WebSocket (multiple times per second). The ${country.currency}/USD FX rate refreshes hourly from open central-bank data. The table above reflects the latest available price.`}
+            </dd>
+          </div>
+        </dl>
+      </section>
     </header>
   );
 }

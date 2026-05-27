@@ -40,6 +40,10 @@
     "intro": "Live spot price of {karat} gold derived from FOREXCOM XAUUSD. Refreshed every minute on Gold Prices Arabia.",
     "backHome": "← Back to all karats"
   },
+  "GoldPriceHub": {
+    "h1": "Gold Price by Country — Live Rates",
+    "intro": "Live 24K, 21K, 18K and 14K gold prices in local currency for every country we cover, grouped by region. Pick a country for per-gram and per-ounce rates updated in real time."
+  },
   "CountryPage": {
     "title": "{karat} Gold Price in {country}",
     "description": "Live {karat} gold price in {country} ({currency}) per gram and per troy ounce. Updated every minute on Gold Prices Arabia.",
@@ -278,10 +282,10 @@
     "karatLink": "{karat} Gold"
   },
   "SubPage": {
-    "spotGoldH1": "Spot Gold Price",
-    "spotGoldIntro": "Live spot gold (XAU/USD) sourced from FOREXCOM via Stooq. Updated every minute.",
-    "livePriceH1": "Live Gold Price",
-    "livePriceIntro": "Live gold price across USD, JOD, SAR, AED, EGP and 40+ currencies. Refreshed every minute.",
+    "spotGoldH1": "Spot Gold Price (XAU/SAR Live)",
+    "spotGoldIntro": "Live spot gold (XAU/USD) converted to Saudi Riyal and 40+ regional currencies. Median across Binance, Coinbase and Kraken via PAXG/USD — updated every second.",
+    "livePriceH1": "Live Gold Price MENA (Real-Time XAU)",
+    "livePriceIntro": "Live gold price across the MENA region in Saudi Riyal, UAE Dirham, Egyptian Pound, Jordanian Dinar and 40+ currencies. Real-time WebSocket median from Binance, Coinbase and Kraken.",
     "priceChartH1": "Gold Price Chart",
     "priceChartIntro": "Interactive daily OHLC gold price chart over 30 days, 60 days, 90 days, 180 days and 1 year.",
     "perOzH1": "Gold Price per Ounce",

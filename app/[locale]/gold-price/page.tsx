@@ -75,7 +75,13 @@ export default async function GoldPriceHubPage({
           },
         ]}
       />
-      <PageShell title={TITLE[l]} intro={INTRO[l]} showFaq>
+      <PageShell
+        locale={locale}
+        namespace="GoldPriceHub"
+        titleKey="h1"
+        introKey="intro"
+        showFaq
+      >
         <div className="space-y-10">
           {REGIONS.map((region) => {
             const list = [...countriesInRegion(region.id)].sort((a, b) =>

@@ -18,21 +18,6 @@ import {
 import { buildAlternates, buildOpenGraph, canonicalPath } from "@/lib/metadata";
 import { faqPageSchema } from "@/lib/schemas";
 
-// English title/intro pivoted from the global "spot gold price" head-term
-// (dominated by Kitco / APMEX / BullionVault) toward a MENA-modifier
-// long-tail where this domain has a defensible regional moat. The Arabic
-// version keeps the original keyword which still ranks well in /ar SERPs.
-function localizedTitle(locale: string, t: (k: string) => string) {
-  return locale === "en"
-    ? "Spot Gold Price (XAU/SAR Live)"
-    : t("spotGoldH1");
-}
-function localizedIntro(locale: string, t: (k: string) => string) {
-  return locale === "en"
-    ? "Live spot gold (XAU/USD) converted to Saudi Riyal and 40+ regional currencies. Median across Binance, Coinbase and Kraken via PAXG/USD — updated every second."
-    : t("spotGoldIntro");
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -41,8 +26,8 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
   return {
-    title: localizedTitle(locale, t),
-    description: localizedIntro(locale, t),
+    title: t("spotGoldH1"),
+    description: t("spotGoldIntro"),
     alternates: buildAlternates(locale, "/spot-gold"),
     openGraph: buildOpenGraph(locale, "/spot-gold"),
   };
@@ -110,7 +95,12 @@ export default async function SpotGoldPage({
   const spotFaqSchema = faqPageSchema(pageUrl, spotFaqs, locale === "ar" ? "ar" : "en");
 
   return (
-    <PageShell title={localizedTitle(locale, t)} intro={localizedIntro(locale, t)}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="spotGoldH1"
+      introKey="spotGoldIntro"
+    >
       <script
         type="application/ld+json"
         suppressHydrationWarning

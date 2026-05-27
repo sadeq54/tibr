@@ -14,20 +14,6 @@ import { getCachedFxRates, getCachedMetals } from "@/lib/cached-fetchers";
 import { buildAlternates, buildOpenGraph, canonicalPath } from "@/lib/metadata";
 import { faqPageSchema } from "@/lib/schemas";
 
-// English title pivoted from the global "live gold price" head-term
-// (dominated by Kitco, BullionVault, APMEX) to a MENA-modifier
-// long-tail where this site has authority.
-function localizedTitle(locale: string, t: (k: string) => string) {
-  return locale === "en"
-    ? "Live Gold Price MENA (Real-Time XAU)"
-    : t("livePriceH1");
-}
-function localizedIntro(locale: string, t: (k: string) => string) {
-  return locale === "en"
-    ? "Live gold price across the MENA region in Saudi Riyal, UAE Dirham, Egyptian Pound, Jordanian Dinar and 40+ currencies. Real-time WebSocket median from Binance, Coinbase and Kraken."
-    : t("livePriceIntro");
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -36,8 +22,8 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "SubPage" });
   return {
-    title: localizedTitle(locale, t),
-    description: localizedIntro(locale, t),
+    title: t("livePriceH1"),
+    description: t("livePriceIntro"),
     alternates: buildAlternates(locale, "/live-gold-price"),
     openGraph: buildOpenGraph(locale, "/live-gold-price"),
   };
@@ -104,7 +90,12 @@ export default async function LiveGoldPricePage({
   const liveFaqSchema = faqPageSchema(pageUrl, liveFaqs, locale === "ar" ? "ar" : "en");
 
   return (
-    <PageShell title={localizedTitle(locale, t)} intro={localizedIntro(locale, t)}>
+    <PageShell
+      locale={locale}
+      namespace="SubPage"
+      titleKey="livePriceH1"
+      introKey="livePriceIntro"
+    >
       <script
         type="application/ld+json"
         suppressHydrationWarning
