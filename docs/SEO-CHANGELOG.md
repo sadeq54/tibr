@@ -744,6 +744,7 @@ Monetization today is XM affiliate only (AdSense is not integrated). Three fixes
 - `lib/xm-banners.ts`: `xmClickUrl(id, lang, tag)` now appends the pipaffiliates sub-ID `t=` (e.g. `t=jordan-21k-leader`, `t=ar-jordan-21k`, `t=en-home`), derived from the page; `XM_BLOCKED_COUNTRIES` (usa, canada, argentina — XM's published restricted regions) + `xmAllowed()`.
 - `components/TradeGoldCta.tsx` (new): text CTA "Trade gold (XAUUSD) with XM" in 6 languages with a visible risk warning and "Sponsored" label, placed right after the bid/ask gauge on the homepage, karat pages and every country page; `rel="sponsored nofollow"`; hidden in blocked countries.
 - `AdSlot` / `AffiliateBanner`: creative language now follows the reader's locale (was the country's — Arabic readers on /india got Hindi creatives); country slug detected after locale prefixes; both hidden in blocked countries instead of burning the slot.
+- Partner dashboard audit (campaign 1228714 since 14 May: 28,348 displays → 1,287 clicks → 0 registrations, $0; commission is per-lot, not CPA): CTA now deep-links via `xmPageUrl()` / `XM_PAGES` to the Islamic-account page for ar/ur readers and the real-account page otherwise, plus a demo link — instead of routing through a banner id.
 - Also this day: `KaratGrid` card redesigned for the 5-column width (round badge, single-line title, glued unit, one-currency-per-row list).
 
 ## Outstanding (from `sadeqblocker.md`)

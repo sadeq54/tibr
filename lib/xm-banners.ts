@@ -44,6 +44,29 @@ export function xmClickUrl(id: number, lang?: XmLang, tag?: string): string {
 }
 
 /**
+ * XM landing pages exposed in the partner dashboard (Links → Affiliate Links →
+ * `p=` values, verified 2026-08-21). Text CTAs deep-link here instead of
+ * sending people through a banner id.
+ */
+export const XM_PAGES = {
+  home: 0,
+  realAccount: 1,
+  accountTypes: 2,
+  demoAccount: 5,
+  learningCenter: 7,
+  app: 17,
+  islamicAccounts: 21,
+} as const;
+
+/** Tracked link to an XM landing page: `c?c=<campaign>&l=<lang>&p=<page>&t=<sub-id>`. */
+export function xmPageUrl(page: number, lang: XmLang, tag?: string): string {
+  let url = `https://clicks.pipaffiliates.com/c?c=${XM_CAMPAIGN_ID}&l=${lang}&p=${page}`;
+  const t = xmTag(tag);
+  if (t) url += `&t=${t}`;
+  return url;
+}
+
+/**
  * Sub-ID for the partner dashboard (pipaffiliates `t` param): which page sent
  * the click. Derived from the pathname, so "/jordan/gold-price/21k" → "jordan-21k",
  * "/en/gold-price/24k" → "en-24k", "/" → "home". Lower-case [a-z0-9-], ≤40 chars.

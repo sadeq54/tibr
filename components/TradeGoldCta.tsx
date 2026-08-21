@@ -2,7 +2,7 @@ import { ArrowUpRight, TrendingUp } from "lucide-react";
 
 import { isRtl } from "@/i18n/routing";
 import { pick, type LocaleText } from "@/lib/i18n-text";
-import { bannersFor, xmAllowed, xmClickUrl, type XmLang } from "@/lib/xm-banners";
+import { XM_PAGES, xmAllowed, xmPageUrl, type XmLang } from "@/lib/xm-banners";
 
 /**
  * Contextual XM affiliate CTA (text, not a banner) placed next to the bid/ask
@@ -29,11 +29,19 @@ const BODY: LocaleText = {
 };
 const BUTTON: LocaleText = {
   en: "Open a free account",
-  ar: "افتح حساباً مجانياً",
+  ar: "افتح حساباً إسلامياً مجانياً",
   fr: "Ouvrir un compte gratuit",
   tr: "Ücretsiz hesap aç",
-  ur: "مفت اکاؤنٹ کھولیں",
+  ur: "مفت اسلامی اکاؤنٹ کھولیں",
   hi: "मुफ़्त खाता खोलें",
+};
+const DEMO: LocaleText = {
+  en: "Try a demo first",
+  ar: "جرّب حساباً تجريبياً أولاً",
+  fr: "Essayer un compte démo",
+  tr: "Önce demo deneyin",
+  ur: "پہلے ڈیمو آزمائیں",
+  hi: "पहले डेमो आज़माएँ",
 };
 const SPONSORED: LocaleText = { en: "Sponsored", ar: "إعلان برعاية", fr: "Sponsorisé", tr: "Sponsorlu", ur: "اشتہار", hi: "प्रायोजित" };
 const RISK: LocaleText = {
@@ -62,9 +70,12 @@ export function TradeGoldCta({
   // Creative + landing page in the reader's language (the page locale), not the
   // country's — an Arabic reader on /india/... must not get a Hindi offer.
   const lang: XmLang = LOCALE_TO_XM[locale] ?? "en";
-  const material = bannersFor(lang, 300, 250)[0] ?? bannersFor("en", 300, 250)[0];
-  if (!material) return null;
-  const href = xmClickUrl(material.id, material.lang, tag);
+  // Arabic/Urdu readers land on the swap-free (Islamic) account page — the
+  // account type this audience actually asks for; everyone else on "open a
+  // real account". A demo link catches the hesitant.
+  const page = lang === "ar" || lang === "ur" ? XM_PAGES.islamicAccounts : XM_PAGES.realAccount;
+  const href = xmPageUrl(page, lang, tag);
+  const demoHref = xmPageUrl(XM_PAGES.demoAccount, lang, `${tag}-demo`);
   const rtl = isRtl(locale);
 
   return (
@@ -95,7 +106,17 @@ export function TradeGoldCta({
           <ArrowUpRight size={14} aria-hidden className={rtl ? "-scale-x-100" : ""} />
         </a>
       </div>
-      <p className="mt-3 text-[10px] leading-snug text-[var(--color-text-dim)]">{pick(locale, RISK)}</p>
+      <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] leading-snug text-[var(--color-text-dim)]">
+        <a
+          href={demoHref}
+          target="_blank"
+          rel="sponsored nofollow noopener noreferrer"
+          className="shrink-0 font-semibold text-[var(--color-text-muted)] underline-offset-2 hover:text-[var(--color-gold)] hover:underline"
+        >
+          {pick(locale, DEMO)}
+        </a>
+        <span>{pick(locale, RISK)}</span>
+      </p>
     </aside>
   );
 }
