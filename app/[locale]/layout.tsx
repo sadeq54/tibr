@@ -7,7 +7,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
-import { AdSenseScript } from "@/components/AdSenseScript";
+import { AdSenseScript, ConsentDefaultsScript } from "@/components/AdSenseScript";
 import { AutoTheme } from "@/components/AutoTheme";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
@@ -626,6 +626,8 @@ export default async function LocaleLayout({
             strategy="beforeInteractive"
           />
         )}
+        {/* Consent defaults must execute before the (head-hoisted) ad loader. */}
+        <ConsentDefaultsScript />
         <link rel="preconnect" href="https://stream.binance.com" />
         <link rel="preconnect" href="https://ws-feed.exchange.coinbase.com" />
         <link rel="preconnect" href="https://ws.kraken.com" />
