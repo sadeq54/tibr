@@ -756,6 +756,31 @@ Monetization today is XM affiliate only (AdSense is not integrated). Three fixes
 - New `/about/privacy` (6 languages: analytics, AdSense cookies + opt-outs, EEA consent, affiliate links, rights, retention, contact) — required for AdSense approval — and `/advertise` (media kit: markets, languages, audience, growth, formats, rules, contact). Both in footer + sitemap.
 - Owner steps in `sadeqblocker.md` §2. Verified with two builds: no env → zero ad markup; test env → loader, consent, 2 units on price pages, ads.txt.
 
+## 2026-08-21 (late) — Search Console + GA4 driven fixes: real 404s, year pages rebuilt around ranked queries
+
+First session with Search Console, GA4 and Tag Manager access. What the data said, and what changed because of it.
+
+**Diagnosis**
+- GSC Pages: 708 indexed, **269 not** — 114 "page with redirect" (old `/ar/*` URLs, harmless), **47 soft 404**, 11 **server error (5xx)**, 72 "crawled – currently not indexed".
+- The 5xx URLs were all `/opengraph-image` routes (the sync-`params` bug fixed earlier the same day; they now return `image/png`).
+- The soft 404s were URLs like `/en/lebanon/gold-price/21k-1`: they returned **200** with a rendered title "Gold Price Today in Lebanon (21K-1)" and a self-canonical. Cause: with `cacheComponents` (PPR) the prerendered shell is flushed before the page body's `notFound()` runs, and Next 16 forbids `dynamicParams = false` when `cacheComponents` is on. Any junk suffix minted an indexable URL — unbounded crawl space.
+- A full crawl of all 2,088 sitemap URLs (`scripts/`-style audit, 3 workers, polite delay): **every one returns 200**, no redirects, no 404s, no 5xx, and **no page under 1,500 characters of body text**. The sitemap itself is clean; the problems were all off-sitemap junk.
+- GSC Performance (28d): 249 clicks / 60.5k impressions / CTR 0.4% / **average position 14.7**. The site does **not** rank for "سعر الذهب اليوم في {country}"; what it does rank for is historical-year queries — "سعر الذهب ٢٠٢٤" **1,142 impressions at position 9.4 (CTR 0.7%)**, plus "كم كان سعر الذهب 2024", "اعلى/اقل سعر للذهب في ٢٠٢٦", "سعر جرام الذهب عام 2024" — and 18K queries ("18k gold price" 366 impressions at position 23). GA4 agrees: the #1 page by views is "Historical Gold Prices · 2026".
+- GA4 also shows **16 sessions/week from AI assistants** (ChatGPT, Copilot) and `click` events = 0 (outbound/affiliate clicks are not measured).
+- GTM container `GTM-K7LXLVCK` → GA4 `G-2XNDCBVQ4F`, "sending data, no issues", no custom tags.
+
+**Fixes shipped**
+- `lib/valid-routes.ts` + `proxy.ts`: unknown values in every dynamic route (`/{country}/gold-price/{karat}`, karat, year, metal, coin, news slug, buy-gold, best-gold-price) are rejected in middleware with a real **404**, because middleware is the only layer that still owns the status under PPR. Verified: 8 junk URLs → 404, 22 real URLs (all six locales) → 200.
+- All six locales are now prerendered (`lib/static-params.ts` `withLocales`), instead of ar+en only — better TTFB for fr/tr/ur/hi. Build 109s.
+- `next.config.ts`: `distDir` overridable via `NEXT_DIST_DIR` so a locked `.next` can't block a verification build.
+- **Year pages rewritten around their ranked queries**: title now carries the year's real high/low ("سعر الذهب في 2024: أعلى 2,789$ وأدنى 1,985$ للأونصة"), H1 matches the query ("سعر الذهب في 2024"), an opening sentence states average/high/low plus per-gram 24K and 21K, and a per-year FAQ with FAQPage schema answers the four ranked questions. Stats come from the cached history feed via `lib/year-stats.ts`, shared by page and `generateMetadata`; a feed failure falls back to the old neutral title.
+- `app/sitemap.ts`: historical years were tiered **0.3–0.55 / yearly** — the lowest on the site — while being its best earners. Now 0.6–0.8 with weekly/monthly frequency; the hub goes 0.7 → 0.8.
+
+**Not done / next**
+- 18K pages (366 impressions at position 23) and the Malaysia/Denmark/Myanmar long-tail (positions 9.1–10.2, ~700 impressions) are the next-best targets.
+- Outbound-click tracking (GA4 event on XM/ad clicks) — needs a GTM tag or a small client handler.
+- The 114 `/ar/*` redirect URLs will age out on their own; making next-intl's redirect permanent (308) would speed it up.
+
 ## Outstanding (from `sadeqblocker.md`)
 
 1. **Rotate exposed API keys** — `GOLDAPI_KEY` and `NEWSDATA_KEY` (deferred by user)

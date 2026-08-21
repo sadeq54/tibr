@@ -148,17 +148,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  // Historical: current year stays daily; prior years become monthly + lower
-  // priority since they're effectively archives.
-  out.push(...dual("historical-gold-prices", "weekly", 0.7));
+  // Historical years are the site's strongest earners, not archives: Search
+  // Console shows "سعر الذهب ٢٠٢٤" alone at 1,142 impressions/28d (position
+  // 9.4) and GA4 ranks "Historical Gold Prices · 2026" the #1 page by views.
+  // They were tiered 0.3-0.55/yearly, i.e. the lowest on the site — fixed.
+  out.push(...dual("historical-gold-prices", "weekly", 0.8));
   for (const y of YEARS) {
     const isCurrent = y === currentYear;
     const recent = currentYear - y <= 5;
     out.push(
       ...dual(
         `historical-gold-prices/${y}`,
-        isCurrent ? "daily" : recent ? "monthly" : "yearly",
-        isCurrent ? 0.55 : recent ? 0.4 : 0.3,
+        isCurrent ? "daily" : recent ? "weekly" : "monthly",
+        isCurrent ? 0.8 : recent ? 0.7 : 0.6,
       ),
     );
   }
