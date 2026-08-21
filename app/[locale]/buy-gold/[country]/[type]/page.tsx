@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { withLocales } from "@/lib/static-params";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -63,7 +64,7 @@ export function generateStaticParams() {
       params.push({ country, type });
     }
   }
-  return params;
+  return withLocales(params);
 }
 
 function titleFor(type: Type, t: (k: string, v: { country: string }) => string, country: string) {

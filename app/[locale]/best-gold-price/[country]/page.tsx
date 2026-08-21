@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { withLocales } from "@/lib/static-params";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -20,7 +21,7 @@ import { bestPriceFaqs } from "./faq.i18n";
 const SUPPORTED = ["usa", "canada", "singapore", "switzerland", "uk"] as const;
 
 export function generateStaticParams() {
-  return SUPPORTED.map((country) => ({ country }));
+  return withLocales(SUPPORTED.map((country) => ({ country })));
 }
 
 export async function generateMetadata({

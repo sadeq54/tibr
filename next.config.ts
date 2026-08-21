@@ -18,6 +18,10 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  // Build output dir. Overridable so a locked/held `.next` (Windows file locks
+  // from a stray shell or editor) can't block a verification build:
+  //   NEXT_DIST_DIR=.next-check npm run build && NEXT_DIST_DIR=.next-check npx next start
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // Next 16 PPR + dynamic-by-default. Required by `"use cache"` directives in
   // app/api/spot and app/api/metals. Note: the prerendered HTML shell still
   // streams dynamic content via RSC, so non-JS crawlers (some AI bots) only

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { withLocales } from "@/lib/static-params";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -14,7 +15,7 @@ import { buildAlternates, buildOpenGraph, canonicalPath, SITE_URL } from "@/lib/
 import { ARTICLES, articleWordCount, getArticleBySlug, listArticleSlugs } from "@/content/news/articles";
 
 export async function generateStaticParams() {
-  return listArticleSlugs().map((slug) => ({ slug }));
+  return withLocales(listArticleSlugs().map((slug) => ({ slug })));
 }
 
 export async function generateMetadata({

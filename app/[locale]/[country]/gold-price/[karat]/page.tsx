@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { withLocales } from "@/lib/static-params";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 
@@ -67,7 +68,7 @@ export async function generateStaticParams() {
       params.push({ country: c.slug, karat: k });
     }
   }
-  return params;
+  return withLocales(params);
 }
 
 export async function generateMetadata({

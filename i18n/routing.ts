@@ -15,11 +15,11 @@ export const routing = defineRouting({
 export type AppLocale = (typeof routing.locales)[number];
 
 /**
- * Locales prerendered at build time. The rest are rendered on first request
- * and cached (same routes, same data) — keeps the Netlify build well under
- * its time limit while still serving every locale from the same templates.
+ * Kept for reference: every locale is now prerendered (see the layout's
+ * `generateStaticParams`), because child routes use `dynamicParams = false`
+ * to make unknown segments 404 at the routing layer.
  */
-export const STATIC_LOCALES: readonly AppLocale[] = ["ar", "en"];
+export const STATIC_LOCALES: readonly AppLocale[] = routing.locales;
 
 export const RTL_LOCALES: readonly string[] = ["ar", "ur"];
 export const isRtl = (locale: string) => RTL_LOCALES.includes(locale);

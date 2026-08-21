@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { withLocales } from "@/lib/static-params";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
@@ -12,7 +13,7 @@ import { faqPageSchema } from "@/lib/schemas";
 import { cryptoFaqs } from "./faq.i18n";
 
 export function generateStaticParams() {
-  return CRYPTO_LIST.map((c) => ({ coin: c.slug }));
+  return withLocales(CRYPTO_LIST.map((c) => ({ coin: c.slug })));
 }
 
 // Bitcoin English title pivoted to a winnable regional long-tail —

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { withLocales } from "@/lib/static-params";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -54,7 +55,7 @@ const VALID_KARATS = ["24k", "22k", "21k", "18k", "14k"] as const;
 type Karat = (typeof VALID_KARATS)[number];
 
 export async function generateStaticParams() {
-  return VALID_KARATS.map((karat) => ({ karat }));
+  return withLocales(VALID_KARATS.map((karat) => ({ karat })));
 }
 
 export async function generateMetadata({

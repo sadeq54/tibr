@@ -16,7 +16,7 @@ import { MotionRoot } from "@/components/motion/MotionRoot";
 import { PwaRegister } from "@/components/PwaRegister";
 import { ReduxProvider } from "@/components/ReduxProvider";
 import { ThemeApplier } from "@/components/ThemeApplier";
-import { localeMeta, routing, STATIC_LOCALES } from "@/i18n/routing";
+import { localeMeta, routing } from "@/i18n/routing";
 import { ADSENSE_CLIENT } from "@/lib/ads";
 import { fontVariables } from "@/lib/fonts";
 import { SITE_URL } from "@/lib/metadata";
@@ -487,12 +487,15 @@ export const viewport: Viewport = {
 };
 
 /**
- * Only `ar` + `en` are prerendered; fr/tr/ur/hi render on first request and
- * are cached (dynamicParams stays at its default `true` — do not set it to
- * false anywhere under app/[locale] or the other locales would 404).
+ * All six locales are prerendered (routes cross-product their params with
+ * `withLocales`), so every language gets a static shell and a fast TTFB.
+ *
+ * `dynamicParams` must stay at its default `true`: Next 16 rejects it outright
+ * when `cacheComponents` is on. Unknown segments are therefore rejected in
+ * `proxy.ts` instead — see `lib/valid-routes.ts`.
  */
 export function generateStaticParams() {
-  return STATIC_LOCALES.map((locale) => ({ locale }));
+  return routing.locales.map((locale) => ({ locale }));
 }
 
 async function I18nProvider({

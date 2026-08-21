@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { withLocales } from "@/lib/static-params";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 
@@ -27,7 +28,7 @@ const CURRENT_YEAR = 2026;
 const VALID_YEARS = Array.from({ length: CURRENT_YEAR - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i);
 
 export async function generateStaticParams() {
-  return VALID_YEARS.map((y) => ({ year: String(y) }));
+  return withLocales(VALID_YEARS.map((y) => ({ year: String(y) })));
 }
 
 export async function generateMetadata({

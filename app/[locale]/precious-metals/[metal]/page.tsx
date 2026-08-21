@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { withLocales } from "@/lib/static-params";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -29,7 +30,7 @@ const METAL_ID: Record<MetalSlug, "XAU" | "XAG" | "XPT" | "XPD"> = {
 const isMetal = (s: string): s is MetalSlug => (METAL_SLUGS as readonly string[]).includes(s);
 
 export function generateStaticParams() {
-  return METAL_SLUGS.map((metal) => ({ metal }));
+  return withLocales(METAL_SLUGS.map((metal) => ({ metal })));
 }
 
 export async function generateMetadata({
