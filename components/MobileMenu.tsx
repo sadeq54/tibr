@@ -11,6 +11,7 @@ type NavItem = { href: string; label: string };
 
 export function MobileMenu({
   navItems,
+  siteLinks = [],
   homeLabel,
   historicalLabel,
   switchLabel,
@@ -18,6 +19,7 @@ export function MobileMenu({
   liveLabel,
 }: {
   navItems: NavItem[];
+  siteLinks?: NavItem[];
   homeLabel: string;
   historicalLabel: string;
   switchLabel: string;
@@ -118,8 +120,17 @@ export function MobileMenu({
                   {item.label}
                 </Link>
               ))}
+              {siteLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href as never}
+                  className="rounded-md px-3 py-3 text-base font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg-card-hover)] hover:text-[var(--color-gold)]"
+                >
+                  {item.label}
+                </Link>
+              ))}
               <Link
-                href="/historical-gold-prices/2026"
+                href="/historical-gold-prices"
                 className="rounded-md px-3 py-3 text-base font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-bg-card-hover)] hover:text-[var(--color-gold)]"
               >
                 {historicalLabel}

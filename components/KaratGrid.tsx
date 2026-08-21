@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useLivePrice } from "@/components/LivePriceProvider";
 import { CountUp } from "@/components/motion/CountUp";
@@ -11,6 +11,7 @@ import type { FxRates } from "@/lib/fx";
 
 const KARATS = [
   { key: "24K", field: "price_gram_24k" as const, purityNum: 1.0 },
+  { key: "22K", field: "price_gram_22k" as const, purityNum: 0.9167 },
   { key: "21K", field: "price_gram_21k" as const, purityNum: 0.875 },
   { key: "18K", field: "price_gram_18k" as const, purityNum: 0.75 },
   { key: "14K", field: "price_gram_14k" as const, purityNum: 0.583 },
@@ -43,6 +44,7 @@ export function KaratGrid({
   displayCurrency?: string;
 }) {
   const t = useTranslations("KaratGrid");
+  const locale = useLocale();
   const live = useLivePrice();
   if (!spot) {
     return (
@@ -82,7 +84,7 @@ export function KaratGrid({
       </div>
 
       <motion.div
-        className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4"
+        className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5"
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-50px" }}
@@ -109,7 +111,7 @@ export function KaratGrid({
           return (
             <motion.div
               key={k.key}
-              className="hover-gold-card-strong group relative overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5 will-change-transform"
+              className="hover-gold-card-strong group relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5 will-change-transform"
               variants={{
                 hidden: { opacity: 0, y: 22 },
                 show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
@@ -122,7 +124,7 @@ export function KaratGrid({
               <motion.div
                 aria-hidden
                 className="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl"
-                style={{ background: "radial-gradient(circle, #f5c518 0%, transparent 70%)" }}
+                style={{ background: "radial-gradient(circle, var(--color-gold) 0%, transparent 70%)" }}
                 initial={{ opacity: 0.3 }}
                 whileHover={{ opacity: 0.55 }}
                 transition={{ duration: 0.3 }}
@@ -133,7 +135,7 @@ export function KaratGrid({
                   <motion.div
                     className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-extrabold text-black"
                     style={{
-                      background: `linear-gradient(135deg, #f5c518 0%, #d4a82a ${k.purityNum * 100}%, #5a3a08 100%)`,
+                      background: `linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-soft) ${k.purityNum * 100}%, #4a3a12 100%)`,
                     }}
                     whileHover={{ scale: 1.08, rotate: -6 }}
                     transition={{ type: "spring", stiffness: 320, damping: 18 }}
@@ -142,7 +144,7 @@ export function KaratGrid({
                   </motion.div>
                   <div>
                     <div className="font-semibold text-[var(--color-text)]">
-                      {t("karatGold", { karat: k.key })}
+                      {t("karatGold", { karat: locale === "ar" ? k.key.replace("K", "") : k.key })}
                     </div>
                     <div className="text-[10px] text-[var(--color-text-dim)]">
                       {t(`purity.${k.key}` as `purity.24K`)}
@@ -165,7 +167,7 @@ export function KaratGrid({
                   prefix={ccySym}
                   duration={1.1}
                 />
-                <span className="ml-1 text-xs font-normal text-[var(--color-text-dim)]">
+                <span className="ms-1 text-xs font-normal text-[var(--color-text-dim)]">
                   {t("perGramShort")}
                 </span>
               </div>

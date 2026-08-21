@@ -67,6 +67,9 @@ export default async function EmbedTickerPage({
         g18: (spot?.price_gram_18k ?? 0) * rate,
         g14: (spot?.price_gram_14k ?? 0) * rate,
         changePct: spot?.chp ?? 0,
+        // Per-request render timestamp for the widget's "updated" label —
+        // intentional impurity, this dynamic embed renders per request.
+        // eslint-disable-next-line react-hooks/purity
         updatedAt: Date.now(),
       }}
     />

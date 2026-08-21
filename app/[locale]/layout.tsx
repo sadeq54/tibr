@@ -15,6 +15,7 @@ import { MotionRoot } from "@/components/motion/MotionRoot";
 import { ReduxProvider } from "@/components/ReduxProvider";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { routing } from "@/i18n/routing";
+import { fontVariables } from "@/lib/fonts";
 import { SITE_URL, buildAlternates } from "@/lib/metadata";
 
 import "../globals.css";
@@ -22,7 +23,7 @@ import "../globals.css";
 const SITE_NAME = "Gold Prices Arabia";
 const TITLE_DEFAULT = "Gold Prices Arabia — Live Gold Prices Today (USD, JOD, SAR, AED, EGP)";
 const DESCRIPTION =
-  "Live gold prices for 46 countries + 40 currencies. Track 24K, 21K, 18K, 14K per gram, ounce, kilo. Free, real-time, updated every minute.";
+  "Live gold prices for 46 countries + 40 currencies. Track 24K, 22K, 21K, 18K, 14K per gram, ounce, kilo. Free, real-time, updated every second.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -465,7 +466,7 @@ export const metadata: Metadata = {
   other: {
     "google-adsense-account":
       process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX",
-    "msapplication-TileColor": "#0a0a0a",
+    "msapplication-TileColor": "#0b0a08",
     "msapplication-TileImage": "/appIcone.png",
   },
 };
@@ -478,8 +479,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   colorScheme: "dark light",
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-    { media: "(prefers-color-scheme: light)", color: "#f6f4ee" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0a08" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f5ef" },
   ],
 };
 
@@ -573,15 +574,10 @@ async function SiteJsonLd({ locale }: { locale: string }) {
   // Don't emit on embeddable widgets — they're meant to live in third-party
   // pages and shouldn't pollute the host's schema graph.
   if (EMBED_PATH.test(path)) return null;
-  const pageUrl = path.startsWith("/") ? path : `/${path}`;
-  return (
-    <JsonLd
-      siteUrl={SITE_URL}
-      pageUrl={pageUrl}
-      pageName={locale === "en" ? "Gold Prices Arabia" : "أسعار الذهب العربية"}
-      pageType="WebPage"
-    />
-  );
+  // Site-wide entities only. Pages emit their own WebPage/ItemPage +
+  // BreadcrumbList at `${url}#webpage` — a second copy here would collide.
+  void locale;
+  return <JsonLd siteUrl={SITE_URL} globalOnly />;
 }
 
 export default async function LocaleLayout({
@@ -597,7 +593,13 @@ export default async function LocaleLayout({
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir} className="dark" data-theme="dark" suppressHydrationWarning>
+    <html
+      lang={locale}
+      dir={dir}
+      className={`${fontVariables} dark`}
+      data-theme="dark"
+      suppressHydrationWarning
+    >
       <head>
         <Script id="auto-theme" strategy="beforeInteractive">
           {"(function(){try{var h=new Date().getHours();var t=h>=6&&h<18?'light':'dark';var r=document.documentElement;r.classList.remove('light','dark');r.classList.add(t);r.setAttribute('data-theme',t);}catch(e){}})();"}

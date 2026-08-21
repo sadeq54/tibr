@@ -8,7 +8,9 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Accessibility lint — catches missing alt, mis-leveled headings, missing
   // aria-label on icon-only buttons. Improves a11y + indirectly SEO.
-  jsxA11y.flatConfigs.recommended,
+  // Rules only: eslint-config-next already registers the jsx-a11y plugin, and
+  // flat config forbids redefining a plugin name with a different object.
+  { rules: jsxA11y.flatConfigs.recommended.rules },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

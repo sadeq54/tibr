@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { BrandMark } from "@/components/BrandMark";
+import { HeaderTicker } from "@/components/HeaderTicker";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { MobileMenu } from "@/components/MobileMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -21,7 +22,8 @@ function extractCountrySlug(path: string): string | null {
 export async function Header() {
   const t = await getTranslations("Header");
   const locale = await getLocale();
-  const otherLocale = locale === "ar" ? "en" : "ar";
+  const ar = locale === "ar";
+  const otherLocale = ar ? "en" : "ar";
   const otherLabel = otherLocale === "ar" ? t("switchAr") : t("switchEn");
 
   const h = await headers();
@@ -31,54 +33,87 @@ export async function Header() {
 
   const navItems = [
     { href: `${base}/24k`, label: "24K" },
+    { href: `${base}/22k`, label: "22K" },
     { href: `${base}/21k`, label: "21K" },
     { href: `${base}/18k`, label: "18K" },
     { href: `${base}/14k`, label: "14K" },
   ];
 
+  const siteLinks = [
+    { href: "/gold-price-chart", label: ar ? "الرسم البياني" : "Charts" },
+    { href: "/gold-calculator", label: ar ? "الحاسبة" : "Calculator" },
+    { href: "/research", label: ar ? "الأبحاث" : "Research" },
+    { href: "/news", label: ar ? "الأخبار" : "News" },
+  ];
+
   return (
     <header className="glass-header sticky top-0 z-50">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
         <Link
           href="/"
-          dir="ltr"
           aria-label="Gold Prices Arabia"
-          className="flex min-w-0 items-center gap-2 sm:gap-2.5"
+          className="flex min-w-0 shrink-0 items-center"
         >
-          <BrandMark size={72} className="flex-shrink-0" />
-          <span className="ml-1 hidden items-center gap-1 rounded-full border border-[var(--color-up)]/40 bg-[var(--color-up)]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-up)] sm:inline-flex">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-up)]" />
-            {t("live")}
-          </span>
+          <BrandMark height={38} className="h-[38px] w-auto" />
         </Link>
 
-        <nav className="hidden items-center gap-6 text-sm text-[var(--color-text-muted)] md:flex">
-          {navItems.map((n) => (
+        <span className="hidden items-center gap-1.5 rounded-full border border-[var(--color-up)]/40 bg-[var(--color-up)]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-up)] sm:inline-flex">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-up)]" />
+          {t("live")}
+        </span>
+
+        <nav className="ms-auto hidden items-center md:flex" aria-label="Primary">
+          <div
+            dir="ltr"
+            className="flex items-center gap-0.5 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-card)] p-1"
+          >
+            {navItems.map((n) => (
+              <Link
+                key={n.href}
+                href={n.href as never}
+                className="num rounded-full px-2.5 py-1 font-mono text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-gold)]/15 hover:text-[var(--color-gold)]"
+              >
+                {n.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="ms-5 hidden items-center gap-5 text-sm text-[var(--color-text-muted)] lg:flex">
+            {siteLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href as never}
+                className="transition-colors hover:text-[var(--color-text)]"
+              >
+                {l.label}
+              </Link>
+            ))}
             <Link
-              key={n.href}
-              href={n.href as never}
-              className="hover:text-[var(--color-text)]"
+              href="/historical-gold-prices"
+              className="hidden transition-colors hover:text-[var(--color-text)] xl:inline"
             >
-              {n.label}
+              {t("historical")}
             </Link>
-          ))}
-          <Link href="/historical-gold-prices/2026" className="hover:text-[var(--color-text)]">
-            {t("historical")}
-          </Link>
-          <LanguageSwitcher otherLocale={otherLocale} label={otherLabel} />
-          <ThemeToggle />
+          </div>
         </nav>
 
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="ms-auto flex items-center gap-2 md:ms-4">
+          <HeaderTicker />
+          <span className="hidden md:inline-flex">
+            <LanguageSwitcher otherLocale={otherLocale} label={otherLabel} />
+          </span>
           <ThemeToggle />
-          <MobileMenu
-            navItems={navItems}
-            homeLabel={t("home")}
-            historicalLabel={t("historical")}
-            switchLabel={otherLabel}
-            switchLocale={otherLocale}
-            liveLabel={t("live")}
-          />
+          <span className="md:hidden">
+            <MobileMenu
+              navItems={navItems}
+              siteLinks={siteLinks}
+              homeLabel={t("home")}
+              historicalLabel={t("historical")}
+              switchLabel={otherLabel}
+              switchLocale={otherLocale}
+              liveLabel={t("live")}
+            />
+          </span>
         </div>
       </div>
     </header>

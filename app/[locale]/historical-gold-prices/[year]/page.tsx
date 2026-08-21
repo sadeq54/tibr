@@ -18,7 +18,9 @@ import { getCachedAllHistory } from "@/lib/cached-fetchers";
 import type { HistoricalPoint, MetalHistory } from "@/lib/history";
 import { buildAlternates, buildOpenGraph, SITE_URL } from "@/lib/metadata";
 
-const VALID_YEARS = [2024, 2025, 2026];
+const FIRST_YEAR = 2000;
+const CURRENT_YEAR = 2026;
+const VALID_YEARS = Array.from({ length: CURRENT_YEAR - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i);
 
 const MONTH_LABELS = {
   en: [
@@ -66,8 +68,8 @@ export default async function HistoricalPage({
   const t = createTranslator({ locale, namespace: "HistoricalPage", messages });
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
-  // 5y range from Yahoo Finance covers 2021-2026 — enough for any VALID_YEARS entry.
-  const histPromise = getCachedAllHistory("5y");
+  // Recent years come from the 5y feed; older years from the full series (GC=F since 2000).
+  const histPromise = getCachedAllHistory(yearNum >= CURRENT_YEAR - 4 ? "5y" : "max");
 
   const datasetSchema = {
     "@context": "https://schema.org",

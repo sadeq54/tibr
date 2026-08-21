@@ -64,7 +64,7 @@ export function MetalsStrip({ metals }: { metals: MetalsBundle }) {
           return (
             <motion.div
               key={key}
-              className="hover-gold-card rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4 will-change-transform"
+              className="hover-gold-card rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4 will-change-transform"
               variants={{
                 hidden: { opacity: 0, y: 18 },
                 show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },

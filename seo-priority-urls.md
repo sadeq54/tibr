@@ -244,3 +244,32 @@ $body = @{ urls = @(
 ) } | ConvertTo-Json
 Invoke-RestMethod -Uri "https://goldpricesarabia.com/api/indexnow" -Method Post -Body $body -ContentType "application/json"
 ```
+
+---
+
+## Added 2026-08-08 — Research digest (E-E-A-T page)
+
+**Priority 0.65 — Scholarly research digest (new)**
+- [ ] https://goldpricesarabia.com/research
+- [ ] https://goldpricesarabia.com/en/research
+
+---
+
+## Added 2026-08-21 — 22K pages (new karat, SERP-proven demand in Gulf + South Asia)
+
+**Priority 0.9 — Global 22K**
+- [ ] https://goldpricesarabia.com/gold-price/22k
+- [ ] https://goldpricesarabia.com/en/gold-price/22k
+
+**Priority 0.8 — Tier-1 22K markets**
+- [ ] https://goldpricesarabia.com/uae/gold-price/22k
+- [ ] https://goldpricesarabia.com/en/uae/gold-price/22k
+- [ ] https://goldpricesarabia.com/kuwait/gold-price/22k
+- [ ] https://goldpricesarabia.com/qatar/gold-price/22k
+- [ ] https://goldpricesarabia.com/bahrain/gold-price/22k
+- [ ] https://goldpricesarabia.com/en/india/gold-price/22k
+- [ ] https://goldpricesarabia.com/saudi-arabia/gold-price/22k
+
+**Priority 0.7 — Gold price history hub (new, 2026-08-21)**
+- [ ] https://goldpricesarabia.com/historical-gold-prices
+- [ ] https://goldpricesarabia.com/en/historical-gold-prices

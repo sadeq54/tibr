@@ -5,12 +5,13 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { BidAskGauge } from "@/components/BidAskGauge";
 import { Calculator } from "@/components/Calculator";
+import { CurrencyTable } from "@/components/CurrencyTable";
 import { DebugConsole } from "@/components/DebugConsole";
 import { Faq } from "@/components/Faq";
 import { Flag } from "@/components/Flag";
 import { GeoRedirect } from "@/components/GeoRedirect";
 import { Header } from "@/components/Header";
-import { HeroSpot } from "@/components/HeroSpot";
+import { HeroBoard } from "@/components/HeroBoard";
 import { HomepageSeoHeader } from "@/components/HomepageSeoHeader";
 import { JsonLd } from "@/components/JsonLd";
 import { KaratGrid } from "@/components/KaratGrid";
@@ -19,6 +20,7 @@ import dynamic from "next/dynamic";
 import { LazyMount } from "@/components/LazyMount";
 import { MetalsStrip } from "@/components/MetalsStrip";
 import { PriceChart } from "@/components/PriceChart";
+import { ResearchTeaser } from "@/components/ResearchTeaser";
 import { Sidebar } from "@/components/Sidebar";
 import { StoresMarquee } from "@/components/StoresMarquee";
 
@@ -26,9 +28,6 @@ import { StoresMarquee } from "@/components/StoresMarquee";
 // Wrapped in <LazyMount> below for IntersectionObserver-gated client mount.
 const TradingViewChart = dynamic(() =>
   import("@/components/TradingViewChart").then((m) => m.TradingViewChart),
-);
-const LiveGoldStream = dynamic(() =>
-  import("@/components/LiveGoldStream").then((m) => m.LiveGoldStream),
 );
 import {
   BidAskGaugeSkeleton,
@@ -43,7 +42,9 @@ import {
   getCachedAllHistory,
   getCachedFxRates,
   getCachedMetals,
+  getCachedResearch,
 } from "@/lib/cached-fetchers";
+import type { ResearchDigest } from "@/lib/research";
 import type { FxRates } from "@/lib/fx";
 import type { MetalsBundle } from "@/lib/goldapi";
 import type { MetalHistory } from "@/lib/history";
@@ -64,14 +65,33 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 // while data resolves. Same fetch URL across sections is deduped by Next cache.
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function HeroSpotSection({ promise }: { promise: Promise<MetalsBundle> }) {
+async function HeroBoardSection({ promise }: { promise: Promise<MetalsBundle> }) {
   const m = await promise;
-  return <HeroSpot spot={m.XAU} />;
+  return <HeroBoard initialSpot={m.XAU} />;
 }
 
-async function LiveGoldStreamSection({ promise }: { promise: Promise<MetalsBundle> }) {
-  const m = await promise;
-  return <LiveGoldStream initialSpot={m.XAU} />;
+async function CurrencyTableSection({
+  mPromise,
+  fxPromise,
+  locale,
+}: {
+  mPromise: Promise<MetalsBundle>;
+  fxPromise: Promise<FxRates>;
+  locale: string;
+}) {
+  const [m, fx] = await Promise.all([mPromise, fxPromise]);
+  return <CurrencyTable spot={m.XAU} fx={fx} locale={locale} />;
+}
+
+async function ResearchTeaserSection({
+  promise,
+  locale,
+}: {
+  promise: Promise<ResearchDigest>;
+  locale: string;
+}) {
+  const digest = await promise;
+  return <ResearchTeaser digest={digest} locale={locale} />;
 }
 
 async function MetalsStripSection({ promise }: { promise: Promise<MetalsBundle> }) {
@@ -157,6 +177,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const metalsPromise = getCachedMetals();
   const fxPromise = getCachedFxRates();
   const historyPromise = getCachedAllHistory("1y");
+  const researchPromise = getCachedResearch();
 
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
@@ -178,30 +199,26 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="min-w-0 space-y-8">
-            <HomepageSeoHeader locale={locale} />
+            <HomepageSeoHeader locale={locale} part="intro" />
 
             <Suspense fallback={<HeroSpotSkeleton />}>
-              <LiveGoldStreamSection promise={metalsPromise} />
-            </Suspense>
-
-            <Suspense fallback={<HeroSpotSkeleton />}>
-              <HeroSpotSection promise={metalsPromise} />
+              <HeroBoardSection promise={metalsPromise} />
             </Suspense>
 
             <Suspense fallback={<MetalsStripSkeleton />}>
               <MetalsStripSection promise={metalsPromise} />
             </Suspense>
 
-            <LazyMount minHeight={500}>
-              <TradingViewChart />
-            </LazyMount>
-
-            <AffiliateBanner />
-
             <LazyMount minHeight={400} fallback={<PriceChartSkeleton />}>
               <Suspense fallback={<PriceChartSkeleton />}>
                 <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
               </Suspense>
+            </LazyMount>
+
+            <AffiliateBanner />
+
+            <LazyMount minHeight={500}>
+              <TradingViewChart />
             </LazyMount>
 
             <LazyMount minHeight={200} fallback={<BidAskGaugeSkeleton />}>
@@ -214,11 +231,21 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <KaratGridSection mPromise={metalsPromise} fxPromise={fxPromise} />
             </Suspense>
 
+            <Suspense fallback={null}>
+              <CurrencyTableSection mPromise={metalsPromise} fxPromise={fxPromise} locale={locale} />
+            </Suspense>
+
             <LazyMount minHeight={400} fallback={<CalculatorSkeleton />}>
               <Suspense fallback={<CalculatorSkeleton />}>
                 <CalculatorSection mPromise={metalsPromise} fxPromise={fxPromise} />
               </Suspense>
             </LazyMount>
+
+            <Suspense fallback={null}>
+              <ResearchTeaserSection promise={researchPromise} locale={locale} />
+            </Suspense>
+
+            <HomepageSeoHeader locale={locale} part="content" />
 
             <LazyMount minHeight={140}>
               <StoresMarquee />
@@ -400,12 +427,12 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                   </a>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/shanghai-gold-exchange"
                     className="text-[var(--color-gold)] hover:underline"
                   >
                     Shanghai Gold Exchange
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </section>

@@ -2,6 +2,7 @@ import type { GoldApiResponse } from "@/lib/goldapi";
 
 const KARAT_TO_NAME: Record<string, string> = {
   "24K": "24 Karat Gold",
+  "22K": "22 Karat Gold",
   "21K": "21 Karat Gold",
   "18K": "18 Karat Gold",
   "14K": "14 Karat Gold",
@@ -9,6 +10,7 @@ const KARAT_TO_NAME: Record<string, string> = {
 
 const KARAT_PURITY: Record<string, string> = {
   "24K": "99.9%",
+  "22K": "91.7%",
   "21K": "87.5%",
   "18K": "75%",
   "14K": "58.3%",
@@ -24,6 +26,7 @@ export function JsonLd({
   pageUrl,
   pageName,
   pageOnly = false,
+  globalOnly = false,
   priceCurrency = "USD",
   fxRate = 1,
 }: {
@@ -35,6 +38,10 @@ export function JsonLd({
   pageName?: string;
   /** When true, skip global schemas (Organization, WebSite, Service, FAQ) — use on pages where layout already emits them. Still emits WebPage, BreadcrumbList, and live-price schemas (Product/FinancialProduct). */
   pageOnly?: boolean;
+  /** Layout use: emit only the site-wide entities (Organization, WebSite,
+   *  Service, FAQ) and NO WebPage/BreadcrumbList — pages own those nodes, so a
+   *  layout-level copy would collide on the same `#webpage` @id. */
+  globalOnly?: boolean;
   /** ISO-4217 currency for the per-karat Product offers. Defaults to "USD".
    *  Pass the country currency on localized pages so the structured-data price
    *  matches the currency the page actually renders (no schema/UI mismatch). */
@@ -59,7 +66,7 @@ export function JsonLd({
     },
     image: `${siteUrl}/opengraph-image`,
     description:
-      "Live gold prices in real time across 46 countries and 40+ currencies. Track 24K, 21K, 18K and 14K gold per gram, ounce and kilogram.",
+      "Live gold prices in real time across 46 countries and 40+ currencies. Track 24K, 22K, 21K, 18K and 14K gold per gram, ounce and kilogram.",
     knowsAbout: [
       "Gold price",
       "Silver price",
@@ -155,27 +162,22 @@ export function JsonLd({
     ? (
         [
           { karat: "24K", grams: spot.price_gram_24k },
+          { karat: "22K", grams: spot.price_gram_22k },
           { karat: "21K", grams: spot.price_gram_21k },
           { karat: "18K", grams: spot.price_gram_18k },
           { karat: "14K", grams: spot.price_gram_14k },
         ] as const
       ).map(({ karat, grams }) => ({
+        // FinancialProduct, NOT Product: this site publishes a live quote and
+        // sells nothing, so a Product/Offer with `availability: InStock` would be
+        // misleading price markup (manual-action territory).
         "@context": "https://schema.org",
-        "@type": "Product",
+        "@type": "FinancialProduct",
         "@id": `${siteUrl}/#product-${karat}`,
-        name: KARAT_TO_NAME[karat] ?? `${karat} Gold`,
+        name: `${KARAT_TO_NAME[karat] ?? `${karat} Gold`} — Live Spot Price`,
         description: `Live spot price of ${KARAT_TO_NAME[karat]} (${KARAT_PURITY[karat]} purity) per gram and per troy ounce, streamed in real time from Binance, Coinbase and Kraken.`,
-        // Required by Google's Product rich-result. Use per-karat dynamic OG.
-        image: [
-          `${siteUrl}/gold-price/${karat.toLowerCase()}/opengraph-image`,
-          `${siteUrl}/opengraph-image`,
-        ],
-        sku: `XAU-${karat}`,
-        mpn: `GOLD-${karat}`,
-        category: "Precious Metals / Gold",
-        brand: { "@type": "Brand", name: "Gold Prices Arabia" },
-        manufacturer: { "@id": `${siteUrl}/#org` },
-        material: "Gold",
+        category: "Commodity",
+        provider: { "@id": `${siteUrl}/#org` },
         additionalProperty: [
           { "@type": "PropertyValue", name: "Purity", value: KARAT_PURITY[karat] },
           { "@type": "PropertyValue", name: "Karat", value: karat },
@@ -191,9 +193,7 @@ export function JsonLd({
             unitCode: "GRM",
             referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: "GRM" },
           },
-          availability: "https://schema.org/InStock",
           validFrom: new Date(spot.timestamp * 1000).toISOString(),
-          seller: { "@id": `${siteUrl}/#org` },
         },
       }))
     : [];
@@ -216,7 +216,7 @@ export function JsonLd({
             "@type": "UnitPriceSpecification",
             priceCurrency: "USD",
             price: spot.price.toFixed(2),
-            referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: "ONZ" },
+            referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitText: "troy ounce" },
           },
         },
       }
@@ -256,13 +256,42 @@ export function JsonLd({
         about: { "@id": `${siteUrl}/#service` },
         inLanguage: pageUrl.startsWith("/en") ? "en" : "ar",
         breadcrumb: { "@id": `${siteUrl}${pageUrl}#breadcrumb` },
+        // Freshness: the page's main content (prices) is as recent as the spot
+        // snapshot that rendered it.
+        ...(spot ? { dateModified: new Date(spot.timestamp * 1000).toISOString() } : {}),
+        ...(pageType === "ItemPage"
+          ? {
+              speakable: {
+                "@type": "SpeakableSpecification",
+                cssSelector: ["h1", "#price-table-heading"],
+              },
+            }
+          : {}),
       }
     : null;
+
+  // Makes the USD->local conversion behind localized Offer prices explicit
+  // and machine-readable (1 USD = fxMul priceCurrency).
+  const exchangeRate =
+    spot && priceCurrency !== "USD" && fxMul !== 1
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ExchangeRateSpecification",
+          "@id": `${siteUrl}/#fx-${priceCurrency}`,
+          currency: "USD",
+          currentExchangeRate: {
+            "@type": "UnitPriceSpecification",
+            price: fxMul.toFixed(6),
+            priceCurrency,
+          },
+        }
+      : null;
 
   const faq = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "@id": `${siteUrl}/#faq`,
+    inLanguage: "en",
     mainEntity: [
       {
         "@type": "Question",
@@ -277,7 +306,7 @@ export function JsonLd({
         name: "Which gold karats does Gold Prices Arabia cover?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Gold Prices Arabia covers 24K (99.9 percent pure), 21K (87.5 percent pure), 18K (75 percent pure), and 14K (58.3 percent pure) — the four most-traded karats across MENA jewellery markets and globally.",
+          text: "Gold Prices Arabia covers 24K (99.9 percent pure), 22K (91.7 percent pure), 21K (87.5 percent pure), 18K (75 percent pure) and 14K (58.3 percent pure), the five most-traded karats across MENA, South Asian and global jewellery markets.",
         },
       },
       {
@@ -334,11 +363,14 @@ export function JsonLd({
   if (!pageOnly) {
     payload.push(organization, website, service);
   }
-  payload.push(breadcrumbList);
-  if (webPage) payload.push(webPage);
+  if (!globalOnly) {
+    payload.push(breadcrumbList);
+    if (webPage) payload.push(webPage);
+  }
   if (!pageOnly) payload.push(faq);
   payload.push(...products);
   if (financialProduct) payload.push(financialProduct);
+  if (exchangeRate) payload.push(exchangeRate);
   if (quotation) payload.push(quotation);
   // Escape `<` so a stray "</script>" inside any string (descriptions, notes,
   // dynamic text) cannot close the tag early. If it did, the HTML parser pours

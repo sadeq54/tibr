@@ -40,6 +40,8 @@ export function AdSlot({ slot = 0, label }: { slot?: number; label?: string }) {
   }, [pathname, locale]);
 
   const [step, setStep] = useState(0);
+  // Reset rotation when the banner set changes (locale/country navigation).
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setStep(0), [banners]);
   useEffect(() => {
     if (banners.length <= 1) return;

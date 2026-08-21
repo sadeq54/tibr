@@ -46,9 +46,9 @@ function routeLastmod(path: string, fallback: Date): Date {
   return fallback;
 }
 
-const KARATS = ["24k", "21k", "18k", "14k"];
+const KARATS = ["24k", "22k", "21k", "18k", "14k"];
 const COUNTRIES = COUNTRY_DATA.map((c) => c.slug);
-const YEARS = [2024, 2025, 2026];
+const YEARS = Array.from({ length: 2026 - 2000 + 1 }, (_, i) => 2000 + i);
 
 /** Priority MENA + flagship markets get higher sitemap priority. Long-tail
  *  countries get lower priority + lower change frequency to reduce index bloat
@@ -143,15 +143,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Historical: current year stays daily; prior years become monthly + lower
   // priority since they're effectively archives.
+  out.push(...dual("historical-gold-prices", "weekly", 0.7));
   for (const y of YEARS) {
     const isCurrent = y === currentYear;
+    const recent = currentYear - y <= 5;
     out.push(
-      ...dual(`historical-gold-prices/${y}`, isCurrent ? "daily" : "monthly", isCurrent ? 0.55 : 0.35),
+      ...dual(
+        `historical-gold-prices/${y}`,
+        isCurrent ? "daily" : recent ? "monthly" : "yearly",
+        isCurrent ? 0.55 : recent ? 0.4 : 0.3,
+      ),
     );
   }
 
   // News — daily.
   out.push(...dual("news", "daily", 0.65));
+
+  // Scholarly research digest — refreshed daily, strong E-E-A-T signal.
+  out.push(...dual("research", "daily", 0.65));
 
   // Editorial articles (each authored by Sadeq, NewsArticle schema).
   for (const a of ARTICLES) {
@@ -165,9 +174,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   out.push(...dual("methodology", "monthly", 0.55));
   out.push(...dual("editorial-standards", "monthly", 0.5));
 
+  // Live-price routes change materially every day (tables, titles, prices),
+  // so their lastmod is the current UTC day — accurate and verifiable, which
+  // is what Google requires to trust the signal. Editorial routes keep the
+  // git-derived date so unchanged pages are not re-crawled.
+  const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   return out.map(({ path, freq, priority }) => ({
     url: `${base}${path}`,
-    lastModified: routeLastmod(path, now),
+    lastModified: freq === "hourly" ? startOfToday : routeLastmod(path, now),
     changeFrequency: freq,
     priority,
   }));

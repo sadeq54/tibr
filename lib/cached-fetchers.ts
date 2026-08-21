@@ -16,6 +16,7 @@ import {
 } from "./goldapi";
 import { fetchAllHistory, type HistoryRange, type MetalHistory } from "./history";
 import { fetchNews, type NewsItem } from "./news";
+import { fetchResearch, type ResearchDigest } from "./research";
 
 // Spot/metals — revalidate >= 300s qualifies for static prerender shell on
 // serverless platforms (Netlify lambdas) where in-memory cache doesn't
@@ -57,4 +58,12 @@ export async function getCachedNews(limit = 30): Promise<NewsItem[]> {
   "use cache";
   cacheLife({ stale: 300, revalidate: 1800, expire: 21600 });
   return fetchNews(limit);
+}
+
+// Scholarly digest — four open academic APIs, deduped + citation-ranked.
+// Academic literature moves slowly: daily revalidate, week-long expiry.
+export async function getCachedResearch(): Promise<ResearchDigest> {
+  "use cache";
+  cacheLife({ stale: 3600, revalidate: 86400, expire: 604800 });
+  return fetchResearch();
 }

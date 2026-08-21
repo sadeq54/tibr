@@ -199,7 +199,7 @@ export function countryNote(slug: string, locale: string): string | null {
 const KARAT_PURITY: Record<string, string> = {
   "24K": "99.9%",
   "23K": "96.5%",
-  "22K": "91.6%",
+  "22K": "91.7%",
   "21K": "87.5%",
   "18K": "75%",
   "14K": "58.3%",

@@ -15,8 +15,16 @@ export default async function Loading() {
   const t = await getTranslations("Loading");
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-8" role="status" aria-live="polite" aria-busy="true">
-      <span className="sr-only">{t("label")}</span>
+    // The label lives in aria-label, not a text node: under PPR this fallback is
+    // part of the static HTML shell, and a text node here becomes the "first
+    // paragraph" non-JS crawlers and AI engines extract from every page.
+    <div
+      className="mx-auto max-w-7xl px-6 py-8"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label={t("label")}
+    >
 
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
         <div className="space-y-8">

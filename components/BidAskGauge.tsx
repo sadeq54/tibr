@@ -91,7 +91,7 @@ export function BidAskGauge({
           animate={{ left: `${bandLeft}%`, width: `${bandWidth}%`, opacity: 0.3 }}
           transition={{ ...SPRING, delay: 0.15 }}
           style={{
-            background: "linear-gradient(90deg, #22c55e, #f5c518, #ef4444)",
+            background: "linear-gradient(90deg, var(--color-up), var(--color-gold), var(--color-down))",
           }}
         />
         <motion.div
@@ -100,8 +100,8 @@ export function BidAskGauge({
           animate={{ left: `${left}%`, scale: 1 }}
           transition={{ ...SPRING, delay: 0.25 }}
           style={{
-            background: "#f5c518",
-            boxShadow: "0 0 12px rgba(245,197,24,0.6)",
+            background: "var(--color-gold)",
+            boxShadow: "0 0 12px color-mix(in srgb, var(--color-gold) 60%, transparent)",
           }}
         />
       </div>

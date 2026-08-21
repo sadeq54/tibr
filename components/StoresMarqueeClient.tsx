@@ -90,7 +90,7 @@ export function StoresMarqueeClient() {
               <div
                 aria-hidden
                 className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-30 blur-2xl"
-                style={{ background: "radial-gradient(circle, #f5c518 0%, transparent 70%)" }}
+                style={{ background: "radial-gradient(circle, var(--color-gold) 0%, transparent 70%)" }}
               />
 
               <div className="flex items-center gap-3">
@@ -115,7 +115,7 @@ export function StoresMarqueeClient() {
                 <span
                   className="block w-full rounded-md py-1.5 text-center text-xs font-bold text-black transition-opacity group-hover:opacity-90"
                   style={{
-                    background: "linear-gradient(135deg, #f5c518 0%, #d4a82a 70%, #5a3a08 100%)",
+                    background: "linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-soft) 70%, #4a3a12 100%)",
                   }}
                 >
                   {t("openAccount")}

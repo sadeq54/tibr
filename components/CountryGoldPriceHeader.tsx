@@ -28,10 +28,13 @@ export function CountryGoldPriceHeader({
   locale,
   slug,
   karat,
+  part = "all",
 }: {
   locale: string;
   slug: string;
   karat: string;
+  /** "intro" = flag + H1 + intro + currency chip; "content" = market note + FAQ. */
+  part?: "intro" | "content" | "all";
 }) {
   const country = COUNTRY_BY_SLUG[slug];
   if (!country) return null;
@@ -45,11 +48,19 @@ export function CountryGoldPriceHeader({
   >;
   const tPage = createTranslator({ locale, namespace: "CountryPage", messages });
   const upper = karat.toUpperCase();
+  // Arabic convention is "عيار 21" (no K suffix); English keeps "21K".
+  const kAr = upper.replace("K", "");
+  const kLabel = locale === "ar" ? kAr : upper;
   const name = countryName(country, locale);
   const note = countryNote(slug, locale);
 
+  const showIntro = part !== "content";
+  const showContent = part !== "intro";
+
   return (
-    <header>
+    <>
+      {showIntro ? (
+      <header>
       {/* Plain <a> not next-intl <Link> — Link reads request config (headers)
           to apply locale prefix, which Next 16 forbids inside "use cache". */}
       <a
@@ -60,11 +71,11 @@ export function CountryGoldPriceHeader({
         {name}
       </a>
       <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-gold)]">
-        {tPage("h1", { karat: upper, country: name })}
+        {tPage("h1", { karat: kLabel, country: name })}
       </h1>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[var(--color-text-muted)]">
         {tPage("intro", {
-          karat: upper,
+          karat: kLabel,
           country: name,
           currency: country.currency,
         })}
@@ -72,10 +83,15 @@ export function CountryGoldPriceHeader({
       <div className="mt-3 inline-block rounded-md border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/10 px-3 py-1.5 text-xs text-[var(--color-gold)]">
         {tPage("currencyNote", { currency: country.currency })}
       </div>
+      </header>
+      ) : null}
+
+      {showContent ? (
+        <>
       {note ? (
         <section
           aria-label={locale === "ar" ? "ملاحظات السوق المحلي" : "Local market notes"}
-          className="mt-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4"
+          className="border-s-2 border-[var(--color-gold)]/50 ps-4"
         >
           <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--color-gold)]">
             {locale === "ar" ? `سوق الذهب في ${name}` : `${name} gold market`}
@@ -91,26 +107,26 @@ export function CountryGoldPriceHeader({
           pages, not just an empty <main> + the prices that stream via RSC. */}
       <section
         aria-labelledby={`country-faq-heading-${slug}-${karat}`}
-        className="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6"
+        className="mt-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6"
       >
         <h2
           id={`country-faq-heading-${slug}-${karat}`}
           className="text-lg font-semibold text-[var(--color-text)]"
         >
           {locale === "ar"
-            ? `أسئلة شائعة عن سعر الذهب عيار ${upper} في ${name}`
+            ? `أسئلة شائعة عن سعر الذهب عيار ${kAr} في ${name}`
             : `Common questions about ${upper} gold in ${name}`}
         </h2>
         <dl className="mt-4 space-y-4 text-sm">
           <div>
             <dt className="font-semibold text-[var(--color-text)]">
               {locale === "ar"
-                ? `كيف يُحسب سعر الذهب عيار ${upper} في ${name}؟`
+                ? `كيف يُحسب سعر الذهب عيار ${kAr} في ${name}؟`
                 : `How is the ${upper} gold price in ${name} calculated?`}
             </dt>
             <dd className="mt-1 leading-relaxed text-[var(--color-text-muted)]">
               {locale === "ar"
-                ? `يُحسب سعر عيار ${upper} للجرام في ${name} عبر معادلة: السعر الفوري للأونصة (XAU/USD) ÷ 31.1035 جرام × نسبة نقاء العيار × سعر صرف ${country.currency}/USD. السعر الفوري مأخوذ من Binance و Coinbase و Kraken عبر PAXG/USD، ومُحدّث كل ثانية تقريبًا.`
+                ? `يُحسب سعر عيار ${kAr} للجرام في ${name} عبر معادلة: السعر الفوري للأونصة (XAU/USD) ÷ 31.1035 جرام × نسبة نقاء العيار × سعر صرف ${country.currency}/USD. السعر الفوري مأخوذ من Binance و Coinbase و Kraken عبر PAXG/USD، ومُحدّث كل ثانية تقريبًا.`
                 : `The ${upper} per-gram price in ${name} is computed as: spot ounce price (XAU/USD) ÷ 31.1035 g × purity ratio × ${country.currency}/USD FX rate. The spot price is sourced from Binance, Coinbase and Kraken via PAXG/USD, refreshed every second.`}
             </dd>
           </div>
@@ -140,6 +156,8 @@ export function CountryGoldPriceHeader({
           </div>
         </dl>
       </section>
-    </header>
+        </>
+      ) : null}
+    </>
   );
 }

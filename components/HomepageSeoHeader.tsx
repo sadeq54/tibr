@@ -63,7 +63,14 @@ const STATIC_FAQS_AR = [
   },
 ];
 
-export function HomepageSeoHeader({ locale }: { locale: string }) {
+export function HomepageSeoHeader({
+  locale,
+  part = "all",
+}: {
+  locale: string;
+  /** "intro" = H1 + quick links only; "content" = the static SEO sections only. */
+  part?: "intro" | "content" | "all";
+}) {
   // SYNCHRONOUS. Async components stream as hidden Suspense reveals AFTER
   // </main>, which non-JS crawlers (Seobility, Bing fallback, AI bots) skip
   // → "0 words, 0 H1, 0 links". Sync = inlined directly in static prerender.
@@ -76,6 +83,7 @@ export function HomepageSeoHeader({ locale }: { locale: string }) {
 
   const links: Array<{ href: string; label: React.ReactNode }> = [
     { href: "/gold-price/24k", label: "24K" },
+    { href: "/gold-price/22k", label: "22K" },
     { href: "/gold-price/21k", label: "21K" },
     { href: "/gold-price/18k", label: "18K" },
     { href: "/gold-price/14k", label: "14K" },
@@ -84,13 +92,18 @@ export function HomepageSeoHeader({ locale }: { locale: string }) {
     { href: "/gold-calculator", label: ar ? "الحاسبة" : "Calculator" },
     { href: "/gold-price", label: ar ? "أسعار حسب الدولة" : "By country" },
     { href: "/news", label: ar ? "الأخبار" : "News" },
+    { href: "/research", label: ar ? "الأبحاث" : "Research" },
     { href: "/methodology", label: ar ? "المنهجية" : "Methodology" },
   ];
 
   const faqs = ar ? STATIC_FAQS_AR : STATIC_FAQS_EN;
 
+  const showIntro = part !== "content";
+  const showContent = part !== "intro";
+
   return (
     <>
+      {showIntro ? (
       <header>
         <h1 className="text-3xl font-bold tracking-tight text-[var(--color-gold)]">
           {t("h1")}
@@ -122,7 +135,10 @@ export function HomepageSeoHeader({ locale }: { locale: string }) {
           ))}
         </nav>
       </header>
+      ) : null}
 
+      {showContent ? (
+        <>
       {/* Static SEO content — ensures Seobility, Bing's JS-fallback, AI bots
           and Lighthouse parse a content-rich homepage instead of an empty
           dynamic shell. Word count and structured headings here are the
@@ -216,6 +232,8 @@ export function HomepageSeoHeader({ locale }: { locale: string }) {
           ))}
         </dl>
       </section>
+        </>
+      ) : null}
     </>
   );
 }

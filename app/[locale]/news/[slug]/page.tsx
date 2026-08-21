@@ -80,7 +80,7 @@ export default async function NewsArticlePage({
     "@id": `${SITE_URL}${pageUrl}#article`,
     headline: title,
     description,
-    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${pageUrl}` },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${pageUrl}#webpage` },
     datePublished: article.publishedAt,
     dateModified: article.updatedAt ?? article.publishedAt,
     inLanguage: locale === "ar" ? "ar" : "en",
@@ -157,17 +157,21 @@ export default async function NewsArticlePage({
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  h2: (props) => (
+                  h2: ({ children, ...props }) => (
                     <h2
                       {...props}
                       className="mt-10 text-2xl font-semibold text-[var(--color-text)]"
-                    />
+                    >
+                      {children}
+                    </h2>
                   ),
-                  h3: (props) => (
+                  h3: ({ children, ...props }) => (
                     <h3
                       {...props}
                       className="mt-6 text-xl font-semibold text-[var(--color-text)]"
-                    />
+                    >
+                      {children}
+                    </h3>
                   ),
                   p: (props) => (
                     <p
@@ -188,11 +192,13 @@ export default async function NewsArticlePage({
                     />
                   ),
                   li: (props) => <li {...props} className="leading-relaxed" />,
-                  a: (props) => (
+                  a: ({ children, ...props }) => (
                     <a
                       {...props}
                       className="font-medium text-[var(--color-gold)] underline hover:no-underline"
-                    />
+                    >
+                      {children}
+                    </a>
                   ),
                   strong: (props) => (
                     <strong {...props} className="font-semibold text-[var(--color-text)]" />

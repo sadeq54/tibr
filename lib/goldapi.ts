@@ -32,7 +32,7 @@ export type MetalsBundle = {
 };
 
 export const METAL_META: Record<string, { name: string; nameAr: string; tint: string; symbol: string }> = {
-  XAU: { name: "Gold", nameAr: "ذهب", tint: "#f5c518", symbol: "Au" },
+  XAU: { name: "Gold", nameAr: "ذهب", tint: "#e2b54e", symbol: "Au" },
   XAG: { name: "Silver", nameAr: "فضة", tint: "#c0c0c0", symbol: "Ag" },
   XPT: { name: "Platinum", nameAr: "بلاتين", tint: "#a8c0d8", symbol: "Pt" },
   XPD: { name: "Palladium", nameAr: "بالاديوم", tint: "#7ec4ae", symbol: "Pd" },

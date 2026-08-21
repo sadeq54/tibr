@@ -94,6 +94,10 @@ export function LuxurySelect({
             const selected = o.value === value;
             const active = i === highlight;
             return (
+              // Keyboard interaction lives on the document-level listener while
+              // focus stays on the trigger (ARIA listbox pattern) — the option
+              // itself is never focusable, so a key handler here would be dead.
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events
               <li
                 key={o.value}
                 role="option"

@@ -15,7 +15,7 @@ export default function OG() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #0a0a0a 0%, #161616 100%)",
+          background: "linear-gradient(135deg, #0b0a08 0%, #1a1811 100%)",
           fontFamily: "Georgia, 'Times New Roman', serif",
         }}
       >
@@ -27,7 +27,7 @@ export default function OG() {
             alignItems: "center",
             justifyContent: "center",
             background:
-              "linear-gradient(135deg, #fde68a 0%, #f5c518 40%, #b8860b 80%, #5a3a08 100%)",
+              "linear-gradient(135deg, #f4e3b0 0%, #e2b54e 40%, #8a6716 80%, #3c2e0d 100%)",
             clipPath:
               "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
             color: "#1a1209",
@@ -40,7 +40,7 @@ export default function OG() {
         </div>
         <div
           style={{
-            color: "#f5c518",
+            color: "#e2b54e",
             fontSize: 72,
             fontWeight: 700,
             marginTop: 36,

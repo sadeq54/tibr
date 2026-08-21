@@ -6,6 +6,8 @@ import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { BidAskGauge } from "@/components/BidAskGauge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Calculator } from "@/components/Calculator";
+import { ChartImage } from "@/components/ChartImage";
+import { CurrencyTable } from "@/components/CurrencyTable";
 import { Faq } from "@/components/Faq";
 import { Header } from "@/components/Header";
 import { KaratSwitcher } from "@/components/KaratSwitcher";
@@ -14,6 +16,8 @@ import { HeroSpot } from "@/components/HeroSpot";
 import { KaratGrid } from "@/components/KaratGrid";
 import { Sidebar } from "@/components/Sidebar";
 import { PriceChart } from "@/components/PriceChart";
+import { PriceTable } from "@/components/PriceTable";
+import { RecentPricesTable } from "@/components/RecentPricesTable";
 import { StoresMarquee } from "@/components/StoresMarquee";
 import { TradingViewChart } from "@/components/TradingViewChart";
 import {
@@ -30,15 +34,18 @@ import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
 import { buildAlternates, canonicalPath, SITE_URL, buildOpenGraph } from "@/lib/metadata";
 import { faqPageSchema } from "@/lib/schemas";
+import { getCachedSpot } from "@/lib/cached-fetchers";
+import { gramUsd, priceDescription, priceTitle, spotDate } from "@/lib/seo";
 
 const KARAT_PURITY: Record<string, string> = {
   "24K": "99.9%",
+  "22K": "91.7%",
   "21K": "87.5%",
   "18K": "75%",
   "14K": "58.3%",
 };
 
-const VALID_KARATS = ["24k", "21k", "18k", "14k"] as const;
+const VALID_KARATS = ["24k", "22k", "21k", "18k", "14k"] as const;
 type Karat = (typeof VALID_KARATS)[number];
 
 export async function generateStaticParams() {
@@ -51,10 +58,19 @@ export async function generateMetadata({
   params: Promise<{ locale: string; karat: string }>;
 }) {
   const { locale, karat } = await params;
-  const t = await getTranslations({ locale, namespace: "KaratPage" });
   const upper = karat.toUpperCase();
+  // Live USD per-gram price + today's date in the title (see lib/seo.ts).
+  const spot = await getCachedSpot("XAU");
+  const seo = {
+    locale,
+    karat: upper,
+    currency: "USD",
+    gram: spot ? gramUsd(spot, karat) : null,
+    date: spotDate(spot),
+  };
   return {
-    title: t("title", { karat: upper }), description: t("description", { karat: upper }),
+    title: priceTitle(seo),
+    description: priceDescription(seo),
     alternates: buildAlternates(locale, `/gold-price/${karat}`),
     openGraph: buildOpenGraph(locale, `/gold-price/${karat}`),
   };
@@ -62,6 +78,49 @@ export async function generateMetadata({
 
 async function HeroSpotSection({ promise }: { promise: Promise<GoldApiResponse | null> }) {
   return <HeroSpot spot={await promise} />;
+}
+
+async function PriceTableSection({
+  promise,
+  fxPromise,
+  locale,
+  karat,
+}: {
+  promise: Promise<GoldApiResponse | null>;
+  fxPromise: Promise<FxRates>;
+  locale: string;
+  karat: string;
+}) {
+  const [s, fx] = await Promise.all([promise, fxPromise]);
+  return <PriceTable spot={s} fx={fx} currency="USD" locale={locale} highlightKarat={karat} />;
+}
+
+async function RecentPricesSection({
+  hPromise,
+  fxPromise,
+  locale,
+  karat,
+}: {
+  hPromise: Promise<MetalHistory>;
+  fxPromise: Promise<FxRates>;
+  locale: string;
+  karat: string;
+}) {
+  const [h, fx] = await Promise.all([hPromise, fxPromise]);
+  return <RecentPricesTable history={h.XAU} fx={fx} currency="USD" locale={locale} karat={karat} />;
+}
+
+async function CurrencyTableSection({
+  promise,
+  fxPromise,
+  locale,
+}: {
+  promise: Promise<GoldApiResponse | null>;
+  fxPromise: Promise<FxRates>;
+  locale: string;
+}) {
+  const [s, fx] = await Promise.all([promise, fxPromise]);
+  return <CurrencyTable spot={s} fx={fx} locale={locale} />;
 }
 
 async function PriceChartSection({
@@ -101,11 +160,12 @@ async function CalculatorSection({
   const calcSpot = s
     ? {
         price_gram_24k: s.price_gram_24k,
+        price_gram_22k: s.price_gram_22k,
         price_gram_21k: s.price_gram_21k,
         price_gram_18k: s.price_gram_18k,
         price_gram_14k: s.price_gram_14k,
       }
-    : { price_gram_24k: 0, price_gram_21k: 0, price_gram_18k: 0, price_gram_14k: 0 };
+    : { price_gram_24k: 0, price_gram_22k: 0, price_gram_21k: 0, price_gram_18k: 0, price_gram_14k: 0 };
   return <Calculator spot={calcSpot} fx={fx} />;
 }
 
@@ -120,6 +180,9 @@ export default async function KaratPage({
 
   const t = await getTranslations("KaratPage");
   const upper = karat.toUpperCase();
+  // Arabic convention is "عيار 21" (no K suffix); English keeps "21K".
+  const kAr = upper.replace("K", "");
+  const kLabel = locale === "ar" ? kAr : upper;
 
   const spotPromise = fetchSpot("XAU");
   const fxPromise = fetchFxRates();
@@ -133,30 +196,30 @@ export default async function KaratPage({
   const karatFaqs = locale === "ar"
     ? [
         {
-          q: `ما هو الذهب عيار ${upper}؟`,
-          a: `الذهب عيار ${upper} يعني نقاء الذهب ${purity}. الباقي معادن صلابة (نحاس، فضة، أو زنك) تجعل القطعة أقوى للمجوهرات اليومية. ${upper === "24K" ? "يستخدم بشكل رئيسي للسبائك الاستثمارية." : upper === "21K" ? "هو العيار الأكثر شيوعاً في المجوهرات الخليجية والشرق الأوسط." : upper === "18K" ? "يستخدم للمجوهرات الفاخرة في أوروبا والمجوهرات المرصعة." : "يستخدم في المجوهرات الأقل تكلفة والقابلة للارتداء يومياً."}`,
+          q: `ما هو الذهب عيار ${kAr}؟`,
+          a: `الذهب عيار ${kAr} يعني نقاء الذهب ${purity}. الباقي معادن صلابة (نحاس، فضة، أو زنك) تجعل القطعة أقوى للمجوهرات اليومية. ${upper === "24K" ? "يستخدم بشكل رئيسي للسبائك الاستثمارية." : upper === "22K" ? "العيار السائد في مجوهرات الإمارات والكويت والهند." : upper === "21K" ? "هو العيار الأكثر شيوعاً في المجوهرات الخليجية والشرق الأوسط." : upper === "18K" ? "يستخدم للمجوهرات الفاخرة في أوروبا والمجوهرات المرصعة." : "يستخدم في المجوهرات الأقل تكلفة والقابلة للارتداء يومياً."}`,
         },
         {
-          q: `كيف يُحسب سعر جرام الذهب عيار ${upper}؟`,
+          q: `كيف يُحسب سعر جرام الذهب عيار ${kAr}؟`,
           a: `سعر الجرام = (السعر الفوري للأونصة بالدولار ÷ 31.1035) × نسبة النقاء (${purity}) × سعر صرف العملة. مثلاً، إذا كان السعر الفوري 4500$/أونصة وسعر الصرف 3.75 ريال/دولار، فإن سعر جرام ${upper} ≈ (4500/31.1035) × ${(parseFloat(purity)/100).toFixed(3)} × 3.75 = ${((4500/31.1035) * (parseFloat(purity)/100) * 3.75).toFixed(2)} ريال.`,
         },
         {
-          q: `ما الفرق بين عيار ${upper} والعيارات الأخرى؟`,
+          q: `ما الفرق بين عيار ${kAr} والعيارات الأخرى؟`,
           a: `كل عيار له نسبة نقاء مختلفة: 24K=99.9%، 22K=91.7%، 21K=87.5%، 18K=75%، 14K=58.3%. كلما زادت النقاء، زاد السعر لنفس الوزن. عيار 21 هو الأكثر شيوعاً في المجوهرات الخليجية لتوازنه بين النقاء والصلابة والسعر.`,
         },
         {
-          q: `هل سعر عيار ${upper} المعروض هنا يشمل المصنعية؟`,
+          q: `هل سعر عيار ${kAr} المعروض هنا يشمل المصنعية؟`,
           a: `لا. السعر المعروض هو السعر الفوري للذهب الخام فقط (سعر السوق العالمي). تضيف محلات المجوهرات مصنعية (5-30 ريال/جرام للمجوهرات المعقدة)، وضريبة القيمة المضافة (15% في السعودية، 5% في الإمارات، صفر في مصر). راجع صفحة المنهجية للتفاصيل.`,
         },
         {
-          q: `كم مرة يتم تحديث سعر عيار ${upper}؟`,
+          q: `كم مرة يتم تحديث سعر عيار ${kAr}؟`,
           a: `يُحدّث السعر كل ثانية عبر WebSocket من Binance وCoinbase وKraken (متوسط من ثلاث بورصات لمنع الانحراف)، باستخدام رمز PAXG/USD المدعوم 1:1 بسبائك ذهب فيزيائية معتمدة من LBMA.`,
         },
       ]
     : [
         {
           q: `What is ${upper} gold?`,
-          a: `${upper} gold means ${purity} pure gold. The remainder is hardening metals (typically copper, silver or zinc) that make the alloy strong enough for everyday jewellery. ${upper === "24K" ? "Used primarily for investment bullion bars." : upper === "21K" ? "The most popular karat across Gulf jewellery markets." : upper === "18K" ? "Common in European fine jewellery and gem-set pieces." : "Used in affordable everyday jewellery."}`,
+          a: `${upper} gold means ${purity} pure gold. The remainder is hardening metals (typically copper, silver or zinc) that make the alloy strong enough for everyday jewellery. ${upper === "24K" ? "Used primarily for investment bullion bars." : upper === "22K" ? "The jewellery standard in the UAE, Kuwait and India." : upper === "21K" ? "The most popular karat across Gulf jewellery markets." : upper === "18K" ? "Common in European fine jewellery and gem-set pieces." : "Used in affordable everyday jewellery."}`,
         },
         {
           q: `How is the ${upper} gold price per gram calculated?`,
@@ -189,11 +252,11 @@ export default async function KaratPage({
         siteUrl={SITE_URL}
         pageType="ItemPage"
         pageUrl={pageUrl}
-        pageName={t("h1", { karat: upper })}
+        pageName={t("h1", { karat: kLabel })}
         pageOnly
         breadcrumb={[
           { name: locale === "en" ? "Home" : "الرئيسية", url: locale === "en" ? "/en" : "/" },
-          { name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب ${upper}`, url: pageUrl },
+          { name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب عيار ${kAr}`, url: pageUrl },
         ]}
       />
       <Header />
@@ -203,7 +266,7 @@ export default async function KaratPage({
           items={[
             { name: locale === "en" ? "Home" : "الرئيسية", href: locale === "en" ? "/en" : "/" },
             {
-              name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب ${upper}`,
+              name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب عيار ${kAr}`,
               href: pageUrl,
             },
           ]}
@@ -214,7 +277,7 @@ export default async function KaratPage({
               current={karat}
               basePath="/gold-price"
               locale={locale}
-              historicalHref="/historical-gold-prices/2026"
+              historicalHref="/historical-gold-prices"
             />
 
             <SeoStaticHeader
@@ -222,24 +285,44 @@ export default async function KaratPage({
               namespace="KaratPage"
               titleKey="h1"
               introKey="intro"
-              titleVars={{ karat: upper }}
-              introVars={{ karat: upper }}
+              titleVars={{ karat: kLabel }}
+              introVars={{ karat: kLabel }}
             />
 
             <Suspense fallback={<HeroSpotSkeleton />}>
               <HeroSpotSection promise={spotPromise} />
             </Suspense>
-            <TradingViewChart />
-            <AffiliateBanner />
-            <Suspense fallback={<PriceChartSkeleton />}>
-              <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
+            <Suspense fallback={null}>
+              <PriceTableSection
+                promise={spotPromise}
+                fxPromise={fxPromise}
+                locale={locale}
+                karat={karat}
+              />
             </Suspense>
-            <Suspense fallback={<BidAskGaugeSkeleton />}>
-              <BidAskSection promise={spotPromise} />
+            <Suspense fallback={null}>
+              <RecentPricesSection
+                hPromise={historyPromise}
+                fxPromise={fxPromise}
+                locale={locale}
+                karat={karat}
+              />
+            </Suspense>
+            <ChartImage currency="USD" locale={locale} pagePath={`/gold-price/${karat}`} range="1y" />
+            <Suspense fallback={null}>
+              <CurrencyTableSection promise={spotPromise} fxPromise={fxPromise} locale={locale} />
             </Suspense>
             <Suspense fallback={<KaratGridSkeleton />}>
               <KaratGridSection sPromise={spotPromise} fxPromise={fxPromise} />
             </Suspense>
+            <Suspense fallback={<PriceChartSkeleton />}>
+              <PriceChartSection hPromise={historyPromise} fxPromise={fxPromise} />
+            </Suspense>
+            <AffiliateBanner />
+            <Suspense fallback={<BidAskGaugeSkeleton />}>
+              <BidAskSection promise={spotPromise} />
+            </Suspense>
+            <TradingViewChart />
             <Suspense fallback={<CalculatorSkeleton />}>
               <CalculatorSection sPromise={spotPromise} fxPromise={fxPromise} />
             </Suspense>

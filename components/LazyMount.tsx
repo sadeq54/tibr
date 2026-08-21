@@ -36,6 +36,7 @@ export function LazyMount({
     if (!el) return;
     // Fallback for browsers without IntersectionObserver (very rare).
     if (typeof IntersectionObserver === "undefined") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- no-IO fallback mounts immediately
       setVisible(true);
       return;
     }

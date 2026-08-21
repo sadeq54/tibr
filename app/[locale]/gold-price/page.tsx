@@ -27,8 +27,8 @@ const TITLE = {
 } as const;
 
 const INTRO = {
-  en: "Live 24K, 21K, 18K and 14K gold prices in local currency for every country we cover, grouped by region. Pick a country for per-gram and per-ounce rates updated in real time.",
-  ar: "أسعار الذهب الحية لعيارات 24 و21 و18 و14 بالعملة المحلية لكل دولة نغطيها، مرتبة حسب المنطقة. اختر دولة لعرض الأسعار للجرام وللأونصة محدّثة لحظيًا.",
+  en: "Live 24K, 22K, 21K, 18K and 14K gold prices in local currency for every country we cover, grouped by region. Pick a country for per-gram and per-ounce rates updated in real time.",
+  ar: "أسعار الذهب الحية لعيارات 24 و22 و21 و18 و14 بالعملة المحلية لكل دولة نغطيها، مرتبة حسب المنطقة. اختر دولة لعرض الأسعار للجرام وللأونصة محدّثة لحظيًا.",
 } as const;
 
 export async function generateMetadata({

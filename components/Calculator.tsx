@@ -12,6 +12,7 @@ import type { FxRates } from "@/lib/fx";
 const OZ_TO_GRAM = 31.1034768;
 const PURITY: Record<string, number> = {
   price_gram_24k: 1.0,
+  price_gram_22k: 0.9167,
   price_gram_21k: 0.875,
   price_gram_18k: 0.75,
   price_gram_14k: 0.583,
@@ -19,6 +20,7 @@ const PURITY: Record<string, number> = {
 
 const KARATS = [
   { key: "24K", field: "price_gram_24k" as const },
+  { key: "22K", field: "price_gram_22k" as const },
   { key: "21K", field: "price_gram_21k" as const },
   { key: "18K", field: "price_gram_18k" as const },
   { key: "14K", field: "price_gram_14k" as const },

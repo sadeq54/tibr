@@ -678,6 +678,41 @@ Add via GTM dashboard (zero code changes):
 
 ---
 
+## 2026-08-21 — SERP-pattern batch (query-leading titles, live price + date, 22K, PriceTable)
+
+Driven by crawling the pages that hold #1-#3 for "سعر الذهب اليوم في {الأردن|السعودية|مصر}" and UAE queries (gold-price-today.com, livepriceofgold.com, goldrateinksa.com, saudi-gold.com, masrawy.com/gold, goldbullioneg.com, dubaicityofgold.com). Shared traits: title opens with the exact query + "اليوم", carries today's date and/or the live per-gram price, lists 22K, shows buy/sell, uses real <table>s, 750-1700 words, rich JSON-LD (ItemList/Dataset/ExchangeRateSpecification).
+
+- `lib/seo.ts` (new): `priceTitle()` / `priceDescription()` build query-leading titles with live per-gram price + date ("سعر الذهب اليوم في الأردن عيار 21: 83.92 دينار أردني للجرام | 21 أغسطس 2026"); locale currency names via `Intl.DisplayNames`; canonical karat table incl. 22K; tola / gold-pound market sets.
+- Country×karat and global karat pages: `generateMetadata` now awaits `getCachedSpot`/`getCachedFxRates` (5-min revalidate) to emit the live title/description; static fallback when upstream is down.
+- `messages/*.json`: CountryPage / KaratPage / Page titles, H1s and intros rewritten to lead with "سعر الذهب اليوم في {country}"; removed stale "FOREXCOM XAUUSD via goldapi.io" and "static FX rates" copy (site uses Binance/Coinbase/Kraken PAXG median + hourly FX).
+- `components/PriceTable.tsx` (new): semantic table of 24/22/21/18/14K × gram (bid/ask) / ounce / kilo (+ tola in Gulf & South Asia, gold pound for Egypt), with `<time>` stamp from the spot snapshot. Inserted directly under HeroSpot on both templates.
+- **22K added site-wide**: routes `/gold-price/22k` + `/{country}/gold-price/22k` (+94 URLs), KaratSwitcher, KaratGrid, HeroBoard rail, Header nav, Calculator, OG image, JSON-LD Product, llms.txt, sitemap.
+- `app/sitemap.ts`: live-price (hourly) routes now emit `lastmod` = current UTC day (content changes materially daily); editorial routes keep git-derived dates.
+- `components/JsonLd.tsx`: `dateModified` + `speakable` on WebPage, `ExchangeRateSpecification` for localized offers, 22K Product, updated FAQ copy.
+- Country FAQ VAT facts extended: Bahrain 10%, Kuwait 0%, Qatar 0% (+5% customs), UK 20% (investment gold exempt).
+- Page order on both templates: H1 → live price → PriceTable → karat cards → own chart → ads → bid/ask → TradingView → calculator → notes/FAQ.
+
+Follow-up from the live schema / GEO / SXO audits (same day):
+- `proxy.ts`: `x-pathname` was set on the *response* only, so `headers().get("x-pathname")` was always empty in Server Components. Now forwarded on the request via Next's `x-middleware-override-headers` / `x-middleware-request-*` protocol. Fixes: Header country-aware karat nav, FooterGate/AnalyticsGate on `/embed/*`, and the layout JSON-LD describing the homepage on every page.
+- `components/JsonLd.tsx`: per-karat `Product` (+`availability: InStock`, sku/mpn/brand) → `FinancialProduct` (nothing is for sale; misleading price markup risk). `ONZ` (avoirdupois) → `unitText: "troy ounce"`. `speakable` only on `ItemPage`. Site-wide FAQPage gets `inLanguage: "en"`. New `globalOnly` prop: layout emits Organization/WebSite/Service/FAQ only — pages own their `#webpage`/breadcrumb nodes (no duplicate `@id`s).
+- `app/[locale]/news/[slug]/page.tsx`: `mainEntityOfPage` now points at `${url}#webpage`.
+- `app/[locale]/loading.tsx`: loading label moved from a text node to `aria-label` (the PPR shell made "Loading live gold data…" the first paragraph on every page for non-JS crawlers).
+- Messages: removed the last "FOREXCOM XAUUSD via goldapi.io" / "Stooq" claims from Page.intro, SubPage.spotGoldIntro/sgeIntro and Faq items 0 + 3 (they contradicted /methodology).
+- llms.txt: added /methodology, /about/sadeq, /editorial-standards.
+- Not done (needs owner): Organization `sameAs` social/entity profiles; city-level pages; thicker /spot-gold; `/research` returns 404 in production until this build is deployed.
+
+## 2026-08-21 — goldprice.org parity batch (chart assets, 26-year history, currency table)
+
+Crawled goldprice.org (Drupal, 23 hreflang languages incl. Arabic, 3-6k words + 180-280 internal links per page, **no JSON-LD**, H1 = logo text). Its durable assets: static chart PNGs per currency/period embedded across the web (backlinks), a 30-year history page, country pages, author pages, apps, newsletter capture. Built the code-side equivalents, better:
+
+- `app/charts/gold/[currency]/[range]/route.tsx`: branded PNG chart endpoint (`/charts/gold/sar/1y?lang=ar&unit=g`), ranges 1m/3m/1y/5y/10y/max, any covered currency, Satori-rendered from cached history + FX, `Cache-Control` 1h + SWR. `components/ChartImage.tsx` embeds it on price pages with an "embed this chart" snippet that links back to the hosting page (attribution = backlink engine).
+- `lib/history.ts`: ranges `10y` + `max` (GC=F since 2000), longer timeout for big payloads.
+- `/historical-gold-prices` hub (new): yearly open/close/high/low/change table 2000-2026 with Dataset schema + max-range chart; year pages extended from 3 to 27 (`2000..2026`, older years served from the `max` series). Nav/footer/switcher "historical" links now point at the hub.
+- `components/CurrencyTable.tsx`: 24/22/21/18K per gram (+24K oz) in 16 major currencies, each row linking to its country page — on home, karat and country pages (own currency excluded).
+- `proxy.ts` matcher excludes `/charts` so image routes bypass locale routing; sitemap tiers history years (current daily, last 5y monthly, older yearly); llms.txt documents the free JSON + chart image endpoints.
+- Messages: `KaratGrid.purity.22K` added (was a runtime MISSING_MESSAGE after 22K rollout).
+- Build: 866 pages. Still owner-side: more languages (goldprice.org has 23), newsletter/price alerts, app listings.
+
 ## Outstanding (from `sadeqblocker.md`)
 
 1. **Rotate exposed API keys** — `GOLDAPI_KEY` and `NEWSDATA_KEY` (deferred by user)

@@ -1,23 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0a0a0a;
-  --color-bg-card: #111111;
-  --color-bg-card-hover: #161616;
-  --color-border: #1f1f1f;
-  --color-border-strong: #2a2a2a;
-  --color-text: #ededed;
-  --color-text-muted: #b5b5b5;
-  --color-text-dim: #9a9a9a;
-  --color-gold: #f5c518;
-  --color-gold-soft: #d4a82a;
+  /* Brand typography — variables injected by next/font in app/[locale]/layout.tsx.
+     Geist carries Latin + digits; IBM Plex Sans Arabic catches Arabic glyphs. */
+  --font-sans: var(--font-geist), var(--font-arabic), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* Dark theme (default) — warm charcoal neutrals + champagne gold.
+     Token NAMES are load-bearing across every component; values only. */
+  --color-bg: #0b0a08;
+  --color-bg-card: #14120d;
+  --color-bg-card-hover: #1a1811;
+  --color-border: #262217;
+  --color-border-strong: #3a3424;
+  --color-text: #f4efe4;
+  --color-text-muted: #b9b2a1;
+  --color-text-dim: #8f8875;
+  --color-gold: #e2b54e;
+  --color-gold-soft: #c9a24b;
   --color-up: #22c55e;
   --color-down: #ef4444;
   --color-live: #22c55e;
-  --color-accent: #2a3a18;
-  --color-grid: #1f1f1f;
-  --color-tooltip-bg: #0a0a0a;
-  --color-axis: #8a8a8a;
+  --color-accent: #2b2310;
+  --color-grid: #262217;
+  --color-tooltip-bg: #0b0a08;
+  --color-axis: #8f8875;
 }
 
 :root,
@@ -27,22 +34,22 @@ html.dark {
 
 html.light {
   color-scheme: light;
-  --color-bg: #f6f4ee;
-  --color-bg-card: #ffffff;
-  --color-bg-card-hover: #fbf8ef;
-  --color-border: #e8e2d2;
-  --color-border-strong: #d4cbb4;
-  --color-text: #1a1814;
-  --color-text-muted: #4a4338;
-  --color-text-dim: #6a624e;
-  --color-gold: #b8860b;
-  --color-gold-soft: #d4a82a;
+  --color-bg: #f7f5ef;
+  --color-bg-card: #fffdf8;
+  --color-bg-card-hover: #faf6ea;
+  --color-border: #e7e1d2;
+  --color-border-strong: #d3cab2;
+  --color-text: #211d13;
+  --color-text-muted: #4c4636;
+  --color-text-dim: #6e6650;
+  --color-gold: #8a6716;
+  --color-gold-soft: #b8912e;
   --color-up: #15803d;
   --color-down: #b91c1c;
   --color-live: #15803d;
-  --color-accent: #fdf6df;
-  --color-grid: #e8e2d2;
-  --color-tooltip-bg: #ffffff;
+  --color-accent: #f7efd8;
+  --color-grid: #e7e1d2;
+  --color-tooltip-bg: #fffdf8;
   --color-axis: #5a5347;
 }
 
@@ -59,8 +66,23 @@ html, body {
   padding: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-gold) 30%, transparent);
+}
+
+:where(a, button, [role="button"], input, select, textarea, summary):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-gold) 75%, transparent);
+  outline-offset: 2px;
+}
+
+/* Every numeric readout aligns column-perfect. */
+.num {
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 *,
@@ -83,8 +105,26 @@ html, body {
 
 html:not(.light) .hero-spot-bg {
   background:
-    radial-gradient(120% 120% at 0% 0%, rgba(245, 197, 24, 0.12) 0%, rgba(10, 10, 10, 1) 60%),
-    #0a0a0a;
+    radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--color-gold) 12%, transparent) 0%, var(--color-bg) 60%),
+    var(--color-bg);
+}
+
+/* Unified hero board: dual ambient gold wash over card surface. */
+.hero-board-bg {
+  background:
+    radial-gradient(90% 130% at 85% -20%, color-mix(in srgb, var(--color-gold) 15%, transparent) 0%, transparent 55%),
+    radial-gradient(70% 100% at 0% 110%, color-mix(in srgb, var(--color-gold) 7%, transparent) 0%, transparent 50%),
+    var(--color-bg-card);
+}
+
+/* Faint blueprint grid, fades toward the bottom — texture without noise. */
+.hero-grid-overlay {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-text) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-text) 5%, transparent) 1px, transparent 1px);
+  background-size: 36px 36px;
+  -webkit-mask-image: radial-gradient(90% 90% at 50% 0%, black, transparent 78%);
+  mask-image: radial-gradient(90% 90% at 50% 0%, black, transparent 78%);
 }
 
 .affiliate-bg {
@@ -97,7 +137,12 @@ html:not(.light) .hero-spot-bg {
 }
 
 html:not(.light) .affiliate-bg {
-  background: linear-gradient(to right, #1a1408, #221a0c, #1a1408);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-gold) 9%, var(--color-bg)),
+    color-mix(in srgb, var(--color-gold) 14%, var(--color-bg)),
+    color-mix(in srgb, var(--color-gold) 9%, var(--color-bg))
+  );
 }
 
 .hover-gold-card {
@@ -449,8 +494,8 @@ html.light .glass-header {
 
 html:not(.light) .faq-support-bg {
   background:
-    radial-gradient(80% 80% at 100% 100%, rgba(245, 197, 24, 0.18) 0%, transparent 60%),
-    #111111;
+    radial-gradient(80% 80% at 100% 100%, color-mix(in srgb, var(--color-gold) 16%, transparent) 0%, transparent 60%),
+    var(--color-bg-card);
 }
 
 .faq-item {

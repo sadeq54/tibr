@@ -26,6 +26,7 @@ const BODY = `# Gold Prices Arabia
 
 - [Home / Live gold price](${SITE_URL}/en): Hero with live XAU/USD spot, all-metal strip, calculator
 - [24K gold price](${SITE_URL}/en/gold-price/24k): 99.9% purity, per gram + per oz, 4 fiat currencies
+- [22K gold price](${SITE_URL}/en/gold-price/22k): 91.7% purity, Gulf + South Asia jewellery standard
 - [21K gold price](${SITE_URL}/en/gold-price/21k): 87.5% purity, dominant MENA karat
 - [18K gold price](${SITE_URL}/en/gold-price/18k): 75% purity
 - [14K gold price](${SITE_URL}/en/gold-price/14k): 58.3% purity
@@ -35,7 +36,8 @@ const BODY = `# Gold Prices Arabia
 - [Gold price per gram](${SITE_URL}/en/gold-price-per-gram)
 - [Gold price per ounce](${SITE_URL}/en/gold-price-per-ounce)
 - [Gold price per kilo](${SITE_URL}/en/gold-price-per-kilo)
-- [Historical gold prices 2024–2026](${SITE_URL}/en/historical-gold-prices/2026)
+- [Gold price history 2000–2026](${SITE_URL}/en/historical-gold-prices): yearly open/close/high/low table + per-year pages since 2000
+- [Historical gold prices 2026](${SITE_URL}/en/historical-gold-prices/2026)
 - [Gold–silver ratio](${SITE_URL}/en/gold-silver-ratio)
 - [Shanghai Gold Exchange](${SITE_URL}/en/shanghai-gold-exchange)
 - [Gold calculator](${SITE_URL}/en/gold-calculator)
@@ -44,11 +46,20 @@ const BODY = `# Gold Prices Arabia
 - [Precious metals](${SITE_URL}/en/precious-metals): Gold, silver, platinum, palladium
 - [Cryptocurrency prices](${SITE_URL}/en/cryptocurrency): BTC, ETH, USDT, BNB, XRP, USDC, SOL, TRX, DOGE
 - [News](${SITE_URL}/en/news): Gold-market news feed
+- [Research](${SITE_URL}/en/research): Daily digest of the most-cited peer-reviewed studies on gold (inflation hedge, safe haven, price drivers, portfolio allocation) aggregated from arXiv, OpenAlex, Crossref and Semantic Scholar
 - [Widgets](${SITE_URL}/en/widgets): Embeddable price widgets
+- [Methodology](${SITE_URL}/en/methodology): Exactly how every price is computed (sources, formulas, update cadence, limitations)
+- [Founder / author](${SITE_URL}/en/about/sadeq): Sadeq Sayed Ahmad, who builds and reviews the site
+- [Editorial standards](${SITE_URL}/en/editorial-standards): Corrections, sourcing and independence policy
 
 ## Country pages (Arabic + English)
 
 Gold prices localised by country and karat at \`${SITE_URL}/{country-slug}/gold-price/{karat}\`. Coverage: Saudi Arabia, Jordan, UAE, Egypt, Qatar, Kuwait, Bahrain, USA, UK, Canada, Australia, Singapore, Switzerland, Japan, China, India, Pakistan, Turkey, Indonesia, Malaysia, Thailand, Vietnam, Philippines, Russia, Brazil, Mexico, Argentina, Colombia, Nigeria, South Korea, Hong Kong, Macau, Sweden, Norway, Denmark, Hungary, Myanmar, New Zealand, North Macedonia, Lebanon, Libya, Serbia, South Africa, and others — 46 countries total.
+
+## Free data & media
+
+- JSON spot + daily history: \`${SITE_URL}/api/spot?symbol=XAU&year=2026\` (CORS-open, no key)
+- Chart images (PNG, 1200x630, branded, embeddable with attribution): \`${SITE_URL}/charts/gold/{currency}/{range}?lang={ar|en}&unit={oz|g}\` — range in 1m, 3m, 1y, 5y, 10y, max; currency any ISO code we cover (e.g. ${SITE_URL}/charts/gold/sar/1y?lang=ar)
 
 ## Sitemap
 

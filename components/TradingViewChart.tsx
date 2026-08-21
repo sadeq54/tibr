@@ -184,7 +184,7 @@ export function TradingViewChart({
           theme,
           style: "1",
           locale: locale === "ar" ? "ar_AE" : "en",
-          toolbar_bg: theme === "dark" ? "#0a0a0a" : "#f6f4ee",
+          toolbar_bg: theme === "dark" ? "#0b0a08" : "#f7f5ef",
           enable_publishing: false,
           allow_symbol_change: true,
           container_id: containerId.current,

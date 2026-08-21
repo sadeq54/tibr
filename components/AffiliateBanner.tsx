@@ -40,6 +40,7 @@ export function AffiliateBanner() {
   const [paused, setPaused] = useState(false);
 
   // Reset to the first banner whenever the locale (banner set) changes.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setI(0), [banners]);
 
   useEffect(() => {

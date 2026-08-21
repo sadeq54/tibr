@@ -106,7 +106,10 @@ export async function Footer() {
           <div className="space-y-6">
             <FooterColumn
               title={t("newsHeading")}
-              links={[{ label: t("newsLink"), href: "/news" }]}
+              links={[
+                { label: t("newsLink"), href: "/news" },
+                { label: locale === "ar" ? "أبحاث الذهب الأكاديمية" : "Academic gold research", href: "/research" },
+              ]}
             />
             <FooterColumn
               title={t("chartsHeading")}
@@ -117,7 +120,7 @@ export async function Footer() {
                 { label: t("perOz"), href: "/gold-price-per-ounce" },
                 { label: t("perGram"), href: "/gold-price-per-gram" },
                 { label: t("perKilo"), href: "/gold-price-per-kilo" },
-                { label: t("history"), href: "/historical-gold-prices/2026" },
+                { label: t("history"), href: "/historical-gold-prices" },
                 { label: t("goldSilverRatio"), href: "/gold-silver-ratio" },
                 { label: t("sge"), href: "/shanghai-gold-exchange" },
                 { label: t("calculator"), href: "/gold-calculator" },

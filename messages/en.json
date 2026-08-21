@@ -13,10 +13,10 @@
     "switchEn": "English"
   },
   "Page": {
-    "title": "Live Gold Prices Today — USD, JOD, SAR, AED, EGP",
-    "description": "Live gold, silver, platinum & palladium prices in USD, SAR, AED, EGP, JOD + 40 currencies. 24K/21K/18K/14K. Updated every second.",
-    "h1": "Live Gold & Precious Metals",
-    "intro": "Gold Prices Arabia — live spot prices for gold, silver, platinum and palladium across MENA and worldwide. 46 countries, every karat, every minute. Refreshed from FOREXCOM.",
+    "title": "Gold Price Today Live | Per Gram & Ounce in USD, SAR, JOD, AED, EGP",
+    "description": "Live gold prices today for 24K, 22K, 21K, 18K and 14K in USD, SAR, JOD, AED, EGP and 40+ currencies, plus silver and platinum. Streamed every second from three global exchanges.",
+    "h1": "Gold Price Today, Live",
+    "intro": "Gold Prices Arabia: live spot prices for gold, silver, platinum and palladium across 46 countries and 40+ currencies. Gold is a live median of Binance, Coinbase and Kraken (PAXG/USD) refreshed roughly every second, with hourly FX rates.",
     "aboutH2": "About Gold Prices Arabia — Live Gold for MENA",
     "aboutP1": "<b>Gold Prices Arabia</b> brings live precious-metal pricing to the Arab world and beyond: pure spot data, no markups, no fluff. From Saudi to Egypt to global markets — straight from the source.",
     "aboutP2": "Gold Prices Arabia surfaces live spot prices for gold (XAU), silver (XAG), platinum (XPT) and palladium (XPD) alongside karat-derived rates (24K, 21K, 18K, 14K) — the four most-traded karats in Arab jewellery markets.",
@@ -34,10 +34,10 @@
     "footer": "© {year} Gold Prices Arabia · Live gold from the source · Prices for informational purposes only · goldpricesarabia.com · Powered by <kormzi>Kormzi</kormzi>"
   },
   "KaratPage": {
-    "title": "{karat} Gold Price Today",
-    "description": "Live {karat} gold price per gram and per troy ounce in USD, JOD, SAR, AED, EGP. Updated every minute on Gold Prices Arabia.",
+    "title": "{karat} Gold Price Today | Per Gram & Ounce in USD, SAR, JOD, AED",
+    "description": "{karat} gold price today per gram, ounce and kilo in USD, Saudi Riyal, Jordanian Dinar, UAE Dirham and Egyptian Pound, with bid/ask. Streamed live from three exchanges.",
     "h1": "{karat} Gold Price Today",
-    "intro": "Live spot price of {karat} gold derived from FOREXCOM XAUUSD. Refreshed every minute on Gold Prices Arabia.",
+    "intro": "Today's {karat} gold price, derived from the global spot (live median of Binance, Coinbase and Kraken via PAXG/USD) and converted to 40+ currencies at an hourly FX rate.",
     "backHome": "← Back to all karats"
   },
   "GoldPriceHub": {
@@ -45,11 +45,11 @@
     "intro": "Live 24K, 21K, 18K and 14K gold prices in local currency for every country we cover, grouped by region. Pick a country for per-gram and per-ounce rates updated in real time."
   },
   "CountryPage": {
-    "title": "{karat} Gold Price in {country}",
-    "description": "Live {karat} gold price in {country} ({currency}) per gram and per troy ounce. Updated every minute on Gold Prices Arabia.",
-    "h1": "{karat} Gold Price in {country}",
-    "intro": "Live {karat} gold price for {country} markets in {currency}, derived from the FOREXCOM XAUUSD spot — Gold Prices Arabia.",
-    "currencyNote": "All prices shown in {currency}. Conversion uses static FX rates — verify with your bank before any transaction."
+    "title": "Gold Price Today in {country} ({karat}) | Live in {currency}",
+    "description": "Gold price today in {country} for {karat} in {currency}: per gram, ounce and kilo with bid/ask, plus 24K, 22K, 21K and 18K. Streamed live from Binance, Coinbase and Kraken.",
+    "h1": "Gold Price Today in {country} ({karat})",
+    "intro": "Today's {karat} gold price in {country} in {currency}: the global spot ounce (live median of Binance, Coinbase and Kraken via PAXG/USD) converted to {currency} at an hourly FX rate, divided by 31.1035 g and scaled by purity.",
+    "currencyNote": "All prices in {currency}. FX refreshes hourly from open data; the figure shown is the spot price before making charges and tax."
   },
   "HistoricalPage": {
     "title": "Historical Gold Prices · {year}",
@@ -109,6 +109,7 @@
     "karatGold": "{karat} Gold",
     "purity": {
       "24K": "100% Pure",
+      "22K": "91.7% Pure",
       "21K": "87.5% Pure",
       "18K": "75% Pure",
       "14K": "58.3% Pure"
@@ -132,6 +133,7 @@
     },
     "karatLabels": {
       "24K": "24K (Pure)",
+      "22K": "22K (91.7%)",
       "21K": "21K (87.5%)",
       "18K": "18K (75%)",
       "14K": "14K (58.3%)"
@@ -283,7 +285,7 @@
   },
   "SubPage": {
     "spotGoldH1": "Spot Gold Price (XAU/SAR Live)",
-    "spotGoldIntro": "Live spot gold (XAU/USD) converted to Saudi Riyal and 40+ regional currencies. Median across Binance, Coinbase and Kraken via PAXG/USD — updated every second.",
+    "spotGoldIntro": "Live spot gold (XAU/USD): a real-time median of Binance, Coinbase and Kraken via PAXG/USD, refreshed roughly every second.",
     "livePriceH1": "Live Gold Price MENA (Real-Time XAU)",
     "livePriceIntro": "Live gold price across the MENA region in Saudi Riyal, UAE Dirham, Egyptian Pound, Jordanian Dinar and 40+ currencies. Real-time WebSocket median from Binance, Coinbase and Kraken.",
     "priceChartH1": "Gold Price Chart",
@@ -298,7 +300,7 @@
     "ratioIntro": "Live ratio of gold to silver — how many ounces of silver equal one ounce of gold. Historical mean ~50–60.",
     "ratioCurrent": "Current ratio",
     "sgeH1": "Shanghai Gold Exchange Gold Price",
-    "sgeIntro": "Live gold price in Chinese Yuan (CNY) — derived from FOREXCOM XAU/USD via live FX rates. SGE proxy.",
+    "sgeIntro": "Live gold price in Chinese Yuan (CNY): derived from spot XAU/USD (median of Binance, Coinbase and Kraken) via hourly FX rates. A proxy for the Shanghai Gold Exchange.",
     "calcH1": "Gold Price Calculator",
     "calcIntro": "Calculate the value of any gold weight (gram, ounce, kilogram) in any karat and any currency.",
     "widgetsH1": "Gold Price Charts For Websites",
@@ -361,7 +363,7 @@
     "items": [
       {
         "q": "How often does Gold Prices Arabia update gold prices?",
-        "a": "Live spot prices refresh every minute from the FOREXCOM XAUUSD feed via goldapi.io. Pages cache for 60 seconds at the edge so visitors always see fresh data without overloading the upstream API."
+        "a": "The spot gold price refreshes roughly every second via WebSocket from Binance, Coinbase and Kraken (the PAXG/USD pair, backed 1:1 by physical gold bars), taking the median of the three to prevent skew. Silver, platinum and palladium update every minute; FX rates every hour."
       },
       {
         "q": "Which karats can I track?",
@@ -373,7 +375,7 @@
       },
       {
         "q": "Where do the prices come from?",
-        "a": "Spot price is sourced from goldapi.io, which aggregates the FOREXCOM:XAUUSD feed. Karat prices are derived from the spot using the standard purity ratios published by the World Gold Council."
+        "a": "The spot price is the live median of Binance, Coinbase and Kraken quotes for PAXG/USD. Karat prices are derived from spot by dividing by 31.1035 grams and multiplying by the standard purity ratio (24K 99.9%, 22K 91.7%, 21K 87.5%, 18K 75%, 14K 58.3%)."
       },
       {
         "q": "Is Gold Prices Arabia free?",

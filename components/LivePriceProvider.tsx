@@ -104,6 +104,7 @@ export function LivePriceProvider({ children }: { children: React.ReactNode }) {
   // real live values take over.
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration gate by design (see above)
     setHydrated(true);
   }, []);
 
