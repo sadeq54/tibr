@@ -32,10 +32,13 @@ import { SeoStaticHeader } from "@/components/SeoStaticHeader";
 import { fetchFxRates, type FxRates } from "@/lib/fx";
 import { fetchSpot, type GoldApiResponse } from "@/lib/goldapi";
 import { fetchAllHistory, type MetalHistory } from "@/lib/history";
+import { pick } from "@/lib/i18n-text";
+import { karatLabel } from "@/lib/karat-label";
 import { buildAlternates, canonicalPath, SITE_URL, buildOpenGraph } from "@/lib/metadata";
 import { faqPageSchema } from "@/lib/schemas";
 import { getCachedSpot } from "@/lib/cached-fetchers";
 import { gramUsd, priceDescription, priceTitle, spotDate } from "@/lib/seo";
+import { HOME_LABEL, karatCrumbName, karatFaqs, RELATED_HEADING, relatedLinks } from "./karat.i18n";
 
 const KARAT_PURITY: Record<string, string> = {
   "24K": "99.9%",
@@ -180,9 +183,10 @@ export default async function KaratPage({
 
   const t = await getTranslations("KaratPage");
   const upper = karat.toUpperCase();
-  // Arabic convention is "عيار 21" (no K suffix); English keeps "21K".
-  const kAr = upper.replace("K", "");
-  const kLabel = locale === "ar" ? kAr : upper;
+  // `KaratPage.h1` in messages/ar.json already contains "عيار", so Arabic
+  // interpolates the bare numeral ("21"); every other locale gets the full
+  // label from karatLabel ("21K", "21 carats", "21 ayar", "21 قیراط", "21 कैरेट").
+  const kLabel = locale === "ar" ? upper.replace("K", "") : karatLabel(locale, karat);
 
   const spotPromise = fetchSpot("XAU");
   const fxPromise = fetchFxRates();
@@ -193,53 +197,13 @@ export default async function KaratPage({
   const pageUrl = canonicalPath(locale, `/gold-price/${karat}`);
   const purity = KARAT_PURITY[upper] ?? "";
 
-  const karatFaqs = locale === "ar"
-    ? [
-        {
-          q: `ما هو الذهب عيار ${kAr}؟`,
-          a: `الذهب عيار ${kAr} يعني نقاء الذهب ${purity}. الباقي معادن صلابة (نحاس، فضة، أو زنك) تجعل القطعة أقوى للمجوهرات اليومية. ${upper === "24K" ? "يستخدم بشكل رئيسي للسبائك الاستثمارية." : upper === "22K" ? "العيار السائد في مجوهرات الإمارات والكويت والهند." : upper === "21K" ? "هو العيار الأكثر شيوعاً في المجوهرات الخليجية والشرق الأوسط." : upper === "18K" ? "يستخدم للمجوهرات الفاخرة في أوروبا والمجوهرات المرصعة." : "يستخدم في المجوهرات الأقل تكلفة والقابلة للارتداء يومياً."}`,
-        },
-        {
-          q: `كيف يُحسب سعر جرام الذهب عيار ${kAr}؟`,
-          a: `سعر الجرام = (السعر الفوري للأونصة بالدولار ÷ 31.1035) × نسبة النقاء (${purity}) × سعر صرف العملة. مثلاً، إذا كان السعر الفوري 4500$/أونصة وسعر الصرف 3.75 ريال/دولار، فإن سعر جرام ${upper} ≈ (4500/31.1035) × ${(parseFloat(purity)/100).toFixed(3)} × 3.75 = ${((4500/31.1035) * (parseFloat(purity)/100) * 3.75).toFixed(2)} ريال.`,
-        },
-        {
-          q: `ما الفرق بين عيار ${kAr} والعيارات الأخرى؟`,
-          a: `كل عيار له نسبة نقاء مختلفة: 24K=99.9%، 22K=91.7%، 21K=87.5%، 18K=75%، 14K=58.3%. كلما زادت النقاء، زاد السعر لنفس الوزن. عيار 21 هو الأكثر شيوعاً في المجوهرات الخليجية لتوازنه بين النقاء والصلابة والسعر.`,
-        },
-        {
-          q: `هل سعر عيار ${kAr} المعروض هنا يشمل المصنعية؟`,
-          a: `لا. السعر المعروض هو السعر الفوري للذهب الخام فقط (سعر السوق العالمي). تضيف محلات المجوهرات مصنعية (5-30 ريال/جرام للمجوهرات المعقدة)، وضريبة القيمة المضافة (15% في السعودية، 5% في الإمارات، صفر في مصر). راجع صفحة المنهجية للتفاصيل.`,
-        },
-        {
-          q: `كم مرة يتم تحديث سعر عيار ${kAr}؟`,
-          a: `يُحدّث السعر كل ثانية عبر WebSocket من Binance وCoinbase وKraken (متوسط من ثلاث بورصات لمنع الانحراف)، باستخدام رمز PAXG/USD المدعوم 1:1 بسبائك ذهب فيزيائية معتمدة من LBMA.`,
-        },
-      ]
-    : [
-        {
-          q: `What is ${upper} gold?`,
-          a: `${upper} gold means ${purity} pure gold. The remainder is hardening metals (typically copper, silver or zinc) that make the alloy strong enough for everyday jewellery. ${upper === "24K" ? "Used primarily for investment bullion bars." : upper === "22K" ? "The jewellery standard in the UAE, Kuwait and India." : upper === "21K" ? "The most popular karat across Gulf jewellery markets." : upper === "18K" ? "Common in European fine jewellery and gem-set pieces." : "Used in affordable everyday jewellery."}`,
-        },
-        {
-          q: `How is the ${upper} gold price per gram calculated?`,
-          a: `Per-gram price = (Spot price per troy ounce in USD / 31.1035) × purity ratio (${purity}) × local currency FX rate. For example, at a 4500 USD/oz spot and a 3.75 SAR/USD rate, ${upper} per gram in SAR is approximately (4500/31.1035) × ${(parseFloat(purity)/100).toFixed(3)} × 3.75 = ${((4500/31.1035) * (parseFloat(purity)/100) * 3.75).toFixed(2)} SAR.`,
-        },
-        {
-          q: `What is the difference between ${upper} and other karats?`,
-          a: `Each karat has a different purity ratio: 24K=99.9%, 22K=91.7%, 21K=87.5%, 18K=75%, 14K=58.3%. Higher purity equals higher price for the same weight. 21K is the most popular in Gulf jewellery for its balance of purity, hardness and price.`,
-        },
-        {
-          q: `Does the ${upper} price shown here include making charges?`,
-          a: `No. The displayed price is the spot-equivalent raw gold value only (world market price). Jewellery shops add making charges (typically 5-30 SAR/gram for complex pieces), and local VAT applies (Saudi: 15%, UAE: 5%, Egypt: none). See the methodology page for details.`,
-        },
-        {
-          q: `How often is the ${upper} price updated?`,
-          a: `The price updates every second via WebSocket aggregation from Binance, Coinbase and Kraken (median of three exchanges to prevent skew), using the PAXG/USD pair backed 1:1 by London Good Delivery gold bars.`,
-        },
-      ];
+  const faqs = karatFaqs({ locale, karat, upper, purity });
+  // `faqPageSchema` still types `language` as "ar" | "en"; the value is only
+  // forwarded to `inLanguage`, so the page locale is the right thing to pass.
+  const karatFaqSchema = faqPageSchema(pageUrl, faqs, locale as "ar" | "en");
 
-  const karatFaqSchema = faqPageSchema(pageUrl, karatFaqs, locale === "ar" ? "ar" : "en");
+  const homeCrumb = { name: pick(locale, HOME_LABEL), href: canonicalPath(locale, "/") };
+  const karatCrumb = { name: karatCrumbName(locale, karat, upper), href: pageUrl };
 
   return (
     <>
@@ -255,21 +219,15 @@ export default async function KaratPage({
         pageName={t("h1", { karat: kLabel })}
         pageOnly
         breadcrumb={[
-          { name: locale === "en" ? "Home" : "الرئيسية", url: locale === "en" ? "/en" : "/" },
-          { name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب عيار ${kAr}`, url: pageUrl },
+          { name: homeCrumb.name, url: homeCrumb.href },
+          { name: karatCrumb.name, url: karatCrumb.href },
         ]}
       />
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <Breadcrumb
           locale={locale}
-          items={[
-            { name: locale === "en" ? "Home" : "الرئيسية", href: locale === "en" ? "/en" : "/" },
-            {
-              name: locale === "en" ? `${upper} Gold Price` : `سعر الذهب عيار ${kAr}`,
-              href: pageUrl,
-            },
-          ]}
+          items={[homeCrumb, karatCrumb]}
         />
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <section className="min-w-0 space-y-8">
@@ -329,17 +287,7 @@ export default async function KaratPage({
             <StoresMarquee />
             <Faq />
 
-            <RelatedLinks
-              heading={locale === "ar" ? "صفحات ذات صلة" : "Related pages"}
-              items={[
-                { href: "/spot-gold", label: locale === "ar" ? "السعر الفوري XAU/USD" : "Spot Gold (XAU/USD)", note: locale === "ar" ? "السعر الحي بالأونصة" : "Live per troy ounce" },
-                { href: "/gold-price-per-gram", label: locale === "ar" ? "سعر الجرام" : "Price per gram", note: locale === "ar" ? "كل العيارات والعملات" : "All karats and currencies" },
-                { href: "/gold-calculator", label: locale === "ar" ? "حاسبة الذهب" : "Gold calculator", note: locale === "ar" ? "احسب قيمة قطعتك" : "Calculate any weight" },
-                { href: "/saudi-arabia/gold-price/21k", label: locale === "ar" ? "أسعار السعودية" : "Saudi Arabia prices", note: locale === "ar" ? "بالريال السعودي" : "In Saudi Riyal" },
-                { href: "/news/spot-gold-vs-retail-jeweller-spread", label: locale === "ar" ? "هامش الصائغ" : "Spot vs retail spread", note: locale === "ar" ? "أين يذهب الفارق" : "Where the markup goes" },
-                { href: "/methodology", label: locale === "ar" ? "المنهجية" : "Methodology", note: locale === "ar" ? "كيف نحسب الأسعار" : "How we calculate prices" },
-              ]}
-            />
+            <RelatedLinks heading={pick(locale, RELATED_HEADING)} items={relatedLinks(locale)} />
           </section>
           <Sidebar adClient={adsClient} />
         </div>

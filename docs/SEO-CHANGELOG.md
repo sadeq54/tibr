@@ -713,6 +713,30 @@ Crawled goldprice.org (Drupal, 23 hreflang languages incl. Arabic, 3-6k words + 
 - Messages: `KaratGrid.purity.22K` added (was a runtime MISSING_MESSAGE after 22K rollout).
 - Build: 866 pages. Still owner-side: more languages (goldprice.org has 23), newsletter/price alerts, app listings.
 
+## 2026-08-21 — Six languages, installable PWA, chart-embed gallery
+
+Closes the gaps left after the goldprice.org parity batch (languages, apps, authority engine), as far as code can.
+
+**Languages (ar, en → + fr, tr, ur, hi)**
+- `i18n/routing.ts`: 6 locales, `LOCALE_META` (native name, dir, OG locale, Intl tag with Latin digits, hreflang), `RTL_LOCALES` (ar, ur), `STATIC_LOCALES` (ar, en prerendered; the rest render on first request and cache — build stays at 877 pages instead of ~2,600).
+- `messages/fr|tr|ur|hi.json`: full native translations (387 keys each, placeholder/tag parity validated by script, Latin digits only). Titles/H1s mirror the Arabic query-leading pattern ("Bugün {country} Altın Fiyatı", "आज {country} में सोने का भाव", "آج {country} میں سونے کی قیمت", "Prix de l'or aujourd'hui — {country}").
+- `lib/i18n-text.ts` `pick(locale, {en, ar, fr, tr, ur, hi})`: the ~200 inline `locale === "ar" ? … : …` strings across pages/components were converted, with per-page `*.i18n.ts` siblings for FAQ blocks (keeps files < 500 lines). Long per-country editorial prose (`COUNTRY_NOTES`, `COUNTRY_FACTS`, buy-gold editorial, news bodies) stays ar/en with English fallback.
+- `lib/seo.ts` + `lib/seo-titles.ts`: live-price titles/descriptions in all 6 languages (e.g. "Bugün Türkiye altın fiyatı (22 ayar): 6,404.54 Türk lirası/gram | 21 Ağustos 2026"); `dateLabel`/`currencyName` via `Intl` per locale.
+- `lib/countries.ts` + `lib/country-names.ts`: `countryName()` uses `Intl.DisplayNames` (region) with overrides (EU/US/GB/AE/HK/MO); `sortedCountries(locale)`. `lib/karat-label.ts`: "21K" / "عيار 21" / "21 carats" / "21 ayar" / "21 قیراط" / "21 कैरेट".
+- `lib/metadata.ts`: `canonicalPath` prefixes every non-Arabic locale; `buildAlternates` emits 6 hreflang + `x-default` (Arabic); OG locale/alternateLocale per locale. `app/sitemap.ts`: 2,082 URLs (347 × 6). llms.txt documents the prefixes.
+- Fonts: Noto Sans Devanagari (next/font) for Hindi; IBM Plex Sans Arabic covers Urdu. OG images and `/charts/gold/*` PNGs render all 6 languages (`lib/og-font.ts` `loadFontsFor`, `rtlWords` for ar/ur, `public/fonts/DevanagariSemiBold.ttf`).
+- `components/LanguageSwitcher.tsx`: 6-language `<details>` menu (works without JS), mirrored in `MobileMenu`; `lib/static-messages.ts` gives the PPR static-shell headers sync access to every locale with English per-key fallback.
+
+**Email price alerts / daily digest** — built, then removed the same day at the owner's request (no mail provider wanted yet). Nothing of it ships; no forms, routes, scheduled functions or dependencies remain.
+
+**Installable PWA**
+- `public/sw.js` (network-first navigations with `/offline` fallback, SWR for static assets, never caches `/api`, `/charts`, `/embed`), `components/PwaRegister.tsx` (production only, never in iframes or previews), `components/InstallAppButton.tsx` (footer), `app/[locale]/offline`, manifest `id`/`display_override`/more shortcuts, `netlify.toml` no-cache header for `sw.js`.
+
+**Authority engine**
+- `components/ChartEmbedGallery.tsx` on `/widgets`: copy-paste chart PNG embeds for every currency × range × language, each wrapped in a dofollow, keyword-rich attribution link to the matching country page; "Free data for developers" section documents `/api/spot` and the chart route with the attribution requirement.
+
+Verified locally (`next start`): every new-locale route 200, `<html lang dir>` correct (ur = rtl), 7 hreflang entries, native titles, OG/chart PNGs inspected for ar/ur/hi/fr/tr. Build 877 pages, lint 0 errors.
+
 ## Outstanding (from `sadeqblocker.md`)
 
 1. **Rotate exposed API keys** — `GOLDAPI_KEY` and `NEWSDATA_KEY` (deferred by user)

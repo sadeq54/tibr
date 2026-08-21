@@ -2,6 +2,16 @@ import type { FxRates } from "@/lib/fx";
 import type { HistoricalPoint } from "@/lib/history";
 import { KARAT_DEFS, OZ_G, currencyName, dateLabel, fmtNum } from "@/lib/seo";
 
+import { karatLabel } from "@/lib/karat-label";
+
+import {
+  changeHeader,
+  recentCaption,
+  recentHeading,
+  recentRangeSentence,
+  tableText,
+} from "./tables.i18n";
+
 const DAYS = 7;
 const RANGE_DAYS = 30;
 
@@ -28,7 +38,6 @@ export function RecentPricesTable({
   karat: string;
   countryName?: string;
 }) {
-  const ar = locale === "ar";
   if (!history || history.length < 2) return null;
 
   const rawRate = currency === "USD" ? 1 : (fx?.[currency] as number | undefined);
@@ -64,15 +73,7 @@ export function RecentPricesTable({
   const hi = Math.max(...last30);
   const lo = Math.min(...last30);
   const frac = rate * (valid[valid.length - 1].close / OZ_G) > 500 ? 0 : 2;
-  const kAr = kDef.label.replace("K", "");
-
-  const heading = ar
-    ? countryName
-      ? `أسعار الذهب في ${countryName} خلال الأيام السابقة`
-      : "أسعار الذهب خلال الأيام السابقة"
-    : countryName
-      ? `Gold price in ${countryName}, previous days`
-      : "Gold price, previous days";
+  const heading = recentHeading(locale, countryName);
 
   const th = "px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]";
   const td = "num px-3 py-2.5 font-mono text-sm";
@@ -83,28 +84,29 @@ export function RecentPricesTable({
         {heading}
       </h2>
       <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-        {ar
-          ? `أعلى سعر لجرام عيار ${kAr} خلال 30 يومًا: ${fmtNum(hi, frac)} ${cur}، وأدنى سعر: ${fmtNum(lo, frac)} ${cur} (سعر الإغلاق اليومي).`
-          : `30-day high for ${kDef.label} per gram: ${cur} ${fmtNum(hi, frac)}; 30-day low: ${cur} ${fmtNum(lo, frac)} (daily close).`}
+        {recentRangeSentence(locale, {
+          label: kDef.label,
+          cur,
+          hi: fmtNum(hi, frac),
+          lo: fmtNum(lo, frac),
+        })}
       </p>
 
       <div className="mt-3 overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
         <table className="w-full min-w-[520px] border-collapse">
           <caption className="sr-only">
-            {ar
-              ? `سعر إغلاق جرام الذهب بـ${cur} لآخر ${DAYS} أيام تداول حسب العيار`
-              : `Daily closing gold price per gram in ${cur} for the last ${DAYS} trading days by karat`}
+            {recentCaption(locale, cur, DAYS)}
           </caption>
           <thead className="border-b border-[var(--color-border)]">
             <tr>
-              <th scope="col" className={`${th} text-start`}>{ar ? "التاريخ" : "Date"}</th>
+              <th scope="col" className={`${th} text-start`}>{tableText(locale, "date")}</th>
               {cols.map((k) => (
                 <th key={k.key} scope="col" className={`${th} text-end`}>
-                  {ar ? `عيار ${k.label.replace("K", "")}` : k.label}
+                  {karatLabel(locale, k.label)}
                 </th>
               ))}
               <th scope="col" className={`${th} text-end`}>
-                {ar ? `التغير (${kAr})` : `Change (${kDef.label})`}
+                {changeHeader(locale, kDef.label)}
               </th>
             </tr>
           </thead>
@@ -145,9 +147,7 @@ export function RecentPricesTable({
         </table>
       </div>
       <p className="mt-2 text-xs text-[var(--color-text-dim)]">
-        {ar
-          ? "سعر الإغلاق اليومي لعقود COMEX الآجلة محوّلًا إلى سعر الجرام بنفس معادلة النقاء وسعر الصرف المستخدمة في الجدول المباشر."
-          : "Daily COMEX futures close converted to a per-gram price with the same purity and FX formula as the live table."}
+        {tableText(locale, "recentFootnote")}
       </p>
     </section>
   );

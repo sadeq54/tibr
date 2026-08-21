@@ -1,11 +1,13 @@
 import { Suspense } from "react";
-import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Flag } from "@/components/Flag";
 import { PageShell } from "@/components/PageShell";
 import { Link } from "@/i18n/navigation";
+import { localeMeta } from "@/i18n/routing";
 import { getCachedFxRates, getCachedSpot } from "@/lib/cached-fetchers";
-import { COUNTRIES, countryName } from "@/lib/countries";
+import { countryName, sortedCountries } from "@/lib/countries";
+import { pick } from "@/lib/i18n-text";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
@@ -22,6 +24,13 @@ export async function generateMetadata({
   };
 }
 
+const TH = {
+  country: { en: "Country", ar: "الدولة", fr: "Pays", tr: "Ülke", ur: "ملک", hi: "देश" },
+  currency: { en: "Currency", ar: "العملة", fr: "Devise", tr: "Para birimi", ur: "کرنسی", hi: "मुद्रा" },
+  perGram: { en: "Per gram", ar: "للجرام", fr: "Par gramme", tr: "Gram başına", ur: "فی گرام", hi: "प्रति ग्राम" },
+  perOz: { en: "Per oz", ar: "للأونصة", fr: "Par once", tr: "Ons başına", ur: "فی اونس", hi: "प्रति औंस" },
+};
+
 export default async function BestGoldPricePage({
   params,
 }: {
@@ -29,21 +38,16 @@ export default async function BestGoldPricePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("SubPage");
+  const intl = localeMeta(locale).intl;
 
   const [spot, fx] = await Promise.all([getCachedSpot("XAU"), getCachedFxRates()]);
-  const lang = await getLocale();
 
-  const rows = COUNTRIES.map((c) => {
+  const rows = sortedCountries(locale).map((c) => {
     const rate = (fx[c.currency] as number | undefined) ?? 1;
     const perGram = (spot?.price_gram_24k ?? 0) * rate;
     const perOz = (spot?.price ?? 0) * rate;
     return { country: c, perGram, perOz };
-  }).sort((a, b) =>
-    lang === "ar"
-      ? a.country.name_ar.localeCompare(b.country.name_ar, "ar")
-      : a.country.name_en.localeCompare(b.country.name_en),
-  );
+  });
 
   return (
     <PageShell
@@ -59,16 +63,16 @@ export default async function BestGoldPricePage({
             <thead>
               <tr className="border-b border-[var(--color-border)] text-left">
                 <th className="py-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
-                  {lang === "ar" ? "الدولة" : "Country"}
+                  {pick(locale, TH.country)}
                 </th>
                 <th className="py-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
-                  {lang === "ar" ? "العملة" : "Currency"}
+                  {pick(locale, TH.currency)}
                 </th>
                 <th className="py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
-                  {lang === "ar" ? "للجرام" : "Per gram"}
+                  {pick(locale, TH.perGram)}
                 </th>
                 <th className="hidden py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)] sm:table-cell">
-                  {lang === "ar" ? "للأونصة" : "Per oz"}
+                  {pick(locale, TH.perOz)}
                 </th>
               </tr>
             </thead>
@@ -84,17 +88,17 @@ export default async function BestGoldPricePage({
                       className="flex items-center gap-2 font-semibold text-[var(--color-gold)] hover:underline"
                     >
                       <Flag cc={country.cc} size={14} />
-                      <span>{countryName(country, lang)}</span>
+                      <span>{countryName(country, locale)}</span>
                     </Link>
                   </td>
                   <td className="py-3 font-mono text-[var(--color-text-dim)]">
                     {country.currency}
                   </td>
                   <td className="py-3 text-right font-mono text-[var(--color-text)]">
-                    {perGram.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                    {perGram.toLocaleString(intl, { maximumFractionDigits: 2 })}
                   </td>
                   <td className="hidden py-3 text-right font-mono text-[var(--color-text-muted)] sm:table-cell">
-                    {perOz.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                    {perOz.toLocaleString(intl, { maximumFractionDigits: 2 })}
                   </td>
                 </tr>
               ))}

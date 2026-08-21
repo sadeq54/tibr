@@ -2,7 +2,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
 import { Link } from "@/i18n/navigation";
+import { localeMeta } from "@/i18n/routing";
 import { CRYPTO_LIST, fetchCryptos } from "@/lib/crypto";
+import { pick } from "@/lib/i18n-text";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
@@ -27,6 +29,7 @@ export default async function CryptoListPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("SubPage");
+  const intl = localeMeta(locale).intl;
 
   const quotes = await fetchCryptos();
   const byId: Record<string, typeof quotes[number]> = Object.fromEntries(
@@ -49,7 +52,7 @@ export default async function CryptoListPage({
                 {t("cryptoRank")}
               </th>
               <th className="py-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
-                {locale === "ar" ? "العملة" : "Coin"}
+                {pick(locale, { en: "Coin", ar: "العملة", fr: "Crypto", tr: "Coin", ur: "کوائن", hi: "कॉइन" })}
               </th>
               <th className="py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
                 USD
@@ -67,7 +70,8 @@ export default async function CryptoListPage({
               const q = byId[meta.id];
               const up = (q?.change_24h ?? 0) >= 0;
               const trend = up ? "var(--color-up)" : "var(--color-down)";
-              const name = locale === "ar" ? meta.name_ar : meta.name_en;
+              // Coin names are proper nouns — CRYPTO_LIST carries en/ar only, other locales fall back to English.
+              const name = pick(locale, { en: meta.name_en, ar: meta.name_ar });
               return (
                 <tr
                   key={meta.id}
@@ -88,7 +92,7 @@ export default async function CryptoListPage({
                     </span>
                   </td>
                   <td className="py-3 text-right font-mono text-[var(--color-text)]">
-                    {q ? `$${q.price_usd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: q.price_usd < 1 ? 6 : 2 })}` : "—"}
+                    {q ? `$${q.price_usd.toLocaleString(intl, { minimumFractionDigits: 2, maximumFractionDigits: q.price_usd < 1 ? 6 : 2 })}` : "—"}
                   </td>
                   <td
                     className="hidden py-3 text-right font-mono sm:table-cell"

@@ -273,3 +273,27 @@ Invoke-RestMethod -Uri "https://goldpricesarabia.com/api/indexnow" -Method Post 
 **Priority 0.7 — Gold price history hub (new, 2026-08-21)**
 - [ ] https://goldpricesarabia.com/historical-gold-prices
 - [ ] https://goldpricesarabia.com/en/historical-gold-prices
+
+**Priority 0.9 — New language homepages (2026-08-21: fr / tr / ur / hi)**
+- [ ] https://goldpricesarabia.com/fr
+- [ ] https://goldpricesarabia.com/tr
+- [ ] https://goldpricesarabia.com/ur
+- [ ] https://goldpricesarabia.com/hi
+
+**Priority 0.8 — Tier-1 markets in their own language**
+- [ ] https://goldpricesarabia.com/tr/turkey/gold-price/22k
+- [ ] https://goldpricesarabia.com/tr/turkey/gold-price/24k
+- [ ] https://goldpricesarabia.com/ur/pakistan/gold-price/24k
+- [ ] https://goldpricesarabia.com/ur/pakistan/gold-price/22k
+- [ ] https://goldpricesarabia.com/ur/saudi-arabia/gold-price/21k
+- [ ] https://goldpricesarabia.com/ur/uae/gold-price/22k
+- [ ] https://goldpricesarabia.com/hi/india/gold-price/24k
+- [ ] https://goldpricesarabia.com/hi/india/gold-price/22k
+- [ ] https://goldpricesarabia.com/hi/uae/gold-price/22k
+- [ ] https://goldpricesarabia.com/fr/morocco/gold-price/18k
+- [ ] https://goldpricesarabia.com/fr/europe/gold-price/24k
+- [ ] https://goldpricesarabia.com/fr/lebanon/gold-price/21k
+
+**Priority 0.6 — New product pages (2026-08-21)**
+- [ ] https://goldpricesarabia.com/widgets
+- [ ] https://goldpricesarabia.com/en/widgets

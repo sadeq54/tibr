@@ -1,9 +1,7 @@
 import { createTranslator } from "next-intl";
 
-import arMessages from "@/messages/ar.json";
-import enMessages from "@/messages/en.json";
-
 import { canonicalPath, SITE_URL } from "@/lib/metadata";
+import { staticMessages } from "@/lib/static-messages";
 
 /**
  * Cached server-rendered SEO header — emits the page H1 + intro paragraph +
@@ -37,11 +35,7 @@ export function SeoStaticHeader({
 }) {
   // SYNCHRONOUS — same reason as HomepageSeoHeader / CountryGoldPriceHeader:
   // async children stream as hidden reveals after </main>, killing non-JS SEO.
-  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
-    string,
-    Record<string, string>
-  >;
-  const t = createTranslator({ locale, namespace, messages });
+  const t = createTranslator({ locale, namespace, messages: staticMessages(locale) });
   return (
     <header className="mb-6">
       {breadcrumb && breadcrumb.length > 0 ? (

@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { pick } from "@/lib/i18n-text";
 import type { ResearchDigest } from "@/lib/research";
 
 function fmtCitations(n: number): string {
@@ -11,7 +12,6 @@ function fmtCitations(n: number): string {
  * full /research digest. Renders nothing if the digest is empty (sources down).
  */
 export function ResearchTeaser({ digest, locale }: { digest: ResearchDigest; locale: string }) {
-  const ar = locale === "ar";
   const top = digest.topics
     .flatMap((t) => t.papers)
     .sort((a, b) => (b.citations ?? -1) - (a.citations ?? -1))
@@ -26,13 +26,27 @@ export function ResearchTeaser({ digest, locale }: { digest: ResearchDigest; loc
           id="research-teaser-heading"
           className="text-xl font-semibold text-[var(--color-text)]"
         >
-          {ar ? "ماذا يقول البحث العلمي عن الذهب؟" : "What academic research says about gold"}
+          {pick(locale, {
+            en: "What academic research says about gold",
+            ar: "ماذا يقول البحث العلمي عن الذهب؟",
+            fr: "Ce que dit la recherche académique sur l'or",
+            tr: "Akademik araştırmalar altın hakkında ne diyor",
+            ur: "علمی تحقیق سونے کے بارے میں کیا کہتی ہے؟",
+            hi: "सोने पर अकादमिक शोध क्या कहता है",
+          })}
         </h2>
         <Link
           href="/research"
           className="shrink-0 text-xs font-semibold text-[var(--color-gold)] transition-colors hover:underline"
         >
-          {ar ? "كل الدراسات ←" : "All studies →"}
+          {pick(locale, {
+            en: "All studies →",
+            ar: "كل الدراسات ←",
+            fr: "Toutes les études →",
+            tr: "Tüm çalışmalar →",
+            ur: "تمام مطالعات ←",
+            hi: "सभी अध्ययन →",
+          })}
         </Link>
       </div>
 
@@ -60,7 +74,8 @@ export function ResearchTeaser({ digest, locale }: { digest: ResearchDigest; loc
             </div>
             {p.citations !== null ? (
               <span className="num shrink-0 font-mono text-xs font-semibold text-[var(--color-gold)]">
-                {fmtCitations(p.citations)} {ar ? "استشهاد" : "cited"}
+                {fmtCitations(p.citations)}{" "}
+                {pick(locale, { en: "cited", ar: "استشهاد", fr: "citations", tr: "atıf", ur: "حوالے", hi: "उद्धरण" })}
               </span>
             ) : null}
           </li>
@@ -68,9 +83,14 @@ export function ResearchTeaser({ digest, locale }: { digest: ResearchDigest; loc
       </ul>
 
       <p className="mt-2 text-[11px] text-[var(--color-text-dim)]">
-        {ar
-          ? "مرتبة حسب الاستشهادات من arXiv وOpenAlex وCrossref وSemantic Scholar، وتُحدّث يوميًا."
-          : "Citation-ranked from arXiv, OpenAlex, Crossref and Semantic Scholar, refreshed daily."}
+        {pick(locale, {
+          en: "Citation-ranked from arXiv, OpenAlex, Crossref and Semantic Scholar, refreshed daily.",
+          ar: "مرتبة حسب الاستشهادات من arXiv وOpenAlex وCrossref وSemantic Scholar، وتُحدّث يوميًا.",
+          fr: "Classées par citations à partir d'arXiv, OpenAlex, Crossref et Semantic Scholar, actualisées chaque jour.",
+          tr: "arXiv, OpenAlex, Crossref ve Semantic Scholar verilerine göre atıf sırasıyla, günlük güncellenir.",
+          ur: "arXiv، OpenAlex، Crossref اور Semantic Scholar سے حوالوں کی بنیاد پر ترتیب، روزانہ اپ ڈیٹ۔",
+          hi: "arXiv, OpenAlex, Crossref और Semantic Scholar से उद्धरण-क्रम में, प्रतिदिन अपडेट।",
+        })}
       </p>
     </section>
   );

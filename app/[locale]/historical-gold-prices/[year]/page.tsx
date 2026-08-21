@@ -1,10 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { createTranslator } from "next-intl";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-
-import arMessages from "@/messages/ar.json";
-import enMessages from "@/messages/en.json";
+import { setRequestLocale } from "next-intl/server";
 
 import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { Faq } from "@/components/Faq";
@@ -14,24 +10,21 @@ import { Sidebar } from "@/components/Sidebar";
 import { StoresMarquee } from "@/components/StoresMarquee";
 import { TradingViewChart } from "@/components/TradingViewChart";
 import { Link } from "@/i18n/navigation";
+import { isRtl } from "@/i18n/routing";
 import { getCachedAllHistory } from "@/lib/cached-fetchers";
 import type { HistoricalPoint, MetalHistory } from "@/lib/history";
 import { buildAlternates, buildOpenGraph, SITE_URL } from "@/lib/metadata";
 
+import {
+  monthName,
+  monthTableHeaders,
+  yearPageText,
+  yearStatLabels,
+} from "./historical-year.i18n";
+
 const FIRST_YEAR = 2000;
 const CURRENT_YEAR = 2026;
 const VALID_YEARS = Array.from({ length: CURRENT_YEAR - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i);
-
-const MONTH_LABELS = {
-  en: [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-  ],
-  ar: [
-    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
-  ],
-};
 
 export async function generateStaticParams() {
   return VALID_YEARS.map((y) => ({ year: String(y) }));
@@ -43,9 +36,10 @@ export async function generateMetadata({
   params: Promise<{ locale: string; year: string }>;
 }) {
   const { locale, year } = await params;
-  const t = await getTranslations({ locale, namespace: "HistoricalPage" });
+  const t = yearPageText(locale, year);
   return {
-    title: t("title", { year }), description: t("description", { year }),
+    title: t.title,
+    description: t.description,
     alternates: buildAlternates(locale, `/historical-gold-prices/${year}`),
     openGraph: buildOpenGraph(locale, `/historical-gold-prices/${year}`),
   };
@@ -61,11 +55,7 @@ export default async function HistoricalPage({
   if (!VALID_YEARS.includes(yearNum)) notFound();
   setRequestLocale(locale);
 
-  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
-    string,
-    Record<string, string>
-  >;
-  const t = createTranslator({ locale, namespace: "HistoricalPage", messages });
+  const t = yearPageText(locale, year);
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
   // Recent years come from the 5y feed; older years from the full series (GC=F since 2000).
@@ -122,10 +112,10 @@ export default async function HistoricalPage({
           <section className="min-w-0 space-y-8">
             <header>
               <Link href="/" className="text-xs text-[var(--color-text-dim)] hover:text-[var(--color-gold)]">
-                ← Gold Prices Arabia
+                {isRtl(locale) ? "→" : "←"} Gold Prices Arabia
               </Link>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-gold)]">
-                {t("h1", { year })}
+                {t.h1}
               </h1>
             </header>
 
@@ -189,9 +179,7 @@ async function YearStats({
   const yoyPct = ((close - open) / open) * 100;
   const up = yoyPct >= 0;
 
-  const labels = locale === "ar"
-    ? { open: "افتتاح السنة", close: "إغلاق السنة", high: "أعلى سعر", low: "أدنى سعر", avg: "المتوسط", yoy: "التغير السنوي", points: "أيام التداول" }
-    : { open: "Year open", close: "Year close", high: "Year high", low: "Year low", avg: "Year average", yoy: "Year change", points: "Trading days" };
+  const labels = yearStatLabels(locale);
 
   return (
     <section
@@ -241,13 +229,8 @@ async function MonthlyTable({
     byMonth.set(monthIdx, arr);
   }
 
-  const monthNames = MONTH_LABELS[locale === "ar" ? "ar" : "en"];
-  const headers = locale === "ar"
-    ? { month: "الشهر", open: "افتتاح", high: "أعلى", low: "أدنى", close: "إغلاق", change: "التغير" }
-    : { month: "Month", open: "Open", high: "High", low: "Low", close: "Close", change: "Change" };
-  const heading = locale === "ar"
-    ? `سعر الذهب الشهري · ${yearNum} (دولار أمريكي / أونصة)`
-    : `Monthly XAU/USD · ${yearNum} (USD / troy oz)`;
+  const headers = monthTableHeaders(locale);
+  const heading = yearPageText(locale, yearNum).monthlyHeading;
 
   const rows = Array.from(byMonth.entries())
     .sort(([a], [b]) => a - b)
@@ -305,7 +288,7 @@ async function MonthlyTable({
                   className="border-b border-[var(--color-border)] last:border-b-0"
                 >
                   <td className="py-3 font-semibold text-[var(--color-text)]">
-                    {monthNames[r.monthIdx]}
+                    {monthName(locale, r.monthIdx)}
                   </td>
                   <td className="py-3 text-right font-mono text-[var(--color-text)]">
                     ${r.open.toFixed(2)}
@@ -364,12 +347,9 @@ function StatsSkeleton() {
 }
 
 function NoData({ yearNum, locale }: { yearNum: number; locale: string }) {
-  const msg = locale === "ar"
-    ? `لا تتوفر بيانات تاريخية لعام ${yearNum} حالياً.`
-    : `Historical data for ${yearNum} is not available yet.`;
   return (
     <div className="rounded-xl border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-card)] p-8 text-center">
-      <p className="text-sm text-[var(--color-text-muted)]">{msg}</p>
+      <p className="text-sm text-[var(--color-text-muted)]">{yearPageText(locale, yearNum).noData}</p>
     </div>
   );
 }

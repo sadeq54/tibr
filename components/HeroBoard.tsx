@@ -7,6 +7,7 @@ import { useLocale } from "next-intl";
 import { useLivePrice } from "@/components/LivePriceProvider";
 import { HeroSpotSkeleton } from "@/components/skeletons";
 import type { GoldApiResponse } from "@/lib/goldapi";
+import { pick } from "@/lib/i18n-text";
 
 const OZ_TO_GRAM = 31.1034768;
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -35,7 +36,6 @@ function usd(n: number, frac = 2): string {
  */
 export function HeroBoard({ initialSpot }: { initialSpot: GoldApiResponse | null }) {
   const locale = useLocale();
-  const ar = locale === "ar";
   const live = useLivePrice();
 
   const xau = live.xau ?? initialSpot?.price ?? null;
@@ -58,15 +58,36 @@ export function HeroBoard({ initialSpot }: { initialSpot: GoldApiResponse | null
   const TrendIcon = up ? ArrowUp : ArrowDown;
 
   const stats: Array<{ label: string; value: number; accent?: string }> = [
-    { label: ar ? "الافتتاح" : "Open", value: open },
-    { label: ar ? "الأعلى 24س" : "24h high", value: high, accent: "var(--color-up)" },
-    { label: ar ? "الأدنى 24س" : "24h low", value: low, accent: "var(--color-down)" },
-    { label: ar ? "الإغلاق السابق" : "Prev close", value: prev },
+    {
+      label: pick(locale, { en: "Open", ar: "الافتتاح", fr: "Ouverture", tr: "Açılış", ur: "افتتاح", hi: "ओपन" }),
+      value: open,
+    },
+    {
+      label: pick(locale, { en: "24h high", ar: "الأعلى 24س", fr: "Plus haut 24h", tr: "24s en yüksek", ur: "24 گھنٹے بلند", hi: "24 घं. उच्च" }),
+      value: high,
+      accent: "var(--color-up)",
+    },
+    {
+      label: pick(locale, { en: "24h low", ar: "الأدنى 24س", fr: "Plus bas 24h", tr: "24s en düşük", ur: "24 گھنٹے کم", hi: "24 घं. निम्न" }),
+      value: low,
+      accent: "var(--color-down)",
+    },
+    {
+      label: pick(locale, { en: "Prev close", ar: "الإغلاق السابق", fr: "Clôture préc.", tr: "Önceki kapanış", ur: "پچھلا اختتام", hi: "पिछला बंद" }),
+      value: prev,
+    },
   ];
 
   return (
     <motion.section
-      aria-label={ar ? "لوحة سعر الذهب المباشر" : "Live gold price board"}
+      aria-label={pick(locale, {
+        en: "Live gold price board",
+        ar: "لوحة سعر الذهب المباشر",
+        fr: "Tableau du cours de l'or en direct",
+        tr: "Canlı altın fiyatı panosu",
+        ur: "براہ راست سونے کی قیمت کا بورڈ",
+        hi: "लाइव सोने के भाव का बोर्ड",
+      })}
       className="hero-board-bg card-shadow relative overflow-hidden rounded-2xl border border-[var(--color-border)]"
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
@@ -86,9 +107,14 @@ export function HeroBoard({ initialSpot }: { initialSpot: GoldApiResponse | null
             <span dir="ltr">XAU/USD</span>
             <span>·</span>
             <span>
-              {ar
-                ? `وسيط ${connected} بورصات لحظيًا`
-                : `live median of ${connected} exchanges`}
+              {pick(locale, {
+                en: `live median of ${connected} exchanges`,
+                ar: `وسيط ${connected} بورصات لحظيًا`,
+                fr: `médiane en direct de ${connected} bourses`,
+                tr: `${connected} borsanın canlı medyanı`,
+                ur: `${connected} ایکسچینجز کا براہ راست میڈین`,
+                hi: `${connected} एक्सचेंजों का लाइव माध्यिका`,
+              })}
             </span>
           </div>
 
@@ -106,7 +132,7 @@ export function HeroBoard({ initialSpot }: { initialSpot: GoldApiResponse | null
               </motion.span>
             </AnimatePresence>
             <span className="text-sm text-[var(--color-text-dim)]">
-              {ar ? "للأونصة" : "per troy oz"}
+              {pick(locale, { en: "per troy oz", ar: "للأونصة", fr: "l'once", tr: "ons başına", ur: "فی اونس", hi: "प्रति औंस" })}
             </span>
           </div>
 
@@ -122,7 +148,7 @@ export function HeroBoard({ initialSpot }: { initialSpot: GoldApiResponse | null
               {chp.toFixed(2)}%)
             </span>
             <span dir="ltr" className="num font-mono text-xs text-[var(--color-text-dim)]">
-              {ar ? "شراء/بيع " : "bid/ask "}
+              {pick(locale, { en: "bid/ask ", ar: "شراء/بيع ", fr: "achat/vente ", tr: "alış/satış ", ur: "خرید/فروخت ", hi: "खरीद/बिक्री " })}
               {usd(bid)} / {usd(ask)}
               {spread > 0 ? ` · ±$${spread.toFixed(2)}` : ""}
             </span>
@@ -149,7 +175,14 @@ export function HeroBoard({ initialSpot }: { initialSpot: GoldApiResponse | null
         {/* ── Per-gram rail: the answer above the fold ────────── */}
         <div className="lg:border-s lg:border-[var(--color-border)] lg:ps-8">
           <h2 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
-            {ar ? "سعر الجرام الآن · دولار" : "Per gram right now · USD"}
+            {pick(locale, {
+              en: "Per gram right now · USD",
+              ar: "سعر الجرام الآن · دولار",
+              fr: "Le gramme en ce moment · USD",
+              tr: "Şu an gram fiyatı · USD",
+              ur: "ابھی فی گرام · USD",
+              hi: "अभी प्रति ग्राम · USD",
+            })}
           </h2>
           <ul className="mt-2">
             {KARATS.map((row) => {
@@ -170,7 +203,14 @@ export function HeroBoard({ initialSpot }: { initialSpot: GoldApiResponse | null
                       {row.k.replace("K", "")}
                     </span>
                     <span className="text-sm font-semibold text-[var(--color-text)]">
-                      {ar ? `عيار ${row.k.replace("K", "")}` : row.k}
+                      {pick(locale, {
+                        en: row.k,
+                        ar: `عيار ${row.k.replace("K", "")}`,
+                        fr: `${row.k.replace("K", "")} carats`,
+                        tr: `${row.k.replace("K", "")} ayar`,
+                        ur: `${row.k.replace("K", "")} قیراط`,
+                        hi: `${row.k.replace("K", "")} कैरेट`,
+                      })}
                       <span className="ms-2 text-[10px] font-medium text-[var(--color-text-dim)]">
                         {row.pct}
                       </span>
@@ -187,7 +227,14 @@ export function HeroBoard({ initialSpot }: { initialSpot: GoldApiResponse | null
             href="#karat-heading"
             className="mt-3 inline-block text-xs font-semibold text-[var(--color-gold)] transition-colors hover:underline"
           >
-            {ar ? "كل العيارات بأكثر من 40 عملة ↓" : "All karats in 40+ currencies ↓"}
+            {pick(locale, {
+              en: "All karats in 40+ currencies ↓",
+              ar: "كل العيارات بأكثر من 40 عملة ↓",
+              fr: "Tous les carats en 40+ devises ↓",
+              tr: "Tüm ayarlar 40+ para biriminde ↓",
+              ur: "تمام قیراط 40+ کرنسیوں میں ↓",
+              hi: "सभी कैरेट 40+ मुद्राओं में ↓",
+            })}
           </a>
         </div>
 
@@ -216,7 +263,14 @@ export function HeroBoard({ initialSpot }: { initialSpot: GoldApiResponse | null
               );
             })}
             <li className="ms-auto text-[10px] text-[var(--color-text-dim)]">
-              {ar ? "وسيط PAXG/USD · مدعوم بذهب فيزيائي 1:1" : "PAXG/USD median · backed 1:1 by physical gold"}
+              {pick(locale, {
+                en: "PAXG/USD median · backed 1:1 by physical gold",
+                ar: "وسيط PAXG/USD · مدعوم بذهب فيزيائي 1:1",
+                fr: "Médiane PAXG/USD · adossée 1:1 à de l'or physique",
+                tr: "PAXG/USD medyanı · 1:1 fiziksel altınla teminatlı",
+                ur: "PAXG/USD میڈین · 1:1 حقیقی سونے سے محفوظ",
+                hi: "PAXG/USD माध्यिका · 1:1 भौतिक सोने से समर्थित",
+              })}
             </li>
           </ul>
         </div>

@@ -1,6 +1,7 @@
 import { ChevronRight } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
+import { pick } from "@/lib/i18n-text";
 
 type Crumb = { name: string; href: string };
 
@@ -15,7 +16,14 @@ export function Breadcrumb({ items, locale }: { items: Crumb[]; locale: string }
 
   return (
     <nav
-      aria-label={locale === "ar" ? "مسار التنقل" : "Breadcrumb"}
+      aria-label={pick(locale, {
+        en: "Breadcrumb",
+        ar: "مسار التنقل",
+        fr: "Fil d'Ariane",
+        tr: "Gezinti yolu",
+        ur: "نیویگیشن راستہ",
+        hi: "ब्रेडक्रम्ब",
+      })}
       className="mb-4 overflow-x-auto"
     >
       <ol className="flex items-center gap-1.5 whitespace-nowrap text-xs text-[var(--color-text-dim)]">

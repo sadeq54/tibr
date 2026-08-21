@@ -1,26 +1,28 @@
 import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
 
+import { isRtl, routing } from "@/i18n/routing";
 import { getCachedAllHistory, getCachedFxRates } from "@/lib/cached-fetchers";
 import type { HistoryRange } from "@/lib/history";
-import { loadArabicFont, rtlWords } from "@/lib/og-font";
+import { pick, type LocaleText } from "@/lib/i18n-text";
+import { loadFontsFor, OG_FONT_FAMILY, rtlWords } from "@/lib/og-font";
 import { OZ_G, currencyName, dateLabel, fmtNum } from "@/lib/seo";
 
 /**
- * Branded gold-price chart PNG: /charts/gold/{currency}/{range}?lang=ar|en&unit=oz|g
+ * Branded gold-price chart PNG: /charts/gold/{currency}/{range}?lang=ar|en|fr|tr|ur|hi&unit=oz|g
  *
  * The same asset class goldprice.org built its backlink profile on (static
  * chart images embedded across the web), rendered live from our cached
  * history + FX and served with long CDN caching. Pages embed it with an
  * "embed this chart" snippet that links back to the source page.
  */
-const RANGES: Record<string, { yahoo: HistoryRange; en: string; ar: string }> = {
-  "1m": { yahoo: "1mo", en: "1 month", ar: "شهر" },
-  "3m": { yahoo: "3mo", en: "3 months", ar: "3 أشهر" },
-  "1y": { yahoo: "1y", en: "1 year", ar: "سنة" },
-  "5y": { yahoo: "5y", en: "5 years", ar: "5 سنوات" },
-  "10y": { yahoo: "10y", en: "10 years", ar: "10 سنوات" },
-  max: { yahoo: "max", en: "since 2000", ar: "منذ 2000" },
+const RANGES: Record<string, { yahoo: HistoryRange; label: LocaleText }> = {
+  "1m": { yahoo: "1mo", label: { en: "1 month", ar: "شهر", fr: "1 mois", tr: "1 ay", ur: "1 ماہ", hi: "1 माह" } },
+  "3m": { yahoo: "3mo", label: { en: "3 months", ar: "3 أشهر", fr: "3 mois", tr: "3 ay", ur: "3 ماہ", hi: "3 माह" } },
+  "1y": { yahoo: "1y", label: { en: "1 year", ar: "سنة", fr: "1 an", tr: "1 yıl", ur: "1 سال", hi: "1 वर्ष" } },
+  "5y": { yahoo: "5y", label: { en: "5 years", ar: "5 سنوات", fr: "5 ans", tr: "5 yıl", ur: "5 سال", hi: "5 वर्ष" } },
+  "10y": { yahoo: "10y", label: { en: "10 years", ar: "10 سنوات", fr: "10 ans", tr: "10 yıl", ur: "10 سال", hi: "10 वर्ष" } },
+  max: { yahoo: "max", label: { en: "since 2000", ar: "منذ 2000", fr: "depuis 2000", tr: "2000'den beri", ur: "2000 سے", hi: "2000 से" } },
 };
 
 const W = 1200;
@@ -45,8 +47,9 @@ export async function GET(
   const range = RANGES[rangeRaw.toLowerCase()];
   if (!range || !/^[A-Z]{3}$/.test(cur)) return new Response("Not found", { status: 404 });
 
-  const lang = req.nextUrl.searchParams.get("lang") === "ar" ? "ar" : "en";
-  const ar = lang === "ar";
+  const langParam = req.nextUrl.searchParams.get("lang") ?? "en";
+  const lang = (routing.locales as readonly string[]).includes(langParam) ? langParam : "en";
+  const rtl = isRtl(lang);
   const unit = req.nextUrl.searchParams.get("unit") === "g" ? "g" : "oz";
 
   const [hist, fx] = await Promise.all([getCachedAllHistory(range.yahoo), getCachedFxRates()]);
@@ -80,14 +83,23 @@ export async function GET(
   const up = change >= 0;
   const frac = last.v > 500 ? 0 : 2;
   const curName = currencyName(cur, lang);
-  const unitLabel = unit === "g" ? (ar ? "للجرام" : "per gram") : ar ? "للأونصة" : "per troy oz";
-  const title = ar
-    ? `سعر الذهب بـ${curName} ${unitLabel} · ${range.ar}`
-    : `Gold price in ${curName} ${unitLabel} · ${range.en}`;
+  const unitLabel =
+    unit === "g"
+      ? pick(lang, { en: "per gram", ar: "للجرام", fr: "le gramme", tr: "gram başına", ur: "فی گرام", hi: "प्रति ग्राम" })
+      : pick(lang, { en: "per troy oz", ar: "للأونصة", fr: "l'once troy", tr: "troy ons başına", ur: "فی ٹرائے اونس", hi: "प्रति ट्रॉय औंस" });
+  const rangeLabel = pick(lang, range.label);
+  const title = pick(lang, {
+    en: `Gold price in ${curName} ${unitLabel} · ${rangeLabel}`,
+    ar: `سعر الذهب بـ${curName} ${unitLabel} · ${rangeLabel}`,
+    fr: `Prix de l'or en ${curName} ${unitLabel} · ${rangeLabel}`,
+    tr: `${curName} cinsinden altın fiyatı ${unitLabel} · ${rangeLabel}`,
+    ur: `${curName} میں سونے کی قیمت ${unitLabel} · ${rangeLabel}`,
+    hi: `${curName} में सोने का भाव ${unitLabel} · ${rangeLabel}`,
+  });
   const sub = `${dateLabel(lang, new Date(first.date))} → ${dateLabel(lang, new Date(last.date))}`;
   const gridYs = [0, 0.25, 0.5, 0.75, 1].map((f) => PAD.t + plotH * f);
 
-  const fonts = [{ name: "ArabicSans", data: await loadArabicFont(), weight: 600 as const, style: "normal" as const }];
+  const fonts = await loadFontsFor(lang);
 
   return new ImageResponse(
     (
@@ -99,7 +111,7 @@ export async function GET(
           flexDirection: "column",
           background: "#0b0a08",
           color: "#f4efe4",
-          fontFamily: "ArabicSans, system-ui, sans-serif",
+          fontFamily: OG_FONT_FAMILY,
           position: "relative",
         }}
       >
@@ -112,14 +124,17 @@ export async function GET(
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            flexDirection: ar ? "row-reverse" : "row",
+            flexDirection: rtl ? "row-reverse" : "row",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", alignItems: ar ? "flex-end" : "flex-start" }}>
-            <div style={{ fontSize: 30, color: "#b9b2a1" }}>{rtlWords(title, ar)}</div>
-            <div style={{ fontSize: 20, color: "#8f8875", marginTop: 6 }}>{rtlWords(sub, ar)}</div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: rtl ? "flex-end" : "flex-start", maxWidth: 780 }}>
+            {/* Long titles (Urdu/Hindi currency names) shrink instead of pushing the price off-canvas. */}
+            <div style={{ fontSize: title.length > 46 ? 22 : title.length > 36 ? 26 : 30, color: "#b9b2a1" }}>
+              {rtlWords(title, rtl)}
+            </div>
+            <div style={{ fontSize: 20, color: "#8f8875", marginTop: 6 }}>{rtlWords(sub, rtl)}</div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: ar ? "flex-start" : "flex-end" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: rtl ? "flex-start" : "flex-end", flexShrink: 0 }}>
             <div style={{ fontSize: 56, fontWeight: 600, color: "#e2b54e", lineHeight: 1 }}>{fmtNum(last.v, frac)}</div>
             <div style={{ fontSize: 22, color: up ? "#22c55e" : "#ef4444", marginTop: 6 }}>
               {`${up ? "+" : ""}${fmtNum(change, frac)} (${up ? "+" : ""}${changePct.toFixed(1)}%)`}

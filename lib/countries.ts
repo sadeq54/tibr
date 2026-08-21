@@ -1,3 +1,7 @@
+import { localeMeta } from "@/i18n/routing";
+import { localizedRegionName } from "@/lib/country-names";
+import { pick } from "@/lib/i18n-text";
+
 export type Country = {
   slug: string;
   cc: string;
@@ -129,8 +133,29 @@ export function currencyForCC(cc: string | null | undefined): string | null {
   return COUNTRY_BY_CC[cc.toUpperCase()]?.currency ?? null;
 }
 
+/**
+ * Display name for `locale`: hand-written Arabic / English columns, CLDR
+ * region names (with a few overrides) for every other locale, English as the
+ * last resort.
+ */
 export function countryName(c: Country, locale: string): string {
-  return locale === "ar" ? c.name_ar : c.name_en;
+  if (locale === "ar") return c.name_ar;
+  if (locale === "en") return c.name_en;
+  return localizedRegionName(c.cc, locale) ?? c.name_en;
+}
+
+const SORTED = new Map<string, Country[]>();
+/** All countries sorted by their localized name with locale-aware collation. */
+export function sortedCountries(locale: string): Country[] {
+  let list = SORTED.get(locale);
+  if (!list) {
+    const tag = localeMeta(locale).intl;
+    list = [...COUNTRIES].sort((a, b) =>
+      countryName(a, locale).localeCompare(countryName(b, locale), tag),
+    );
+    SORTED.set(locale, list);
+  }
+  return list;
 }
 
 /**
@@ -191,7 +216,7 @@ export const COUNTRY_NOTES: Record<string, CountryNote> = {
  */
 export function countryNote(slug: string, locale: string): string | null {
   const note = COUNTRY_NOTES[slug];
-  if (note) return locale === "ar" ? note.ar : note.en;
+  if (note) return pick(locale, note);
   return composeCountryNote(slug, locale);
 }
 

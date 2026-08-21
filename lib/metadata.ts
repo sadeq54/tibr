@@ -1,3 +1,5 @@
+import { localeMeta, routing } from "@/i18n/routing";
+
 /**
  * Canonical site URL — hardcoded to production domain so staging deploys
  * (e.g. tibers.netlify.app) emit canonicals + hreflang pointing at the real
@@ -6,37 +8,41 @@
 export const SITE_URL = "https://goldpricesarabia.com";
 export const SITE_METADATA_BASE = new URL(SITE_URL);
 
-/** Locale → URL-prefix map for next-intl `localePrefix: "as-needed"` routing. */
-export const LOCALES = ["ar", "en"] as const;
+/** Site locales — single source of truth is `i18n/routing.ts`. */
+export const LOCALES = routing.locales;
 export type SiteLocale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: SiteLocale = "ar";
+export const DEFAULT_LOCALE: SiteLocale = routing.defaultLocale;
+
+function cleanPath(path: string): string {
+  return path === "/" || path === "" ? "" : path.startsWith("/") ? path : `/${path}`;
+}
 
 /**
  * Build the canonical path for a given locale + path. `path` is the
  * locale-agnostic path (e.g. `/gold-price/24k`, `/`, `/buy-gold/usa/coins`).
+ * Arabic (the default) is unprefixed; every other locale is `/${locale}${path}`
+ * (next-intl `localePrefix: "as-needed"`). Unknown locales resolve to the
+ * default so a bad value can never mint a non-existent URL.
  */
 export function canonicalPath(locale: string, path: string): string {
-  const clean = path === "/" || path === "" ? "" : path.startsWith("/") ? path : `/${path}`;
-  if (locale === "en") return clean === "" ? "/en" : `/en${clean}`;
-  return clean === "" ? "/" : clean;
+  const clean = cleanPath(path);
+  const known = (LOCALES as readonly string[]).includes(locale);
+  if (!known || locale === DEFAULT_LOCALE) return clean === "" ? "/" : clean;
+  return `/${locale}${clean}`;
 }
 
 /**
  * Build the `alternates` block for Next `Metadata` — sets the canonical for
- * the current locale and emits hreflang entries for all supported locales.
+ * the current locale and emits one hreflang entry per supported locale plus
+ * `x-default` pointing at the Arabic (unprefixed) URL.
  *
  *   alternates: buildAlternates("ar", "/gold-price/24k")
  */
 export function buildAlternates(locale: string, path: string) {
-  const clean = path === "/" || path === "" ? "" : path.startsWith("/") ? path : `/${path}`;
-  return {
-    canonical: canonicalPath(locale, path),
-    languages: {
-      ar: clean === "" ? "/" : clean,
-      en: clean === "" ? "/en" : `/en${clean}`,
-      "x-default": clean === "" ? "/" : clean,
-    },
-  } as const;
+  const languages: Record<string, string> = {};
+  for (const l of LOCALES) languages[localeMeta(l).hreflang] = canonicalPath(l, path);
+  languages["x-default"] = canonicalPath(DEFAULT_LOCALE, path);
+  return { canonical: canonicalPath(locale, path), languages };
 }
 
 /**
@@ -102,8 +108,8 @@ export function buildPageMetadata(input: PageMetaInput): import("next").Metadata
   } = input;
   const canonical = canonicalPath(locale, path);
   const ogImageUrl = ogImage ?? `${SITE_URL}/opengraph-image`;
-  const ogLocale = locale === "ar" ? "ar_SA" : "en_US";
-  const ogAlt = locale === "ar" ? "en_US" : "ar_SA";
+  const ogLocale = localeMeta(locale).og;
+  const ogAlt = LOCALES.map((l) => localeMeta(l).og).filter((og) => og !== ogLocale);
 
   return {
     title,
@@ -152,9 +158,8 @@ export function buildBreadcrumb(
   homeLabel: string,
   crumbs: Array<{ name: string; url: string }>,
 ) {
-  const home = locale === "en" ? "/en" : "/";
   return [
-    { name: homeLabel, url: home },
+    { name: homeLabel, url: canonicalPath(locale, "/") },
     ...crumbs.map((c) => ({
       name: c.name,
       url: canonicalPath(locale, c.url),

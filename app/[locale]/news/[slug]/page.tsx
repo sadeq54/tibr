@@ -1,10 +1,6 @@
 import { notFound } from "next/navigation";
-import { createTranslator } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import ReactMarkdown from "react-markdown";
-
-import arMessages from "@/messages/ar.json";
-import enMessages from "@/messages/en.json";
 import remarkGfm from "remark-gfm";
 
 import { AuthorByline } from "@/components/AuthorByline";
@@ -13,6 +9,7 @@ import { Header } from "@/components/Header";
 import { JsonLd } from "@/components/JsonLd";
 import { Sidebar } from "@/components/Sidebar";
 import { Link } from "@/i18n/navigation";
+import { pick } from "@/lib/i18n-text";
 import { buildAlternates, buildOpenGraph, canonicalPath, SITE_URL } from "@/lib/metadata";
 import { ARTICLES, articleWordCount, getArticleBySlug, listArticleSlugs } from "@/content/news/articles";
 
@@ -28,8 +25,8 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const article = getArticleBySlug(slug);
   if (!article) return {};
-  const title = locale === "ar" ? article.title_ar : article.title_en;
-  const description = locale === "ar" ? article.description_ar : article.description_en;
+  const title = pick(locale, { en: article.title_en, ar: article.title_ar });
+  const description = pick(locale, { en: article.description_en, ar: article.description_ar });
   return {
     title,
     description,
@@ -56,17 +53,20 @@ export default async function NewsArticlePage({
   if (!article) notFound();
   setRequestLocale(locale);
 
-  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
-    string,
-    Record<string, string>
-  >;
-  const t = createTranslator({ locale, namespace: "SubPage", messages });
+  const t = await getTranslations({ locale, namespace: "SubPage" });
   const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
-  const title = locale === "ar" ? article.title_ar : article.title_en;
-  const description = locale === "ar" ? article.description_ar : article.description_en;
-  const body = locale === "ar" ? article.body_ar : article.body_en;
+  // Article bodies exist in ar/en only; other locales read the English text.
+  const title = pick(locale, { en: article.title_en, ar: article.title_ar });
+  const description = pick(locale, { en: article.description_en, ar: article.description_ar });
+  const body = pick(locale, { en: article.body_en, ar: article.body_ar });
+  const bodyLang = locale === "ar" ? "ar" : "en";
   const pageUrl = canonicalPath(locale, `/news/${slug}`);
+  const homeCrumb = {
+    name: pick(locale, { en: "Home", ar: "الرئيسية", fr: "Accueil", tr: "Ana sayfa", ur: "ہوم", hi: "होम" }),
+    href: canonicalPath(locale, "/"),
+  };
+  const newsCrumb = { name: t("newsH1"), href: canonicalPath(locale, "/news") };
   const author = article.author ?? {
     name: "Sadeq Sayed Ahmad",
     url: "/about/sadeq",
@@ -83,7 +83,7 @@ export default async function NewsArticlePage({
     mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${pageUrl}#webpage` },
     datePublished: article.publishedAt,
     dateModified: article.updatedAt ?? article.publishedAt,
-    inLanguage: locale === "ar" ? "ar" : "en",
+    inLanguage: bodyLang,
     author: {
       "@type": "Person",
       "@id": `${SITE_URL}/#person-sadeq`,
@@ -114,8 +114,8 @@ export default async function NewsArticlePage({
         pageName={title}
         pageOnly
         breadcrumb={[
-          { name: locale === "en" ? "Home" : "الرئيسية", url: locale === "en" ? "/en" : "/" },
-          { name: t("newsH1"), url: locale === "en" ? "/en/news" : "/news" },
+          { name: homeCrumb.name, url: homeCrumb.href },
+          { name: newsCrumb.name, url: newsCrumb.href },
           { name: title, url: pageUrl },
         ]}
       />
@@ -128,11 +128,7 @@ export default async function NewsArticlePage({
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <Breadcrumb
           locale={locale}
-          items={[
-            { name: locale === "en" ? "Home" : "الرئيسية", href: locale === "en" ? "/en" : "/" },
-            { name: t("newsH1"), href: locale === "en" ? "/en/news" : "/news" },
-            { name: title, href: pageUrl },
-          ]}
+          items={[homeCrumb, newsCrumb, { name: title, href: pageUrl }]}
         />
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
           <article className="min-w-0">
@@ -153,7 +149,7 @@ export default async function NewsArticlePage({
               />
             </header>
 
-            <div className="prose-article">
+            <div className="prose-article" lang={bodyLang} dir={bodyLang === "ar" ? "rtl" : "ltr"}>
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -249,7 +245,14 @@ export default async function NewsArticlePage({
 
             <section className="mt-12 border-t border-[var(--color-border)] pt-6">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
-                {locale === "ar" ? "مقالات ذات صلة" : "Related articles"}
+                {pick(locale, {
+                  en: "Related articles",
+                  ar: "مقالات ذات صلة",
+                  fr: "Articles associés",
+                  tr: "İlgili yazılar",
+                  ur: "متعلقہ مضامین",
+                  hi: "संबंधित लेख",
+                })}
               </h2>
               <ul className="mt-3 space-y-2 text-sm">
                 {ARTICLES.filter((a) => a.slug !== slug)
@@ -260,7 +263,7 @@ export default async function NewsArticlePage({
                         href={`/news/${a.slug}` as never}
                         className="text-[var(--color-gold)] underline hover:no-underline"
                       >
-                        {locale === "ar" ? a.title_ar : a.title_en}
+                        {pick(locale, { en: a.title_en, ar: a.title_ar })}
                       </Link>
                     </li>
                   ))}

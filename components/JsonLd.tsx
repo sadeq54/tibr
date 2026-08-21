@@ -1,4 +1,14 @@
+import { routing } from "@/i18n/routing";
 import type { GoldApiResponse } from "@/lib/goldapi";
+
+/** Every site language, for `inLanguage` / `availableLanguage` lists. */
+const SITE_LANGS: readonly string[] = routing.locales;
+
+/** Locale encoded in a canonical page path: `/en/...` → "en", unprefixed → "ar". */
+function langFromPath(pageUrl: string): string {
+  const first = pageUrl.split("/").filter(Boolean)[0];
+  return first && SITE_LANGS.includes(first) ? first : routing.defaultLocale;
+}
 
 const KARAT_TO_NAME: Record<string, string> = {
   "24K": "24 Karat Gold",
@@ -29,9 +39,14 @@ export function JsonLd({
   globalOnly = false,
   priceCurrency = "USD",
   fxRate = 1,
+  locale,
 }: {
   spot?: GoldApiResponse | null;
   siteUrl: string;
+  /** Page locale for `WebPage.inLanguage`. Defaults to the locale encoded in
+   *  `pageUrl` (`/en/...` → en, unprefixed → ar), so existing call sites need
+   *  no change. */
+  locale?: string;
   breadcrumb?: BreadcrumbItem[];
   pageType?: "WebPage" | "CollectionPage" | "ItemPage" | "FAQPage";
   pageUrl?: string;
@@ -93,13 +108,13 @@ export function JsonLd({
         "@type": "ContactPoint",
         contactType: "customer support",
         email: "support@goldpricesarabia.com",
-        availableLanguage: ["en", "ar"],
+        availableLanguage: SITE_LANGS,
       },
       {
         "@type": "ContactPoint",
         contactType: "advertising",
         email: "ads@goldpricesarabia.com",
-        availableLanguage: ["en", "ar"],
+        availableLanguage: SITE_LANGS,
       },
     ],
     sameAs: ["https://www.linkedin.com/in/sadeq-sayed-ahmad-309101233/"],
@@ -124,7 +139,7 @@ export function JsonLd({
     alternateName: "أسعار الذهب العربية",
     description:
       "Live gold prices across 46 countries and 40+ currencies. Real-time WebSocket aggregation from Binance, Coinbase, Kraken.",
-    inLanguage: ["en", "ar"],
+    inLanguage: SITE_LANGS,
     publisher: { "@id": `${siteUrl}/#org` },
     potentialAction: {
       "@type": "SearchAction",
@@ -254,7 +269,7 @@ export function JsonLd({
         name: pageName,
         isPartOf: { "@id": `${siteUrl}/#website` },
         about: { "@id": `${siteUrl}/#service` },
-        inLanguage: pageUrl.startsWith("/en") ? "en" : "ar",
+        inLanguage: locale ?? langFromPath(pageUrl),
         breadcrumb: { "@id": `${siteUrl}${pageUrl}#breadcrumb` },
         // Freshness: the page's main content (prices) is as recent as the spot
         // snapshot that rendered it.
@@ -355,7 +370,7 @@ export function JsonLd({
         about: { "@id": `${siteUrl}/#xau` },
         text: `Spot gold (XAU/USD): ${spot.price.toFixed(2)} per troy ounce, updated ${new Date(spot.timestamp * 1000).toISOString()}.`,
         dateCreated: new Date(spot.timestamp * 1000).toISOString(),
-        inLanguage: ["en", "ar"],
+        inLanguage: SITE_LANGS,
       }
     : null;
 

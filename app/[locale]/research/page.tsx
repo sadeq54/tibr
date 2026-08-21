@@ -3,22 +3,21 @@ import { setRequestLocale } from "next-intl/server";
 
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Header } from "@/components/Header";
+import { localeMeta } from "@/i18n/routing";
 import { getCachedResearch } from "@/lib/cached-fetchers";
 import { buildPageMetadata, canonicalPath, SITE_URL } from "@/lib/metadata";
 import { scholarUrl, type ResearchDigest, type ResearchPaper } from "@/lib/research";
 
+import { researchText, topicBlurb, topicTitle } from "./research.i18n";
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const ar = locale === "ar";
+  const t = researchText(locale);
   return buildPageMetadata({
     locale,
     path: "/research",
-    title: ar
-      ? "أبحاث سوق الذهب: دراسات علمية محكّمة عن التحوط والملاذ الآمن"
-      : "Gold Market Research: Peer-Reviewed Studies on Hedging & Safe Havens",
-    description: ar
-      ? "ملخصات محدثة يوميًا لأكثر الأبحاث الأكاديمية استشهادًا عن الذهب: التحوط من التضخم، الملاذ الآمن، محددات السعر، وتنويع المحافظ. المصادر: arXiv وOpenAlex وCrossref وSemantic Scholar."
-      : "Daily-refreshed digest of the most-cited academic research on gold: inflation hedging, safe-haven behaviour, price drivers and portfolio allocation. Sourced from arXiv, OpenAlex, Crossref and Semantic Scholar.",
+    title: t.title,
+    description: t.description,
   });
 }
 
@@ -54,7 +53,7 @@ function ResearchSkeleton() {
   );
 }
 
-function PaperRow({ p, ar }: { p: ResearchPaper; ar: boolean }) {
+function PaperRow({ p, cited }: { p: ResearchPaper; cited: string }) {
   const authors =
     p.authors.length > 3 ? `${p.authors.slice(0, 3).join(", ")} et al.` : p.authors.join(", ");
   const meta = [authors, p.year ? String(p.year) : "", p.venue].filter(Boolean).join(" · ");
@@ -71,7 +70,7 @@ function PaperRow({ p, ar }: { p: ResearchPaper; ar: boolean }) {
         </a>
         {p.citations !== null ? (
           <span className="num shrink-0 rounded-full border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-[var(--color-gold)]">
-            {fmtCitations(p.citations)} {ar ? "استشهاد" : "cited"}
+            {fmtCitations(p.citations)} {cited}
           </span>
         ) : null}
       </div>
@@ -114,15 +113,14 @@ function PaperRow({ p, ar }: { p: ResearchPaper; ar: boolean }) {
 }
 
 function ResearchJsonLd({ digest, locale }: { digest: ResearchDigest; locale: string }) {
-  const ar = locale === "ar";
-  const papers = digest.topics.flatMap((t) => t.papers);
+  const t = researchText(locale);
+  const papers = digest.topics.flatMap((topic) => topic.papers);
   const data = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: ar ? "أبحاث سوق الذهب" : "Gold Market Research",
-    description: ar
-      ? "ملخص محدث يوميًا لأبرز الدراسات الأكاديمية المحكّمة عن أسواق الذهب."
-      : "Daily-refreshed digest of the most-cited peer-reviewed studies on gold markets.",
+    name: t.ldName,
+    description: t.ldDescription,
+    inLanguage: locale,
     url: `${SITE_URL}${canonicalPath(locale, "/research")}`,
     dateModified: digest.fetchedAt,
     mainEntity: {
@@ -160,22 +158,14 @@ async function ResearchBody({
   locale: string;
 }) {
   const digest = await promise;
-  const ar = locale === "ar";
-  const total = digest.topics.reduce((n, t) => n + t.papers.length, 0);
+  const t = researchText(locale);
+  const total = digest.topics.reduce((n, topic) => n + topic.papers.length, 0);
 
   if (total === 0) {
     return (
       <div className="mt-10 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-8 text-center">
-        <p className="text-sm font-semibold text-[var(--color-text)]">
-          {ar
-            ? "تعذّر الوصول إلى المصادر الأكاديمية مؤقتًا."
-            : "The academic sources are temporarily unreachable."}
-        </p>
-        <p className="mt-2 text-sm text-[var(--color-text-muted)]">
-          {ar
-            ? "يُعاد تحميل الملخص تلقائيًا كل 24 ساعة. يمكنك البحث مباشرة عبر المصادر أدناه."
-            : "The digest refreshes automatically every 24 hours. You can search the sources below directly."}
-        </p>
+        <p className="text-sm font-semibold text-[var(--color-text)]">{t.unreachable}</p>
+        <p className="mt-2 text-sm text-[var(--color-text-muted)]">{t.refreshNote}</p>
         <div className="mt-4 flex flex-wrap justify-center gap-4 text-sm">
           {SOURCES.map((s) => (
             <a
@@ -193,7 +183,7 @@ async function ResearchBody({
     );
   }
 
-  const updated = new Date(digest.fetchedAt).toLocaleDateString(ar ? "ar-EG" : "en-US", {
+  const updated = new Date(digest.fetchedAt).toLocaleDateString(localeMeta(locale).intl, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -203,9 +193,9 @@ async function ResearchBody({
     <>
       <ResearchJsonLd digest={digest} locale={locale} />
       <p className="mt-4 text-xs text-[var(--color-text-dim)]">
-        {ar ? `آخر تحديث للملخص: ${updated}` : `Digest last refreshed: ${updated}`}
+        {t.lastRefreshed(updated)}
         {" · "}
-        {ar ? `${total} دراسة` : `${total} studies`}
+        {t.studies(total)}
       </p>
       <div className="mt-8 space-y-12">
         {digest.topics.map((topic) =>
@@ -215,17 +205,17 @@ async function ResearchBody({
                 id={`topic-${topic.key}`}
                 className="text-xl font-bold tracking-tight text-[var(--color-text)]"
               >
-                {ar ? topic.ar : topic.en}
+                {topicTitle(locale, topic)}
               </h2>
               <p className="mt-1 max-w-[70ch] text-sm text-[var(--color-text-muted)]">
-                {ar ? topic.blurbAr : topic.blurbEn}
+                {topicBlurb(locale, topic)}
               </p>
               <ul
                 dir="ltr"
                 className="mt-4 divide-y divide-[var(--color-border)] rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5 text-left sm:p-6"
               >
                 {topic.papers.map((p) => (
-                  <PaperRow key={p.id} p={p} ar={ar} />
+                  <PaperRow key={p.id} p={p} cited={t.cited} />
                 ))}
               </ul>
             </section>
@@ -239,7 +229,7 @@ async function ResearchBody({
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const ar = locale === "ar";
+  const t = researchText(locale);
   const digestPromise = getCachedResearch();
 
   return (
@@ -249,22 +239,18 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         <Breadcrumb
           locale={locale}
           items={[
-            { name: ar ? "الرئيسية" : "Home", href: "/" },
-            { name: ar ? "الأبحاث" : "Research", href: "/research" },
+            { name: t.home, href: "/" },
+            { name: t.crumb, href: "/research" },
           ]}
         />
 
         <header className="max-w-3xl">
           <h1 className="text-3xl font-bold tracking-tight text-[var(--color-gold)] sm:text-4xl">
-            {ar ? "ماذا يقول البحث العلمي عن الذهب؟" : "What academic research says about gold"}
+            {t.h1}
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-muted)]">
-            {ar
-              ? "قبل أي قرار شراء أو بيع، اقرأ ما توصلت إليه الدراسات المحكّمة. نجمع يوميًا أكثر الأوراق الأكاديمية استشهادًا عن الذهب من أربع قواعد بيانات علمية مفتوحة، ونرتبها حسب عدد الاستشهادات، مع رابط مباشر للنص الأصلي ورابط تحقق عبر Google Scholar لكل دراسة."
-              : "Before you buy or sell, read what the peer-reviewed evidence actually says. Every day we aggregate the most-cited academic papers on gold from four open scholarly databases, rank them by citation count, and link each study to its original text plus a Google Scholar cross-check."}
-          </p>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-muted)]">{t.intro}</p>
           <p className="mt-3 text-xs text-[var(--color-text-dim)]">
-            {ar ? "المصادر: " : "Sources: "}
+            {t.sourcesLabel}
             {SOURCES.map((s, i) => (
               <span key={s.name}>
                 {i > 0 ? " · " : ""}
@@ -278,9 +264,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 </a>
               </span>
             ))}
-            {ar
-              ? " · لا يوفر Google Scholar واجهة برمجية عامة، لذا نعرض رابط تحقق لكل دراسة بدلًا من ذلك."
-              : " · Google Scholar has no public API, so we provide a per-study verification link instead."}
+            {t.scholarNote}
           </p>
         </header>
 
@@ -293,29 +277,12 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           className="mt-12 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6"
         >
           <h2 id="method-note" className="text-sm font-bold uppercase tracking-wider text-[var(--color-text-dim)]">
-            {ar ? "كيف نضمن صحة البيانات" : "How we keep this data correct"}
+            {t.methodHeading}
           </h2>
           <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
-            <li>
-              {ar
-                ? "نقرأ البيانات الوصفية الرسمية فقط (العنوان، المؤلفون، سنة النشر، عدد الاستشهادات) من الواجهات البرمجية المفتوحة، ولا ننسخ نصوص الأبحاث."
-                : "We read official metadata only (title, authors, year, citation count) from open APIs; we never republish paper text."}
-            </li>
-            <li>
-              {ar
-                ? "تُدمج النسخ المكررة عبر معرف DOI أو العنوان، وتُستبعد السجلات الناقصة، وتُرتب النتائج حسب الاستشهادات."
-                : "Duplicates are merged by DOI or title, incomplete records are dropped, and results are ranked by citations."}
-            </li>
-            <li>
-              {ar
-                ? "كل دراسة تحمل رابطها الأصلي (DOI أو arXiv) ورابط تحقق عبر Google Scholar، فلا شيء يُعرض دون مصدر يمكن مراجعته."
-                : "Every study carries its canonical link (DOI or arXiv) plus a Google Scholar cross-check, so nothing appears without a verifiable source."}
-            </li>
-            <li>
-              {ar
-                ? "هذه ملخصات معلوماتية وليست نصيحة استثمارية."
-                : "These are informational digests, not investment advice."}
-            </li>
+            {t.method.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
           </ul>
         </section>
       </main>

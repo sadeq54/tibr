@@ -2,8 +2,10 @@ import { Globe } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Flag } from "@/components/Flag";
+import { InstallAppButton } from "@/components/InstallAppButton";
 import { Link } from "@/i18n/navigation";
-import { COUNTRIES, countryName } from "@/lib/countries";
+import { countryName, sortedCountries } from "@/lib/countries";
+import { pick, type LocaleText } from "@/lib/i18n-text";
 
 // Hardcoded copyright year — using `new Date().getFullYear()` would require
 // either `connection()` (which forces the layout dynamic and poisons PPR
@@ -12,6 +14,32 @@ import { COUNTRIES, countryName } from "@/lib/countries";
 const COPYRIGHT_YEAR = 2026;
 
 type LinkItem = { label: string; href: string; external?: boolean };
+
+const BY_COUNTRY: LocaleText = {
+  en: "Gold price by country →",
+  ar: "أسعار الذهب حسب الدولة ←",
+  fr: "Cours de l'or par pays →",
+  tr: "Ülkeye göre altın fiyatı →",
+  ur: "ملک کے لحاظ سے سونے کی قیمت ←",
+  hi: "देश के अनुसार सोने का भाव →",
+};
+
+const RESEARCH: LocaleText = {
+  en: "Academic gold research",
+  ar: "أبحاث الذهب الأكاديمية",
+  fr: "Recherche académique sur l'or",
+  tr: "Akademik altın araştırmaları",
+  ur: "سونے پر علمی تحقیق",
+  hi: "सोने पर अकादमिक शोध",
+};
+
+const EDITORIAL: Array<{ href: string; label: LocaleText }> = [
+  { href: "/about", label: { en: "About", ar: "عن الموقع", fr: "À propos", tr: "Hakkında", ur: "ہمارے بارے میں", hi: "हमारे बारे में" } },
+  { href: "/about/sadeq", label: { en: "Founder", ar: "المؤسس", fr: "Fondateur", tr: "Kurucu", ur: "بانی", hi: "संस्थापक" } },
+  { href: "/about/disclaimer", label: { en: "Disclaimer", ar: "إخلاء المسؤولية", fr: "Avertissement", tr: "Sorumluluk reddi", ur: "دستبرداری", hi: "अस्वीकरण" } },
+  { href: "/methodology", label: { en: "Methodology", ar: "المنهجية", fr: "Méthodologie", tr: "Metodoloji", ur: "طریقۂ کار", hi: "कार्यप्रणाली" } },
+  { href: "/editorial-standards", label: { en: "Editorial standards", ar: "معايير التحرير", fr: "Charte éditoriale", tr: "Editoryal standartlar", ur: "ادارتی معیارات", hi: "संपादकीय मानक" } },
+];
 
 function FooterColumn({ title, links }: { title: string; links: LinkItem[] }) {
   return (
@@ -52,11 +80,7 @@ export async function Footer() {
   const locale = await getLocale();
   const year = COPYRIGHT_YEAR;
 
-  const sortedCountries = [...COUNTRIES].sort((a, b) =>
-    locale === "ar"
-      ? a.name_ar.localeCompare(b.name_ar, "ar")
-      : a.name_en.localeCompare(b.name_en),
-  );
+  const countries = sortedCountries(locale);
 
   return (
     <footer className="mt-16 border-t border-[var(--color-border)] bg-[var(--color-bg-card)] text-[var(--color-text)]">
@@ -71,17 +95,17 @@ export async function Footer() {
               href="/gold-price"
               className="ms-auto text-xs font-semibold text-[var(--color-gold)] transition-colors hover:underline"
             >
-              {locale === "ar" ? "أسعار الذهب حسب الدولة ←" : "Gold price by country →"}
+              {pick(locale, BY_COUNTRY)}
             </Link>
           </header>
           {/* Split countries into chunks of 50 to avoid the >60 children
               DOM-size penalty flagged by Lighthouse. */}
-          {Array.from({ length: Math.ceil(sortedCountries.length / 50) }).map((_, chunkIdx) => (
+          {Array.from({ length: Math.ceil(countries.length / 50) }).map((_, chunkIdx) => (
             <ul
               key={chunkIdx}
               className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
             >
-              {sortedCountries.slice(chunkIdx * 50, (chunkIdx + 1) * 50).map((c) => (
+              {countries.slice(chunkIdx * 50, (chunkIdx + 1) * 50).map((c) => (
                 <li key={c.slug} className="py-0.5">
                   <Link
                     href={`/${c.slug}/gold-price/21k`}
@@ -108,7 +132,7 @@ export async function Footer() {
               title={t("newsHeading")}
               links={[
                 { label: t("newsLink"), href: "/news" },
-                { label: locale === "ar" ? "أبحاث الذهب الأكاديمية" : "Academic gold research", href: "/research" },
+                { label: pick(locale, RESEARCH), href: "/research" },
               ]}
             />
             <FooterColumn
@@ -213,24 +237,16 @@ export async function Footer() {
           aria-label="Editorial"
           className="mx-auto mb-3 flex max-w-7xl flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] text-[var(--color-text-dim)]"
         >
-          <Link href="/about" className="transition-colors hover:text-[var(--color-gold)]">
-            {locale === "ar" ? "عن الموقع" : "About"}
-          </Link>
-          <Link href="/about/sadeq" className="transition-colors hover:text-[var(--color-gold)]">
-            {locale === "ar" ? "المؤسس" : "Founder"}
-          </Link>
-          <Link href="/about/disclaimer" className="transition-colors hover:text-[var(--color-gold)]">
-            {locale === "ar" ? "إخلاء المسؤولية" : "Disclaimer"}
-          </Link>
-          <Link href="/methodology" className="transition-colors hover:text-[var(--color-gold)]">
-            {locale === "ar" ? "المنهجية" : "Methodology"}
-          </Link>
-          <Link
-            href="/editorial-standards"
-            className="transition-colors hover:text-[var(--color-gold)]"
-          >
-            {locale === "ar" ? "معايير التحرير" : "Editorial standards"}
-          </Link>
+          {EDITORIAL.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href as never}
+              className="transition-colors hover:text-[var(--color-gold)]"
+            >
+              {pick(locale, l.label)}
+            </Link>
+          ))}
+          <InstallAppButton locale={locale} />
         </nav>
         <div className="mx-auto max-w-7xl text-center text-xs text-[var(--color-text-dim)]">
           {tPage.rich("footer", {

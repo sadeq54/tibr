@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import { isRtl, localeMeta } from "@/i18n/routing";
+import { pick } from "@/lib/i18n-text";
+
 /**
  * Embed ticker — the client half of the iframe widget.
  *
@@ -64,7 +67,9 @@ export function EmbedTicker({
 }) {
   const [data, setData] = useState<Snapshot>(initial);
   const c = PALETTE[theme];
-  const ar = locale === "ar";
+  const rtl = isRtl(locale);
+  const karat = (k: string) =>
+    pick(locale, { en: `${k}K`, ar: `عيار ${k}`, fr: `${k} carats`, tr: `${k} ayar`, ur: `${k} قیراط`, hi: `${k} कैरेट` });
 
   useEffect(() => {
     let alive = true;
@@ -106,7 +111,7 @@ export function EmbedTicker({
       maximumFractionDigits: 2,
     });
   const up = data.changePct >= 0;
-  const time = new Date(data.updatedAt).toLocaleTimeString(ar ? "ar" : "en-US", {
+  const time = new Date(data.updatedAt).toLocaleTimeString(localeMeta(locale).intl, {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -124,7 +129,7 @@ export function EmbedTicker({
         padding: "12px 14px",
         fontFamily:
           "system-ui, -apple-system, 'Segoe UI', Tahoma, Arial, sans-serif",
-        direction: ar ? "rtl" : "ltr",
+        direction: rtl ? "rtl" : "ltr",
       }}
     >
       <div
@@ -136,7 +141,14 @@ export function EmbedTicker({
         }}
       >
         <span style={{ fontSize: 13, fontWeight: 600 }}>
-          {ar ? `سعر الذهب — ${countryName}` : `Gold price — ${countryName}`}
+          {pick(locale, {
+            en: `Gold price — ${countryName}`,
+            ar: `سعر الذهب — ${countryName}`,
+            fr: `Prix de l'or — ${countryName}`,
+            tr: `Altın fiyatı — ${countryName}`,
+            ur: `سونے کی قیمت — ${countryName}`,
+            hi: `सोने का भाव — ${countryName}`,
+          })}
         </span>
         <span style={{ fontSize: 10, color: c.dim, letterSpacing: 0.5 }}>
           {currency}
@@ -162,7 +174,14 @@ export function EmbedTicker({
           {fmt(data.g24)}
         </span>
         <span style={{ fontSize: 11, color: c.dim }}>
-          {ar ? "عيار 24 / جرام" : "24K / gram"}
+          {pick(locale, {
+            en: "24K / gram",
+            ar: "عيار 24 / جرام",
+            fr: "24 carats / gramme",
+            tr: "24 ayar / gram",
+            ur: "24 قیراط / گرام",
+            hi: "24 कैरेट / ग्राम",
+          })}
         </span>
         <span
           style={{
@@ -178,9 +197,9 @@ export function EmbedTicker({
 
       <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
         {[
-          { k: ar ? "عيار 21" : "21K", v: data.g21 },
-          { k: ar ? "عيار 18" : "18K", v: data.g18 },
-          { k: ar ? "عيار 14" : "14K", v: data.g14 },
+          { k: karat("21"), v: data.g21 },
+          { k: karat("18"), v: data.g18 },
+          { k: karat("14"), v: data.g14 },
         ].map((x) => (
           <span key={x.k} style={{ fontSize: 11, color: c.dim }}>
             {x.k}{" "}
@@ -207,7 +226,16 @@ export function EmbedTicker({
           color: c.dim,
         }}
       >
-        <span>{ar ? `آخر تحديث ${time}` : `Updated ${time}`}</span>
+        <span>
+          {pick(locale, {
+            en: `Updated ${time}`,
+            ar: `آخر تحديث ${time}`,
+            fr: `Mis à jour ${time}`,
+            tr: `Güncellendi ${time}`,
+            ur: `اپ ڈیٹ ${time}`,
+            hi: `अपडेट ${time}`,
+          })}
+        </span>
         <a
           href="https://goldpricesarabia.com"
           target="_blank"

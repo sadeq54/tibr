@@ -85,7 +85,7 @@ export function MetalsStrip({ metals }: { metals: MetalsBundle }) {
                     </span>
                     <span className="text-sm font-semibold text-[var(--color-text)]">{localizedName}</span>
                   </div>
-                  {locale === "en" && (
+                  {locale !== "ar" && (
                     <div className="mt-0.5 text-[10px] text-[var(--color-text-dim)]" lang="ar">
                       {meta.nameAr}
                     </div>

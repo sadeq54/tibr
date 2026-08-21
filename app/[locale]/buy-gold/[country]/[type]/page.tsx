@@ -6,10 +6,12 @@ import { Flag } from "@/components/Flag";
 import { HeroSpot } from "@/components/HeroSpot";
 import { PageShell } from "@/components/PageShell";
 import { HeroSpotSkeleton } from "@/components/skeletons";
+import { localeMeta } from "@/i18n/routing";
 import { COUNTRY_BY_SLUG, countryName } from "@/lib/countries";
 import { getCachedFxRates, getCachedSpot } from "@/lib/cached-fetchers";
 import type { FxRates } from "@/lib/fx";
 import type { GoldApiResponse } from "@/lib/goldapi";
+import { pick, type LocaleText } from "@/lib/i18n-text";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 const SUPPORTED_COUNTRIES = [
@@ -21,23 +23,37 @@ type Type = (typeof SUPPORTED_TYPES)[number];
 
 const OZ_TO_GRAM = 31.1034768;
 
-const DENOMS: Record<Type, Array<{ label_en: string; label_ar: string; oz?: number; g?: number; kg?: number }>> = {
+const oz = (n: string): LocaleText => ({
+  en: `${n} oz`, ar: `${n} أونصة`, fr: `${n} once`, tr: `${n} ons`, ur: `${n} اونس`, hi: `${n} औंस`,
+});
+const g = (n: string): LocaleText => ({
+  en: `${n} g`, ar: `${n} جم`, fr: `${n} g`, tr: `${n} g`, ur: `${n} گرام`, hi: `${n} ग्राम`,
+});
+const kg = (n: string): LocaleText => ({
+  en: `${n} kg`, ar: `${n} كجم`, fr: `${n} kg`, tr: `${n} kg`, ur: `${n} کلو`, hi: `${n} किलो`,
+});
+
+const DENOMS: Record<Type, Array<{ label: LocaleText; oz?: number; g?: number; kg?: number }>> = {
   coins: [
-    { label_en: "1 oz", label_ar: "1 أونصة", oz: 1 },
-    { label_en: "1/2 oz", label_ar: "1/2 أونصة", oz: 0.5 },
-    { label_en: "1/4 oz", label_ar: "1/4 أونصة", oz: 0.25 },
+    { label: oz("1"), oz: 1 },
+    { label: oz("1/2"), oz: 0.5 },
+    { label: oz("1/4"), oz: 0.25 },
   ],
   "small-coins": [
-    { label_en: "1/10 oz", label_ar: "1/10 أونصة", oz: 0.1 },
-    { label_en: "1/20 oz", label_ar: "1/20 أونصة", oz: 0.05 },
-    { label_en: "1 g", label_ar: "1 جم", g: 1 },
+    { label: oz("1/10"), oz: 0.1 },
+    { label: oz("1/20"), oz: 0.05 },
+    { label: g("1"), g: 1 },
   ],
   bars: [
-    { label_en: "1 g", label_ar: "1 جم", g: 1 },
-    { label_en: "10 g", label_ar: "10 جم", g: 10 },
-    { label_en: "100 g", label_ar: "100 جم", g: 100 },
-    { label_en: "1 kg", label_ar: "1 كجم", kg: 1 },
+    { label: g("1"), g: 1 },
+    { label: g("10"), g: 10 },
+    { label: g("100"), g: 100 },
+    { label: kg("1"), kg: 1 },
   ],
+};
+
+const DENOM_TH: LocaleText = {
+  en: "Denomination", ar: "الفئة", fr: "Format", tr: "Gramaj", ur: "وزن", hi: "वज़न",
 };
 
 export function generateStaticParams() {
@@ -150,6 +166,7 @@ function DenomTable({
   locale: string;
   heading: string;
 }) {
+  const intl = localeMeta(locale).intl;
   const rate = (fx[currency] as number | undefined) ?? 1;
   const perGramUsd = spot?.price_gram_24k ?? 0;
   const denoms = DENOMS[type];
@@ -161,7 +178,7 @@ function DenomTable({
         <thead>
           <tr className="border-b border-[var(--color-border)] text-left">
             <th className="py-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
-              {locale === "ar" ? "الفئة" : "Denomination"}
+              {pick(locale, DENOM_TH)}
             </th>
             <th className="py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
               USD
@@ -177,18 +194,18 @@ function DenomTable({
               (d.oz ?? 0) * OZ_TO_GRAM + (d.g ?? 0) + (d.kg ?? 0) * 1000;
             const usd = grams * perGramUsd;
             const local = usd * rate;
-            const label = locale === "ar" ? d.label_ar : d.label_en;
+            const label = pick(locale, d.label);
             return (
               <tr
-                key={label}
+                key={d.label.en}
                 className="border-b border-[var(--color-border)] last:border-b-0"
               >
                 <td className="py-3 font-semibold text-[var(--color-text)]">{label}</td>
                 <td className="py-3 text-right font-mono text-[var(--color-text)]">
-                  ${usd.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                  ${usd.toLocaleString(intl, { maximumFractionDigits: 2 })}
                 </td>
                 <td className="py-3 text-right font-mono text-[var(--color-gold)]">
-                  {local.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                  {local.toLocaleString(intl, { maximumFractionDigits: 2 })}
                 </td>
               </tr>
             );

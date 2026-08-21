@@ -29,7 +29,6 @@ export default async function GoldPriceChartPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("SubPage");
 
   const fxPromise = fetchFxRates();
   const historyPromise = fetchAllHistory("1y");

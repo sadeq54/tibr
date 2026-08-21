@@ -173,3 +173,9 @@ The remaining 5-6 points to 100 are:
 - Backlinks (PR / outreach work — not code)
 
 Both are time-dependent, not code-dependent.
+
+---
+
+## 10. New languages (fr / tr / ur / hi)
+
+Live after deploy at `/fr`, `/tr`, `/ur`, `/hi`. In Google Search Console, the existing property covers them (same domain). Request indexing for the URLs added to `seo-priority-urls.md`. Optional: add the Turkish/Urdu/Hindi homepages to Bing Webmaster's URL submission too.

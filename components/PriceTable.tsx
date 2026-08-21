@@ -15,6 +15,16 @@ import {
   timeLabelUtc,
 } from "@/lib/seo";
 
+import { karatLabel } from "@/lib/karat-label";
+
+import {
+  gramHeader,
+  priceTableCaption,
+  priceTableFootnote,
+  priceTableHeading,
+  tableText,
+} from "./tables.i18n";
+
 /**
  * Crawler- and AI-friendly price matrix: every karat (24/22/21/18/14) × every
  * retail unit, with spot bid/ask per gram. A real <table> (not cards) so
@@ -38,7 +48,6 @@ export function PriceTable({
   slug?: string;
   highlightKarat?: string;
 }) {
-  const ar = locale === "ar";
   if (!spot) return null;
 
   const rawRate = currency === "USD" ? 1 : (fx?.[currency] as number | undefined);
@@ -69,13 +78,7 @@ export function PriceTable({
   });
   const k21 = rows.find((r) => r.key === "21k");
 
-  const heading = ar
-    ? countryName
-      ? `أسعار الذهب اليوم في ${countryName} حسب العيار`
-      : "أسعار الذهب اليوم حسب العيار"
-    : countryName
-      ? `Gold prices today in ${countryName} by karat`
-      : "Gold prices today by karat";
+  const heading = priceTableHeading(locale, countryName);
 
   const th = "px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]";
   const td = "num px-3 py-2.5 font-mono text-sm text-[var(--color-text)]";
@@ -90,7 +93,7 @@ export function PriceTable({
           <p className="text-xs text-[var(--color-text-dim)]">
             <time dateTime={when.toISOString()}>{dateLabel(locale, when, true)}</time>
             {" · "}
-            {ar ? "آخر تحديث" : "Updated"} {timeLabelUtc(when)}
+            {tableText(locale, "updated")} {timeLabelUtc(when)}
           </p>
         ) : null}
       </div>
@@ -98,19 +101,17 @@ export function PriceTable({
       <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
         <table className="w-full min-w-[560px] border-collapse text-start">
           <caption className="sr-only">
-            {ar
-              ? `جدول أسعار الذهب اليوم بـ${cur} لكل عيار ووحدة وزن`
-              : `Gold price table today in ${cur} per karat and weight unit`}
+            {priceTableCaption(locale, cur)}
           </caption>
           <thead className="border-b border-[var(--color-border)]">
             <tr className="text-start">
-              <th scope="col" className={`${th} text-start`}>{ar ? "العيار" : "Karat"}</th>
-              <th scope="col" className={`${th} text-end`}>{ar ? `الجرام (${currency})` : `Gram (${currency})`}</th>
-              <th scope="col" className={`${th} text-end`}>{ar ? "شراء" : "Bid"}</th>
-              <th scope="col" className={`${th} text-end`}>{ar ? "بيع" : "Ask"}</th>
-              <th scope="col" className={`${th} text-end`}>{ar ? "الأونصة" : "Ounce"}</th>
-              {showTola ? <th scope="col" className={`${th} text-end`}>{ar ? "التولة" : "Tola"}</th> : null}
-              <th scope="col" className={`${th} text-end`}>{ar ? "الكيلو" : "Kilo"}</th>
+              <th scope="col" className={`${th} text-start`}>{tableText(locale, "karat")}</th>
+              <th scope="col" className={`${th} text-end`}>{gramHeader(locale, currency)}</th>
+              <th scope="col" className={`${th} text-end`}>{tableText(locale, "bid")}</th>
+              <th scope="col" className={`${th} text-end`}>{tableText(locale, "ask")}</th>
+              <th scope="col" className={`${th} text-end`}>{tableText(locale, "ounce")}</th>
+              {showTola ? <th scope="col" className={`${th} text-end`}>{tableText(locale, "tola")}</th> : null}
+              <th scope="col" className={`${th} text-end`}>{tableText(locale, "kilo")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-border)]">
@@ -123,7 +124,7 @@ export function PriceTable({
                   aria-current={active ? "true" : undefined}
                 >
                   <th scope="row" className="px-3 py-2.5 text-start text-sm font-semibold text-[var(--color-text)]">
-                    {ar ? `عيار ${r.label.replace("K", "")}` : r.label}
+                    {karatLabel(locale, r.label)}
                     <span className="ms-2 text-[10px] font-medium text-[var(--color-text-dim)]">{r.pct}</span>
                   </th>
                   <td dir="ltr" className={`${td} text-end font-bold`}>{fmtNum(r.gram, frac)}</td>
@@ -141,7 +142,7 @@ export function PriceTable({
 
       {showPound && k21 ? (
         <p className="mt-2 text-sm text-[var(--color-text-muted)]">
-          {ar ? "الجنيه الذهب (8 جرام عيار 21): " : "Gold pound (8 g of 21K): "}
+          {tableText(locale, "goldPound")}
           <strong dir="ltr" className="num font-mono text-[var(--color-text)]">
             {fmtNum(k21.gram * GOLD_POUND_G, frac)} {currency}
           </strong>
@@ -149,9 +150,7 @@ export function PriceTable({
       ) : null}
 
       <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-dim)]">
-        {ar
-          ? `الأسعار هي السعر الفوري العالمي (وسيط Binance وCoinbase وKraken) محوّلًا إلى ${cur} بسعر صرف محدّث كل ساعة، قبل المصنعية وهامش المحل وأي ضريبة محلية. «شراء/بيع» هما سعرا العرض والطلب الفوريان.`
-          : `Prices are the global spot (median of Binance, Coinbase and Kraken) converted to ${cur} at an hourly FX rate, before making charges, retailer margin and local tax. Bid/ask are the live spot quotes.`}
+        {priceTableFootnote(locale, cur)}
       </p>
     </section>
   );

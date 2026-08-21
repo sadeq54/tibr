@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useLivePrice } from "@/components/LivePriceProvider";
 import { LuxuryNumberInput } from "@/components/LuxuryNumberInput";
 import { LuxurySelect } from "@/components/LuxurySelect";
+import { localeMeta } from "@/i18n/routing";
 import { ALL_CURRENCIES } from "@/lib/countries";
 import type { FxRates } from "@/lib/fx";
 
@@ -58,6 +59,7 @@ export function Calculator({
   defaultKarat?: typeof KARATS[number]["field"];
 }) {
   const t = useTranslations("Calculator");
+  const intl = localeMeta(useLocale()).intl;
   const live = useLivePrice();
   const [karatField, setKaratField] = useState<typeof KARATS[number]["field"]>(defaultKarat);
   const [unit, setUnit] = useState<typeof UNITS[number]["id"]>("g");
@@ -138,7 +140,7 @@ export function Calculator({
         </div>
         <div className="mt-1 font-mono text-3xl font-bold text-[var(--color-gold)]">
           {symbol}{" "}
-          {result.value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {result.value.toLocaleString(intl, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
         <div className="mt-1 text-xs text-[var(--color-text-muted)]">
           {t("breakdown", {

@@ -103,14 +103,14 @@ export function BidAskGaugeSkeleton() {
 
 export function KaratGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4" role="status" aria-busy="true" aria-label="Loading karat prices">
-      {Array.from({ length: 4 }).map((_, i) => (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5" role="status" aria-busy="true" aria-label="Loading karat prices">
+      {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5 space-y-4"
+          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-4 space-y-4"
         >
-          <div className="flex items-center gap-3">
-            <Skel className="h-11 w-11 rounded-full" />
+          <div className="flex items-center gap-2.5">
+            <Skel className="h-10 w-10 shrink-0 rounded-full" />
             <div className="space-y-2 flex-1">
               <Skel className="h-4 w-24" />
               <Skel className="h-3 w-16" />

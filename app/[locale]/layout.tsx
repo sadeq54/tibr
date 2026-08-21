@@ -12,11 +12,12 @@ import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { LivePriceProvider } from "@/components/LivePriceProvider";
 import { MotionRoot } from "@/components/motion/MotionRoot";
+import { PwaRegister } from "@/components/PwaRegister";
 import { ReduxProvider } from "@/components/ReduxProvider";
 import { ThemeApplier } from "@/components/ThemeApplier";
-import { routing } from "@/i18n/routing";
+import { localeMeta, routing, STATIC_LOCALES } from "@/i18n/routing";
 import { fontVariables } from "@/lib/fonts";
-import { SITE_URL, buildAlternates } from "@/lib/metadata";
+import { SITE_URL } from "@/lib/metadata";
 
 import "../globals.css";
 
@@ -403,7 +404,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: SITE_URL,
     locale: "ar_AE",
-    alternateLocale: ["en_US", "ar_SA", "ar_JO", "ar_AE", "ar_EG"],
+    alternateLocale: ["en_US", "ar_SA", "ar_JO", "ar_AE", "ar_EG", "fr_FR", "tr_TR", "ur_PK", "hi_IN"],
     images: [
       {
         url: "/opengraph-image",
@@ -484,8 +485,13 @@ export const viewport: Viewport = {
   ],
 };
 
+/**
+ * Only `ar` + `en` are prerendered; fr/tr/ur/hi render on first request and
+ * are cached (dynamicParams stays at its default `true` — do not set it to
+ * false anywhere under app/[locale] or the other locales would 404).
+ */
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
+  return STATIC_LOCALES.map((locale) => ({ locale }));
 }
 
 async function I18nProvider({
@@ -590,7 +596,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
-  const dir = locale === "ar" ? "rtl" : "ltr";
+  const dir = localeMeta(locale).dir;
 
   return (
     <html
@@ -634,6 +640,7 @@ export default async function LocaleLayout({
         <ReduxProvider>
           <AutoTheme />
           <ThemeApplier />
+          <PwaRegister />
           <MotionRoot>
             <LivePriceProvider>
               <Suspense fallback={null}>

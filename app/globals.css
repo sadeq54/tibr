@@ -2,8 +2,9 @@
 
 @theme {
   /* Brand typography — variables injected by next/font in app/[locale]/layout.tsx.
-     Geist carries Latin + digits; IBM Plex Sans Arabic catches Arabic glyphs. */
-  --font-sans: var(--font-geist), var(--font-arabic), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+     Geist carries Latin + digits; IBM Plex Sans Arabic catches Arabic + Urdu
+     glyphs; Noto Sans Devanagari catches Hindi. */
+  --font-sans: var(--font-geist), var(--font-arabic), var(--font-devanagari), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 
   /* Dark theme (default) — warm charcoal neutrals + champagne gold.

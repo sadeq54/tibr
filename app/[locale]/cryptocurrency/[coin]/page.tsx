@@ -2,10 +2,14 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
+import { localeMeta } from "@/i18n/routing";
 import { CRYPTO_BY_SLUG, CRYPTO_LIST, fetchCryptoBySlug } from "@/lib/crypto";
 import { getCachedFxRates } from "@/lib/cached-fetchers";
+import { pick } from "@/lib/i18n-text";
 import { buildAlternates, buildOpenGraph, canonicalPath } from "@/lib/metadata";
 import { faqPageSchema } from "@/lib/schemas";
+
+import { cryptoFaqs } from "./faq.i18n";
 
 export function generateStaticParams() {
   return CRYPTO_LIST.map((c) => ({ coin: c.slug }));
@@ -32,6 +36,10 @@ function localizedIntro(
   return fallback;
 }
 
+/** Coin names are proper nouns — CRYPTO_LIST carries en/ar only, other locales fall back to English. */
+const coinName = (meta: { name_en: string; name_ar: string }, locale: string) =>
+  pick(locale, { en: meta.name_en, ar: meta.name_ar });
+
 export async function generateMetadata({
   params,
 }: {
@@ -41,7 +49,7 @@ export async function generateMetadata({
   const meta = CRYPTO_BY_SLUG[coin];
   if (!meta) return {};
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  const name = locale === "ar" ? meta.name_ar : meta.name_en;
+  const name = coinName(meta, locale);
   return {
     title: localizedTitle(locale, coin, t("cryptoH1", { coin: name })),
     description: localizedIntro(
@@ -64,12 +72,15 @@ export default async function CryptoCoinPage({
   if (!meta) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("SubPage");
+  const intl = localeMeta(locale).intl;
+  const fmt = (n: number, opts: Intl.NumberFormatOptions = { maximumFractionDigits: 2 }) =>
+    n.toLocaleString(intl, opts);
 
   const [quote, fx] = await Promise.all([
     fetchCryptoBySlug(coin),
     getCachedFxRates(),
   ]);
-  const name = locale === "ar" ? meta.name_ar : meta.name_en;
+  const name = coinName(meta, locale);
 
   const pageUrl = canonicalPath(locale, `/cryptocurrency/${coin}`);
   const sarRate = fx ? (fx.SAR as number) : 3.75;
@@ -77,61 +88,18 @@ export default async function CryptoCoinPage({
   const sarPrice = quote ? quote.price_usd * sarRate : 0;
   const aedPrice = quote ? quote.price_usd * aedRate : 0;
 
-  const cryptoFaqs = locale === "ar"
-    ? [
-        {
-          q: `كم سعر ${name} اليوم؟`,
-          a: quote
-            ? `سعر ${name} الآن ${quote.price_usd.toLocaleString("en-US", { maximumFractionDigits: 2 })} دولار، أو ${sarPrice.toLocaleString("en-US", { maximumFractionDigits: 2 })} ريال سعودي. السعر يُحدّث من بيانات CoinGecko.`
-            : `سعر ${name} يُحدّث في الصندوق أعلاه من بيانات CoinGecko.`,
-        },
-        {
-          q: `كيف أحوّل ${meta.symbol} إلى ريال سعودي؟`,
-          a: `استخدم سعر الصرف الحالي: 1 ${meta.symbol} × سعر الصرف الدولار/الريال (≈3.75). نحن نُحدّث سعر الصرف يومياً من بيانات البنوك المركزية المفتوحة.`,
-        },
-        {
-          q: `هل ${name} حلال؟`,
-          a: `هذا موضوع نقاش بين علماء الفقه الإسلامي. بعض المجالس الإفتائية (الأزهر، دار الإفتاء المصرية) أصدروا فتاوى بحرمة العملات الرقمية للمضاربة. آخرون (هيئة المحاسبة والمراجعة للمؤسسات المالية الإسلامية AAOIFI) يفصّلون بين الاستخدامات. استشر مرجعاً دينياً موثوقاً قبل التداول.`,
-        },
-        {
-          q: `أين أشتري ${name} في المنطقة العربية؟`,
-          a: `لا يوجد بائع رسمي مرخص في معظم دول الخليج. المنصات الدولية المعروفة (Binance، Coinbase، Kraken، OKX، Bybit) قابلة للوصول من المنطقة. تحقق من الحالة القانونية في بلدك قبل الشراء — التداول مقيد في السعودية، مسموح في الإمارات (مع تنظيم)، مقيد في المغرب.`,
-        },
-        {
-          q: `كم مرة يُحدّث سعر ${name}؟`,
-          a: `السعر يُحدّث كل دقيقة تقريباً من CoinGecko API. للأسعار اللحظية (تيك بتيك)، استخدم Binance أو CoinMarketCap مباشرة. نحن نوفر صورة دقيقة بما يكفي للقرارات اليومية، ليس للتداول عالي التردد.`,
-        },
-      ]
-    : [
-        {
-          q: `What is the ${name} price today?`,
-          a: quote
-            ? `${name} is now ${quote.price_usd.toLocaleString("en-US", { maximumFractionDigits: 2 })} USD, or ${sarPrice.toLocaleString("en-US", { maximumFractionDigits: 2 })} SAR / ${aedPrice.toLocaleString("en-US", { maximumFractionDigits: 2 })} AED. Price sourced from CoinGecko.`
-            : `${name} price updates in the box above, sourced from CoinGecko.`,
-        },
-        {
-          q: `How do I convert ${meta.symbol} to Saudi Riyals or UAE Dirhams?`,
-          a: `Multiply the ${meta.symbol}/USD price by the daily USD/SAR rate (~3.75) or USD/AED rate (~3.67). We refresh the FX rate daily from open central-bank data.`,
-        },
-        {
-          q: `Is ${name} permissible (halal) under Islamic law?`,
-          a: `This is debated among Islamic scholars. Some councils (Al-Azhar, Egypt's Dar Al-Ifta) have issued rulings against speculative crypto trading. Others (AAOIFI — the Accounting and Auditing Organization for Islamic Financial Institutions) differentiate by use case. Consult a trusted religious authority before trading.`,
-        },
-        {
-          q: `Where can I buy ${name} in the MENA region?`,
-          a: `No fully licensed local exchange exists in most Gulf states. International platforms (Binance, Coinbase, Kraken, OKX, Bybit) are accessible from the region. Verify the legal status in your country before buying — restricted in Saudi Arabia, regulated in UAE, restricted in Morocco.`,
-        },
-        {
-          q: `How often is the ${name} price updated?`,
-          a: `Price updates approximately every minute from CoinGecko's API. For real-time (tick-by-tick) prices, use Binance or CoinMarketCap directly. We provide a snapshot accurate enough for daily decisions, not for high-frequency trading.`,
-        },
-      ];
-  const cryptoFaqSchema = faqPageSchema(pageUrl, cryptoFaqs, locale === "ar" ? "ar" : "en");
+  const faqs = cryptoFaqs(locale, {
+    name,
+    symbol: meta.symbol,
+    prices: quote ? { usd: fmt(quote.price_usd), sar: fmt(sarPrice), aed: fmt(aedPrice) } : null,
+  });
+  const cryptoFaqSchema = faqPageSchema(pageUrl, faqs, locale);
 
   const fallbackTitle = t("cryptoH1", { coin: name });
   const fallbackIntro = t("cryptoIntro", { coin: name, symbol: meta.symbol });
   const title = localizedTitle(locale, coin, fallbackTitle);
   const intro = localizedIntro(locale, coin, fallbackIntro);
+  const money2 = { minimumFractionDigits: 2, maximumFractionDigits: 2 } as const;
 
   return (
     <PageShell title={title} intro={intro}>
@@ -146,7 +114,7 @@ export default async function CryptoCoinPage({
             <div className="flex items-baseline gap-3">
               <div className="font-mono text-4xl font-bold text-[var(--color-gold)]">
                 $
-                {quote.price_usd.toLocaleString("en-US", {
+                {fmt(quote.price_usd, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: quote.price_usd < 1 ? 6 : 2,
                 })}
@@ -169,12 +137,26 @@ export default async function CryptoCoinPage({
 
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <Item
-                label={locale === "ar" ? "بالريال السعودي" : "In Saudi Riyal"}
-                value={`SR ${sarPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                label={pick(locale, {
+                  en: "In Saudi Riyal",
+                  ar: "بالريال السعودي",
+                  fr: "En riyal saoudien",
+                  tr: "Suudi riyali",
+                  ur: "سعودی ریال میں",
+                  hi: "सऊदी रियाल में",
+                })}
+                value={`SR ${fmt(sarPrice, money2)}`}
               />
               <Item
-                label={locale === "ar" ? "بالدرهم الإماراتي" : "In UAE Dirham"}
-                value={`AED ${aedPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                label={pick(locale, {
+                  en: "In UAE Dirham",
+                  ar: "بالدرهم الإماراتي",
+                  fr: "En dirham émirati",
+                  tr: "BAE dirhemi",
+                  ur: "اماراتی درہم میں",
+                  hi: "यूएई दिरहम में",
+                })}
+                value={`AED ${fmt(aedPrice, money2)}`}
               />
             </dl>
 
@@ -188,18 +170,9 @@ export default async function CryptoCoinPage({
                 label={t("cryptoVolume")}
                 value={`$${(quote.volume_24h / 1_000_000_000).toFixed(2)}B`}
               />
-              <Item
-                label={t("cryptoHigh")}
-                value={`$${quote.high_24h.toLocaleString("en-US", { maximumFractionDigits: 2 })}`}
-              />
-              <Item
-                label={t("cryptoLow")}
-                value={`$${quote.low_24h.toLocaleString("en-US", { maximumFractionDigits: 2 })}`}
-              />
-              <Item
-                label={t("cryptoAth")}
-                value={`$${quote.ath.toLocaleString("en-US", { maximumFractionDigits: 2 })}`}
-              />
+              <Item label={t("cryptoHigh")} value={`$${fmt(quote.high_24h)}`} />
+              <Item label={t("cryptoLow")} value={`$${fmt(quote.low_24h)}`} />
+              <Item label={t("cryptoAth")} value={`$${fmt(quote.ath)}`} />
             </dl>
           </>
         ) : (

@@ -33,7 +33,6 @@ export default async function ShanghaiGoldPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("SubPage");
 
   const spotPromise = fetchSpot("XAU");
   const fxPromise = fetchFxRates();

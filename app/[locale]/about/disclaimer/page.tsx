@@ -1,13 +1,10 @@
-import { createTranslator } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-
-import arMessages from "@/messages/ar.json";
-import enMessages from "@/messages/en.json";
 
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Header } from "@/components/Header";
 import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/i18n/navigation";
+import { pick } from "@/lib/i18n-text";
 import { buildAlternates, buildOpenGraph, canonicalPath, SITE_URL } from "@/lib/metadata";
 
 export async function generateMetadata({
@@ -32,14 +29,15 @@ export default async function DisclaimerPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
-    string,
-    Record<string, string>
-  >;
-  const t = createTranslator({ locale, namespace: "DisclaimerPage", messages });
-  const tInfo = await getTranslations("InfoPage");
+  const t = await getTranslations({ locale, namespace: "DisclaimerPage" });
+  const tInfo = await getTranslations({ locale, namespace: "InfoPage" });
   const now = "2026-05-27";
   const pageUrl = canonicalPath(locale, "/about/disclaimer");
+  const homeCrumb = {
+    name: pick(locale, { en: "Home", ar: "الرئيسية", fr: "Accueil", tr: "Ana sayfa", ur: "ہوم", hi: "होम" }),
+    href: canonicalPath(locale, "/"),
+  };
+  const aboutCrumb = { name: tInfo("aboutH1"), href: canonicalPath(locale, "/about") };
 
   const sections: Array<{ h: string; body: string }> = [
     { h: t("introH2"), body: t("intro") },
@@ -62,8 +60,8 @@ export default async function DisclaimerPage({
         pageName={t("h1")}
         pageOnly
         breadcrumb={[
-          { name: locale === "en" ? "Home" : "الرئيسية", url: locale === "en" ? "/en" : "/" },
-          { name: tInfo("aboutH1"), url: locale === "en" ? "/en/about" : "/about" },
+          { name: homeCrumb.name, url: homeCrumb.href },
+          { name: aboutCrumb.name, url: aboutCrumb.href },
           { name: t("h1"), url: pageUrl },
         ]}
       />
@@ -71,11 +69,7 @@ export default async function DisclaimerPage({
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <Breadcrumb
           locale={locale}
-          items={[
-            { name: locale === "en" ? "Home" : "الرئيسية", href: locale === "en" ? "/en" : "/" },
-            { name: tInfo("aboutH1"), href: locale === "en" ? "/en/about" : "/about" },
-            { name: t("h1"), href: pageUrl },
-          ]}
+          items={[homeCrumb, aboutCrumb, { name: t("h1"), href: pageUrl }]}
         />
         <article>
           <header className="mb-8">
@@ -121,7 +115,7 @@ export default async function DisclaimerPage({
               href="/about/sadeq"
               className="text-[var(--color-gold)] underline hover:no-underline"
             >
-              {locale === "ar" ? "المؤسس" : "Founder"} →
+              {pick(locale, { en: "Founder", ar: "المؤسس", fr: "Fondateur", tr: "Kurucu", ur: "بانی", hi: "संस्थापक" })} →
             </Link>
           </nav>
         </article>

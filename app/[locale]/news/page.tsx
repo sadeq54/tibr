@@ -1,8 +1,10 @@
-import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PageShell } from "@/components/PageShell";
 import { Link } from "@/i18n/navigation";
+import { localeMeta } from "@/i18n/routing";
 import { getCachedNews } from "@/lib/cached-fetchers";
+import { pick } from "@/lib/i18n-text";
 import {
   buildAlternates,
   buildOpenGraph,
@@ -35,7 +37,6 @@ export default async function NewsPage({
   const t = await getTranslations("SubPage");
 
   const items = await getCachedNews(30);
-  const lang = await getLocale();
   const editorial = [...ARTICLES].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
   const pageUrl = canonicalPath(locale, "/news");
@@ -49,10 +50,23 @@ export default async function NewsPage({
         "@context": "https://schema.org",
         "@type": "ItemList",
         "@id": `${SITE_URL}${pageUrl}#headlines`,
-        name: lang === "ar" ? "آخر أخبار سوق الذهب" : "Latest gold market headlines",
-        description: lang === "ar"
-          ? "تجميع لحظي لعناوين أخبار الذهب من Kitco، Mining.com، BullionVault، Yahoo Finance، CoinDesk"
-          : "Aggregated real-time gold market headlines from Kitco, Mining.com, BullionVault, Yahoo Finance and CoinDesk",
+        name: pick(locale, {
+          en: "Latest gold market headlines",
+          ar: "آخر أخبار سوق الذهب",
+          fr: "Dernières actualités du marché de l'or",
+          tr: "Altın piyasasından son başlıklar",
+          ur: "سونے کی مارکیٹ کی تازہ ترین سرخیاں",
+          hi: "सोना बाज़ार की ताज़ा सुर्खियाँ",
+        }),
+        description: pick(locale, {
+          en: "Aggregated real-time gold market headlines from Kitco, Mining.com, BullionVault, Yahoo Finance and CoinDesk",
+          ar: "تجميع لحظي لعناوين أخبار الذهب من Kitco، Mining.com، BullionVault، Yahoo Finance، CoinDesk",
+          fr: "Titres du marché de l'or agrégés en temps réel depuis Kitco, Mining.com, BullionVault, Yahoo Finance et CoinDesk",
+          tr: "Kitco, Mining.com, BullionVault, Yahoo Finance ve CoinDesk'ten gerçek zamanlı derlenen altın piyasası başlıkları",
+          ur: "Kitco، Mining.com، BullionVault، Yahoo Finance اور CoinDesk سے ریئل ٹائم جمع کردہ سونے کی مارکیٹ کی سرخیاں",
+          hi: "Kitco, Mining.com, BullionVault, Yahoo Finance और CoinDesk से रीयल-टाइम संकलित सोना बाज़ार की सुर्खियाँ",
+        }),
+        inLanguage: locale,
         numberOfItems: items.length,
         itemListElement: items.slice(0, 10).map((n, i) => ({
           "@type": "ListItem",
@@ -86,7 +100,14 @@ export default async function NewsPage({
       {editorial.length > 0 ? (
         <section className="mb-10">
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-gold)]">
-            {lang === "ar" ? "مقالات تحريرية" : "Editorial articles"}
+            {pick(locale, {
+              en: "Editorial articles",
+              ar: "مقالات تحريرية",
+              fr: "Articles de la rédaction",
+              tr: "Editoryal yazılar",
+              ur: "ادارتی مضامین",
+              hi: "संपादकीय लेख",
+            })}
           </h2>
           <ul className="space-y-3">
             {editorial.map((a) => (
@@ -96,23 +117,30 @@ export default async function NewsPage({
               >
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-gold)]">
-                    {lang === "ar" ? "تحرير" : "Editorial"}
+                    {pick(locale, {
+                      en: "Editorial",
+                      ar: "تحرير",
+                      fr: "Rédaction",
+                      tr: "Editoryal",
+                      ur: "ادارتی",
+                      hi: "संपादकीय",
+                    })}
                   </span>
                   <time
                     dateTime={a.publishedAt}
                     className="text-[10px] text-[var(--color-text-dim)]"
                   >
-                    {formatDate(a.publishedAt, lang)}
+                    {formatDate(a.publishedAt, locale)}
                   </time>
                 </div>
                 <Link
                   href={`/news/${a.slug}` as never}
                   className="mt-1 block font-semibold text-[var(--color-text)] hover:text-[var(--color-gold)]"
                 >
-                  {lang === "ar" ? a.title_ar : a.title_en}
+                  {pick(locale, { en: a.title_en, ar: a.title_ar })}
                 </Link>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
-                  {lang === "ar" ? a.description_ar : a.description_en}
+                  {pick(locale, { en: a.description_en, ar: a.description_ar })}
                 </p>
                 <Link
                   href={`/news/${a.slug}` as never}
@@ -127,7 +155,14 @@ export default async function NewsPage({
       ) : null}
 
       <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
-        {lang === "ar" ? "من حول الويب" : "From around the web"}
+        {pick(locale, {
+          en: "From around the web",
+          ar: "من حول الويب",
+          fr: "Ailleurs sur le web",
+          tr: "Web'den derlemeler",
+          ur: "ویب سے منتخب",
+          hi: "वेब से चुनिंदा",
+        })}
       </h2>
 
       {items.length === 0 ? (
@@ -149,7 +184,7 @@ export default async function NewsPage({
                   dateTime={n.pubDate}
                   className="text-[10px] text-[var(--color-text-dim)]"
                 >
-                  {formatDate(n.pubDate, lang)}
+                  {formatDate(n.pubDate, locale)}
                 </time>
               </div>
               <a
@@ -185,7 +220,7 @@ function formatDate(s: string, locale: string): string {
   const t = Date.parse(s);
   if (!Number.isFinite(t)) return s;
   const d = new Date(t);
-  return d.toLocaleDateString(locale === "ar" ? "ar" : "en-US", {
+  return d.toLocaleDateString(localeMeta(locale).intl, {
     year: "numeric",
     month: "short",
     day: "numeric",

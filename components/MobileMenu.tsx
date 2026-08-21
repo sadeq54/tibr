@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { Languages, Menu, X } from "lucide-react";
+import { Check, Languages, Menu, X } from "lucide-react";
 
 import { Link, usePathname } from "@/i18n/navigation";
+import { LOCALE_META, routing } from "@/i18n/routing";
+import { pick } from "@/lib/i18n-text";
 
 type NavItem = { href: string; label: string };
 
@@ -14,21 +16,47 @@ export function MobileMenu({
   siteLinks = [],
   homeLabel,
   historicalLabel,
-  switchLabel,
-  switchLocale,
+  locale,
+  languageLabel,
   liveLabel,
 }: {
   navItems: NavItem[];
   siteLinks?: NavItem[];
   homeLabel: string;
   historicalLabel: string;
-  switchLabel: string;
-  switchLocale: "en" | "ar";
+  /** Current locale — marked in the language list. */
+  locale: string;
+  /** Heading for the language list ("Language" / "اللغة" …). */
+  languageLabel: string;
   liveLabel: string;
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const closeLabel = pick(locale, {
+    en: "Close menu",
+    ar: "إغلاق القائمة",
+    fr: "Fermer le menu",
+    tr: "Menüyü kapat",
+    ur: "مینو بند کریں",
+    hi: "मेनू बंद करें",
+  });
+  const openLabel = pick(locale, {
+    en: "Open menu",
+    ar: "فتح القائمة",
+    fr: "Ouvrir le menu",
+    tr: "Menüyü aç",
+    ur: "مینو کھولیں",
+    hi: "मेनू खोलें",
+  });
+  const menuLabel = pick(locale, {
+    en: "Navigation menu",
+    ar: "قائمة التنقل",
+    fr: "Menu de navigation",
+    tr: "Gezinme menüsü",
+    ur: "نیویگیشن مینو",
+    hi: "नेविगेशन मेनू",
+  });
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -80,7 +108,7 @@ export function MobileMenu({
             key="panel"
             role="dialog"
             aria-modal="true"
-            aria-label="Navigation menu"
+            aria-label={menuLabel}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -96,7 +124,7 @@ export function MobileMenu({
               </span>
               <button
                 type="button"
-                aria-label="Close menu"
+                aria-label={closeLabel}
                 onClick={() => setOpen(false)}
                 className="theme-toggle inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] text-[var(--color-text)]"
               >
@@ -139,15 +167,36 @@ export function MobileMenu({
 
             <div className="my-3 h-px bg-[var(--color-border)]" />
 
-            <Link
-              href={(pathname || "/") as never}
-              locale={switchLocale}
-              aria-label={switchLabel}
-              className="theme-toggle inline-flex items-center justify-center gap-2 rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-card)] px-3 py-2 text-sm font-semibold text-[var(--color-text)]"
-            >
-              <Languages size={16} aria-hidden />
-              <span>{switchLabel}</span>
-            </Link>
+            <section aria-label={languageLabel}>
+              <h2 className="mb-2 flex items-center gap-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-dim)]">
+                <Languages size={14} aria-hidden />
+                {languageLabel}
+              </h2>
+              <ul className="grid grid-cols-2 gap-1.5">
+                {routing.locales.map((l) => {
+                  const current = l === locale;
+                  return (
+                    <li key={l}>
+                      <Link
+                        href={(pathname || "/") as never}
+                        locale={l}
+                        hrefLang={l}
+                        lang={l}
+                        aria-current={current ? "true" : undefined}
+                        className={`theme-toggle flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm font-semibold ${
+                          current
+                            ? "border-[var(--color-gold)]/60 bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                            : "border-[var(--color-border-strong)] bg-[var(--color-bg-card)] text-[var(--color-text)]"
+                        }`}
+                      >
+                        <span dir="auto">{LOCALE_META[l].name}</span>
+                        {current ? <Check size={14} aria-hidden /> : null}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
           </motion.aside>
         </>
       ) : null}
@@ -158,7 +207,7 @@ export function MobileMenu({
     <>
       <button
         type="button"
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label={open ? closeLabel : openLabel}
         aria-expanded={open}
         aria-controls="mobile-menu-panel"
         onClick={() => setOpen((v) => !v)}

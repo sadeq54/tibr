@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { EmbedTicker } from "@/components/EmbedTicker";
 import { getCachedFxRates, getCachedSpot } from "@/lib/cached-fetchers";
 import { COUNTRY_BY_SLUG, countryName } from "@/lib/countries";
+import { pick } from "@/lib/i18n-text";
 
 /**
  * Isolated embed route — designed to be loaded inside a third-party <iframe>.
@@ -50,9 +51,7 @@ export default async function EmbedTickerPage({
 
   const name = country
     ? countryName(country, locale)
-    : locale === "ar"
-      ? "السعر العالمي"
-      : "Global";
+    : pick(locale, { en: "Global", ar: "السعر العالمي", fr: "Mondial", tr: "Küresel", ur: "عالمی", hi: "वैश्विक" });
 
   return (
     <EmbedTicker

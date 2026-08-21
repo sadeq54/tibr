@@ -1,8 +1,4 @@
-import { createTranslator } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-
-import arMessages from "@/messages/ar.json";
-import enMessages from "@/messages/en.json";
 
 import { Header } from "@/components/Header";
 import { Link } from "@/i18n/navigation";
@@ -30,11 +26,7 @@ export default async function MethodologyPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
-    string,
-    Record<string, string>
-  >;
-  const t = createTranslator({ locale, namespace: "InfoPage", messages });
+  const t = await getTranslations({ locale, namespace: "InfoPage" });
   const now = "2026-05-27";
 
   const sections: Array<{ h2: string; body: string }> = [

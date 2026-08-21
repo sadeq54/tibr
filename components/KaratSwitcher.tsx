@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { pick } from "@/lib/i18n-text";
 
 const KARATS = ["24k", "22k", "21k", "18k", "14k"] as const;
 const PURITY: Record<string, string> = {
@@ -33,10 +34,38 @@ export function KaratSwitcher({
   locale: string;
   historicalHref?: string;
 }) {
-  const heading = locale === "ar" ? "تصفّح حسب العيار" : "Browse by Karat";
-  const historicalLabel = locale === "ar" ? "السجل" : "Historical";
-  const historicalSubLabel = locale === "ar" ? "بيانات تاريخية" : "OHLC by year";
-  const purityLabel = locale === "ar" ? "نقاء" : "purity";
+  const heading = pick(locale, {
+    en: "Browse by Karat",
+    ar: "تصفّح حسب العيار",
+    fr: "Parcourir par carat",
+    tr: "Ayara göre göz atın",
+    ur: "قیراط کے لحاظ سے دیکھیں",
+    hi: "कैरेट के अनुसार देखें",
+  });
+  const historicalLabel = pick(locale, {
+    en: "Historical",
+    ar: "السجل",
+    fr: "Historique",
+    tr: "Geçmiş",
+    ur: "تاریخ",
+    hi: "इतिहास",
+  });
+  const historicalSubLabel = pick(locale, {
+    en: "OHLC by year",
+    ar: "بيانات تاريخية",
+    fr: "OHLC par année",
+    tr: "Yıllık OHLC",
+    ur: "سالانہ OHLC",
+    hi: "वर्षवार OHLC",
+  });
+  const purityLabel = pick(locale, {
+    en: "purity",
+    ar: "نقاء",
+    fr: "pureté",
+    tr: "saflık",
+    ur: "خلوص",
+    hi: "शुद्धता",
+  });
   const columns = historicalHref ? "sm:grid-cols-3 lg:grid-cols-6" : "sm:grid-cols-5";
 
   return (

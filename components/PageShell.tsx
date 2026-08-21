@@ -1,7 +1,6 @@
 import { createTranslator } from "next-intl";
 
-import arMessages from "@/messages/ar.json";
-import enMessages from "@/messages/en.json";
+import { staticMessages } from "@/lib/static-messages";
 
 import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { Faq } from "@/components/Faq";
@@ -132,11 +131,7 @@ function CachedPageHero({
   // Bing fallback, AI bots) skip → "0 words / 0 H1". Sync server component =
   // inlined directly into the static prerender. Messages are static imports,
   // createTranslator is sync → zero perf cost.
-  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
-    string,
-    Record<string, string>
-  >;
-  const t = createTranslator({ locale, namespace, messages });
+  const t = createTranslator({ locale, namespace, messages: staticMessages(locale) });
   return (
     <header>
       {badge ? (

@@ -16,9 +16,10 @@ import {
 
 const ROTATE_MS = 8000;
 
-/** Map a page locale to the closest XM banner language. */
+/** Map a page locale to the closest XM banner language (English fallback). */
+const SITE_XM_LANG: Record<string, XmLang> = { ar: "ar", en: "en", fr: "fr", tr: "tr", ur: "ur", hi: "hi" };
 function localeToXmLang(locale: string): XmLang {
-  return locale === "ar" ? "ar" : "en";
+  return SITE_XM_LANG[locale] ?? "en";
 }
 
 /**

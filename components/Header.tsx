@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { COUNTRY_BY_SLUG } from "@/lib/countries";
+import { pick } from "@/lib/i18n-text";
 
 function extractCountrySlug(path: string): string | null {
   const parts = path.split("/").filter(Boolean);
@@ -22,9 +23,14 @@ function extractCountrySlug(path: string): string | null {
 export async function Header() {
   const t = await getTranslations("Header");
   const locale = await getLocale();
-  const ar = locale === "ar";
-  const otherLocale = ar ? "en" : "ar";
-  const otherLabel = otherLocale === "ar" ? t("switchAr") : t("switchEn");
+  const languageLabel = pick(locale, {
+    en: "Language",
+    ar: "اللغة",
+    fr: "Langue",
+    tr: "Dil",
+    ur: "زبان",
+    hi: "भाषा",
+  });
 
   const h = await headers();
   const path = h.get("x-pathname") ?? "";
@@ -40,10 +46,22 @@ export async function Header() {
   ];
 
   const siteLinks = [
-    { href: "/gold-price-chart", label: ar ? "الرسم البياني" : "Charts" },
-    { href: "/gold-calculator", label: ar ? "الحاسبة" : "Calculator" },
-    { href: "/research", label: ar ? "الأبحاث" : "Research" },
-    { href: "/news", label: ar ? "الأخبار" : "News" },
+    {
+      href: "/gold-price-chart",
+      label: pick(locale, { en: "Charts", ar: "الرسم البياني", fr: "Graphiques", tr: "Grafikler", ur: "چارٹس", hi: "चार्ट" }),
+    },
+    {
+      href: "/gold-calculator",
+      label: pick(locale, { en: "Calculator", ar: "الحاسبة", fr: "Calculateur", tr: "Hesaplayıcı", ur: "کیلکولیٹر", hi: "कैलकुलेटर" }),
+    },
+    {
+      href: "/research",
+      label: pick(locale, { en: "Research", ar: "الأبحاث", fr: "Recherche", tr: "Araştırma", ur: "تحقیق", hi: "शोध" }),
+    },
+    {
+      href: "/news",
+      label: pick(locale, { en: "News", ar: "الأخبار", fr: "Actualités", tr: "Haberler", ur: "خبریں", hi: "समाचार" }),
+    },
   ];
 
   return (
@@ -100,7 +118,7 @@ export async function Header() {
         <div className="ms-auto flex items-center gap-2 md:ms-4">
           <HeaderTicker />
           <span className="hidden md:inline-flex">
-            <LanguageSwitcher otherLocale={otherLocale} label={otherLabel} />
+            <LanguageSwitcher locale={locale} label={languageLabel} />
           </span>
           <ThemeToggle />
           <span className="md:hidden">
@@ -109,8 +127,8 @@ export async function Header() {
               siteLinks={siteLinks}
               homeLabel={t("home")}
               historicalLabel={t("historical")}
-              switchLabel={otherLabel}
-              switchLocale={otherLocale}
+              locale={locale}
+              languageLabel={languageLabel}
               liveLabel={t("live")}
             />
           </span>

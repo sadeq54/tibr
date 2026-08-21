@@ -5,6 +5,10 @@ import type { FxRates } from "@/lib/fx";
 import type { GoldApiResponse } from "@/lib/goldapi";
 import { OZ_G, currencyName, fmtNum, gramUsd } from "@/lib/seo";
 
+import { karatLabel } from "@/lib/karat-label";
+
+import { currencyIntro, tableText } from "./tables.i18n";
+
 /** Currencies shown, in display order; each resolves to its country page. */
 const MAJOR = [
   "USD", "SAR", "AED", "EGP", "JOD", "KWD", "QAR", "BHD",
@@ -30,7 +34,6 @@ export function CurrencyTable({
   locale: string;
   excludeCurrency?: string;
 }) {
-  const ar = locale === "ar";
   if (!spot) return null;
 
   const rows = MAJOR.filter((c) => c !== excludeCurrency)
@@ -49,27 +52,25 @@ export function CurrencyTable({
   return (
     <section aria-labelledby="currency-table-heading">
       <h2 id="currency-table-heading" className="text-xl font-semibold text-[var(--color-text)]">
-        {ar ? "سعر جرام الذهب بالعملات الرئيسية" : "Gold price per gram in major currencies"}
+        {tableText(locale, "currencyHeading")}
       </h2>
       <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-        {ar
-          ? `من السعر الفوري ${fmtNum(spot.price, 2)} دولار للأونصة، بأسعار صرف محدّثة كل ساعة. اختر الدولة لصفحتها الكاملة.`
-          : `From the live spot of $${fmtNum(spot.price, 2)} per ounce at hourly FX rates. Pick a country for its full page.`}
+        {currencyIntro(locale, fmtNum(spot.price, 2))}
       </p>
       <div className="mt-3 overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)]">
         <table className="w-full min-w-[560px] border-collapse">
           <caption className="sr-only">
-            {ar ? "سعر جرام الذهب حسب العيار في العملات الرئيسية" : "Gold price per gram by karat in major currencies"}
+            {tableText(locale, "currencyCaption")}
           </caption>
           <thead className="border-b border-[var(--color-border)]">
             <tr>
-              <th scope="col" className={`${th} text-start`}>{ar ? "العملة" : "Currency"}</th>
+              <th scope="col" className={`${th} text-start`}>{tableText(locale, "currency")}</th>
               {COLS.map((k) => (
                 <th key={k} scope="col" className={`${th} text-end`}>
-                  {ar ? `عيار ${k.replace("k", "")}` : k.toUpperCase()}
+                  {karatLabel(locale, k)}
                 </th>
               ))}
-              <th scope="col" className={`${th} text-end`}>{ar ? "الأونصة 24" : "24K oz"}</th>
+              <th scope="col" className={`${th} text-end`}>{tableText(locale, "oz24k")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-border)]">

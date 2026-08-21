@@ -76,6 +76,14 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
+# Service worker — must never be served stale, or a new deploy can't replace
+# the running worker. Service-Worker-Allowed lets it claim the whole origin.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, max-age=0, must-revalidate"
+    Service-Worker-Allowed = "/"
+
 # llms.txt + robots.txt + sitemap.xml — long edge cache, fast SWR
 [[headers]]
   for = "/llms.txt"

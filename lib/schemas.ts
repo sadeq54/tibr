@@ -20,7 +20,8 @@ export type FaqQA = { q: string; a: string };
 export function faqPageSchema(
   pageUrl: string,
   qa: FaqQA[],
-  language: "en" | "ar" = "en",
+  /** BCP-47 language of the Q/A text — pass the page locale. */
+  language: string = "en",
 ) {
   return {
     "@context": "https://schema.org",
@@ -44,7 +45,8 @@ export function webApplicationSchema(opts: {
   pageUrl: string;
   name: string;
   description: string;
-  language?: "en" | "ar";
+  /** BCP-47 language of the page — pass the page locale. */
+  language?: string;
   /** Free-text categories — e.g. ["Gold price calculator", "Karat converter"] */
   features?: string[];
 }) {

@@ -39,6 +39,20 @@ const DIRECT_XAU: Record<string, string> = {
   THB: "FX_IDC:XAUTHB",
 };
 
+/**
+ * TradingView widget UI locale. Supported codes (tv.js `locale` param):
+ * ar_AE, en, fr, tr, de_DE, es, it, ja, ru, zh_CN, … — no Urdu, and Hindi
+ * is not in the documented list, so both fall back to English.
+ */
+const TV_LOCALE: Record<string, string> = {
+  ar: "ar_AE",
+  en: "en",
+  fr: "fr",
+  tr: "tr",
+  ur: "en",
+  hi: "en",
+};
+
 function symbolForCurrency(currency: string): string {
   const cc = currency.toUpperCase();
   if (DIRECT_XAU[cc]) return DIRECT_XAU[cc];
@@ -183,7 +197,7 @@ export function TradingViewChart({
           timezone: "Etc/UTC",
           theme,
           style: "1",
-          locale: locale === "ar" ? "ar_AE" : "en",
+          locale: TV_LOCALE[locale] ?? "en",
           toolbar_bg: theme === "dark" ? "#0b0a08" : "#f7f5ef",
           enable_publishing: false,
           allow_symbol_change: true,

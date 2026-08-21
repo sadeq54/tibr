@@ -3,7 +3,9 @@
  * price + today's date (the pattern every #1 result in the Arabic gold SERPs
  * uses), locale-aware currency names, and the canonical karat table.
  */
+import { localeMeta } from "@/i18n/routing";
 import type { GoldApiResponse } from "@/lib/goldapi";
+import { localizedPriceDescription, localizedPriceTitle } from "@/lib/seo-titles";
 
 export const OZ_G = 31.1034768;
 export const KG_G = 1000;
@@ -64,24 +66,25 @@ export const TOLA_MARKETS = new Set([
 /** Markets where the 8 g / 21K gold pound (الجنيه الذهب) is quoted daily. */
 export const GOLD_POUND_MARKETS = new Set(["egypt"]);
 
-const AR_DATE = new Intl.DateTimeFormat("ar-EG-u-nu-latn-ca-gregory", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-const AR_DATE_WD = new Intl.DateTimeFormat("ar-EG-u-nu-latn-ca-gregory", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-const EN_DATE = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" });
-const EN_DATE_WD = new Intl.DateTimeFormat("en-GB", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
+// Formatters are memoised per BCP-47 tag — `Intl.DateTimeFormat` construction
+// is expensive and these run on every price page render + OG image.
+const DATE_FMT = new Map<string, Intl.DateTimeFormat>();
+function dateFormatter(locale: string, withWeekday: boolean): Intl.DateTimeFormat {
+  const tag = localeMeta(locale).intl;
+  const key = `${tag}|${withWeekday ? "wd" : "d"}`;
+  let fmt = DATE_FMT.get(key);
+  if (!fmt) {
+    fmt = new Intl.DateTimeFormat(tag, {
+      ...(withWeekday ? { weekday: "long" as const } : {}),
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    DATE_FMT.set(key, fmt);
+  }
+  return fmt;
+}
+
 const TIME_UTC = new Intl.DateTimeFormat("en-GB", {
   hour: "2-digit",
   minute: "2-digit",
@@ -89,10 +92,9 @@ const TIME_UTC = new Intl.DateTimeFormat("en-GB", {
   hour12: false,
 });
 
-/** "21 أغسطس 2026" / "21 August 2026". */
+/** "21 أغسطس 2026" / "21 August 2026" / "21 août 2026" — Latin digits everywhere. */
 export function dateLabel(locale: string, d: Date, withWeekday = false): string {
-  if (locale === "ar") return (withWeekday ? AR_DATE_WD : AR_DATE).format(d);
-  return (withWeekday ? EN_DATE_WD : EN_DATE).format(d);
+  return dateFormatter(locale, withWeekday).format(d);
 }
 
 /** "14:05 UTC" — explicit zone so the stamp is honest for every market. */
@@ -100,13 +102,21 @@ export function timeLabelUtc(d: Date): string {
   return `${TIME_UTC.format(d)} UTC`;
 }
 
-const NAMES: Record<string, Intl.DisplayNames> = {};
-/** "دينار أردني" / "Jordanian Dinar"; falls back to the ISO code. */
+const NAMES = new Map<string, Intl.DisplayNames>();
+/**
+ * "دينار أردني" / "Jordanian Dinar" / "dinar jordanien"; falls back to the ISO
+ * code. English keeps the bare `en` tag on purpose: `en-GB` spells RUB
+ * "Rouble", which would silently change live English titles.
+ */
 export function currencyName(code: string, locale: string): string {
   try {
-    const key = locale === "ar" ? "ar" : "en";
-    NAMES[key] ??= new Intl.DisplayNames(key, { type: "currency" });
-    return NAMES[key].of(code) ?? code;
+    const tag = locale === "en" ? "en" : localeMeta(locale).intl;
+    let dn = NAMES.get(tag);
+    if (!dn) {
+      dn = new Intl.DisplayNames(tag, { type: "currency" });
+      NAMES.set(tag, dn);
+    }
+    return dn.of(code) ?? code;
   } catch {
     return code;
   }
@@ -142,6 +152,14 @@ export function priceTitle(i: TitleInput): string {
   const k = i.karat.replace(/k$/i, "");
   const cur = currencyName(i.currency, i.locale);
   const date = i.date ? dateLabel(i.locale, i.date) : null;
+  const native = localizedPriceTitle(i.locale, {
+    k,
+    country: i.country,
+    cur,
+    price: i.gram ? fmtNum(i.gram) : null,
+    date,
+  });
+  if (native) return native;
   if (i.locale === "ar") {
     const head = i.country
       ? `سعر الذهب اليوم في ${i.country} عيار ${k}`
@@ -162,6 +180,14 @@ export function priceDescription(i: TitleInput): string {
   const k = i.karat.replace(/k$/i, "");
   const cur = currencyName(i.currency, i.locale);
   const date = i.date ? dateLabel(i.locale, i.date, true) : null;
+  const native = localizedPriceDescription(i.locale, {
+    k,
+    country: i.country,
+    cur,
+    price: i.gram ? fmtNum(i.gram) : null,
+    date,
+  });
+  if (native) return native;
   if (i.locale === "ar") {
     const where = i.country ? ` في ${i.country}` : "";
     const price = i.gram ? `الجرام الآن ${fmtNum(i.gram)} ${cur}. ` : "";

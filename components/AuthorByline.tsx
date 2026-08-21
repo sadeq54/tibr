@@ -1,6 +1,8 @@
 import Image from "next/image";
 
 import { Link } from "@/i18n/navigation";
+import { localeMeta } from "@/i18n/routing";
+import { pick } from "@/lib/i18n-text";
 
 type Props = {
   name: string;
@@ -14,7 +16,7 @@ type Props = {
 function formatDate(iso: string, locale: string): string {
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return iso;
-  return new Date(t).toLocaleDateString(locale === "ar" ? "ar" : "en-US", {
+  return new Date(t).toLocaleDateString(localeMeta(locale).intl, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -22,6 +24,15 @@ function formatDate(iso: string, locale: string): string {
 }
 
 export function AuthorByline({ name, photo, profileUrl, publishedAt, updatedAt, locale }: Props) {
+  const by = pick(locale, { en: "By", ar: "بقلم", fr: "Par", tr: "Yazar", ur: "تحریر", hi: "लेखक" });
+  const updated = pick(locale, {
+    en: "Updated",
+    ar: "حُدِّث",
+    fr: "Mis à jour",
+    tr: "Güncellendi",
+    ur: "اپ ڈیٹ",
+    hi: "अपडेट",
+  });
   return (
     <div className="flex items-center gap-3 border-y border-[var(--color-border)] py-4">
       <Image
@@ -35,7 +46,7 @@ export function AuthorByline({ name, photo, profileUrl, publishedAt, updatedAt, 
       <div className="flex-1 text-sm">
         <div className="text-[var(--color-text)]">
           <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-dim)]">
-            {locale === "ar" ? "بقلم" : "By"}
+            {by}
           </span>{" "}
           <Link
             href={profileUrl as never}
@@ -49,7 +60,7 @@ export function AuthorByline({ name, photo, profileUrl, publishedAt, updatedAt, 
           {updatedAt && updatedAt !== publishedAt ? (
             <>
               {" · "}
-              <span>{locale === "ar" ? "حُدِّث" : "Updated"} </span>
+              <span>{updated} </span>
               <time dateTime={updatedAt}>{formatDate(updatedAt, locale)}</time>
             </>
           ) : null}

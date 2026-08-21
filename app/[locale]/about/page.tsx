@@ -1,11 +1,8 @@
-import { createTranslator } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-
-import arMessages from "@/messages/ar.json";
-import enMessages from "@/messages/en.json";
 
 import { Header } from "@/components/Header";
 import { Link } from "@/i18n/navigation";
+import { pick } from "@/lib/i18n-text";
 import { buildAlternates, buildOpenGraph } from "@/lib/metadata";
 
 export async function generateMetadata({
@@ -30,11 +27,7 @@ export default async function AboutPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const messages = (locale === "ar" ? arMessages : enMessages) as unknown as Record<
-    string,
-    Record<string, string>
-  >;
-  const t = createTranslator({ locale, namespace: "InfoPage", messages });
+  const t = await getTranslations({ locale, namespace: "InfoPage" });
   // Hardcoded build date — `new Date()` forbidden in pure-static server
   // components per Next 16 (would make output non-deterministic). Bump on
   // major content updates; harmless for low-change info pages.
@@ -85,7 +78,15 @@ export default async function AboutPage({
               href="/about/sadeq"
               className="text-[var(--color-gold)] underline hover:no-underline"
             >
-              {locale === "ar" ? "المؤسس: صادق سيد أحمد" : "Founder: Sadeq Sayed Ahmad"} →
+              {pick(locale, {
+                en: "Founder: Sadeq Sayed Ahmad",
+                ar: "المؤسس: صادق سيد أحمد",
+                fr: "Fondateur : Sadeq Sayed Ahmad",
+                tr: "Kurucu: Sadeq Sayed Ahmad",
+                ur: "بانی: صادق سید احمد",
+                hi: "संस्थापक: सादिक़ सैयद अहमद",
+              })}{" "}
+              →
             </Link>
             <Link
               href="/methodology"
