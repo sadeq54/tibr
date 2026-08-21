@@ -14,11 +14,15 @@ import { Link } from "@/i18n/navigation";
 import { isRtl } from "@/i18n/routing";
 import { getCachedAllHistory } from "@/lib/cached-fetchers";
 import type { HistoricalPoint, MetalHistory } from "@/lib/history";
+import { pointsForYear, yearStats, type YearStats } from "@/lib/year-stats";
+import { faqPageSchema } from "@/lib/schemas";
 import { buildAlternates, buildOpenGraph, SITE_URL } from "@/lib/metadata";
 
 import {
   monthName,
   monthTableHeaders,
+  yearAnswer,
+  yearFaqs,
   yearPageText,
   yearStatLabels,
 } from "./historical-year.i18n";
@@ -37,7 +41,17 @@ export async function generateMetadata({
   params: Promise<{ locale: string; year: string }>;
 }) {
   const { locale, year } = await params;
-  const t = yearPageText(locale, year);
+  const yearNum = Number(year);
+  // Same cached feed the page uses, so this costs nothing extra: the title
+  // carries the year's real high/low, which is what these queries ask for.
+  let stats: YearStats | null = null;
+  try {
+    const hist = await getCachedAllHistory(yearNum >= CURRENT_YEAR - 4 ? "5y" : "max");
+    stats = yearStats(hist, yearNum);
+  } catch {
+    stats = null; // upstream down → neutral archive title
+  }
+  const t = yearPageText(locale, year, stats);
   return {
     title: t.title,
     description: t.description,
@@ -119,6 +133,10 @@ export default async function HistoricalPage({
               </h1>
             </header>
 
+            <Suspense fallback={null}>
+              <YearAnswer yearNum={yearNum} promise={histPromise} locale={locale} />
+            </Suspense>
+
             <Suspense fallback={<StatsSkeleton />}>
               <YearStats yearNum={yearNum} promise={histPromise} locale={locale} />
             </Suspense>
@@ -144,6 +162,9 @@ export default async function HistoricalPage({
             </div>
 
             <StoresMarquee />
+            <Suspense fallback={null}>
+              <YearFaq yearNum={yearNum} promise={histPromise} locale={locale} year={year} />
+            </Suspense>
             <Faq />
           </section>
           <Sidebar />
@@ -153,8 +174,68 @@ export default async function HistoricalPage({
   );
 }
 
-function pointsForYear(hist: MetalHistory, yearNum: number): HistoricalPoint[] {
-  return hist.XAU.filter((p) => p.date.startsWith(`${yearNum}-`));
+/**
+ * Opening answer paragraph. The year pages rank for answer-shaped queries
+ * ("كم كان سعر الذهب 2024", "اعلى سعر للذهب في 2026"), so the page states the
+ * numbers in a single liftable sentence before any table.
+ */
+async function YearAnswer({
+  yearNum,
+  promise,
+  locale,
+}: {
+  yearNum: number;
+  promise: Promise<MetalHistory>;
+  locale: string;
+}) {
+  const stats = yearStats(await promise, yearNum);
+  if (!stats) return null;
+  return (
+    <p className="text-base leading-relaxed text-[var(--color-text-muted)]">
+      {yearAnswer(locale, stats)}
+    </p>
+  );
+}
+
+/** Per-year FAQ + FAQPage schema, mirroring the ranked questions. */
+async function YearFaq({
+  yearNum,
+  promise,
+  locale,
+  year,
+}: {
+  yearNum: number;
+  promise: Promise<MetalHistory>;
+  locale: string;
+  year: string;
+}) {
+  const stats = yearStats(await promise, yearNum);
+  if (!stats) return null;
+  const faqs = yearFaqs(locale, stats);
+  const schema = {
+    ...faqPageSchema(`/historical-gold-prices/${year}`, faqs, locale),
+    "@id": `${SITE_URL}/historical-gold-prices/${year}#year-faq`,
+  };
+  return (
+    <section aria-labelledby="year-faq-heading" className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-6">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
+      />
+      <h2 id="year-faq-heading" className="mb-4 text-lg font-semibold text-[var(--color-text)]">
+        {yearNum}
+      </h2>
+      <dl className="space-y-4">
+        {faqs.map((f) => (
+          <div key={f.q}>
+            <dt className="text-sm font-semibold text-[var(--color-text)]">{f.q}</dt>
+            <dd className="mt-1 text-sm leading-relaxed text-[var(--color-text-muted)]">{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
 }
 
 async function YearStats({
