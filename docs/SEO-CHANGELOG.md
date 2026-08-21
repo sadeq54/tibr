@@ -747,6 +747,15 @@ Monetization today is XM affiliate only (AdSense is not integrated). Three fixes
 - Partner dashboard audit (campaign 1228714 since 14 May: 28,348 displays → 1,287 clicks → 0 registrations, $0; commission is per-lot, not CPA): CTA now deep-links via `xmPageUrl()` / `XM_PAGES` to the Islamic-account page for ar/ur readers and the real-account page otherwise, plus a demo link — instead of routing through a banner id.
 - Also this day: `KaratGrid` card redesigned for the 5-column width (round badge, single-line title, glued unit, one-currency-per-row list).
 
+## 2026-08-21 — AdSense integration (dormant until the publisher id exists), privacy policy, advertise page
+
+- `lib/ads.ts`: `ADSENSE_CLIENT` only when `NEXT_PUBLIC_ADSENSE_CLIENT` matches `ca-pub-<digits>`; optional `NEXT_PUBLIC_ADSENSE_SLOT_INCONTENT` / `_SIDEBAR`. Removed the `ca-pub-XXXX` placeholder that every page used to pass around (and the `google-adsense-account` meta now renders only with a real id).
+- `components/AdSenseScript.tsx`: Consent Mode v2 defaults (denied by default for EEA/UK/CH only, granted elsewhere) as an inline script + the AdSense loader; mounted via `AdsGate` in the layout so `/embed/*` never carries it. `app/ads.txt/route.ts` derives from the same env var (404 until configured).
+- `components/AdSenseUnit.tsx` + `AdSensePlacement.tsx`: responsive units with reserved height (no CLS), requested once per mount; placements: under the price tables on home, karat and country pages, and a tall desktop sidebar unit (replaces the second XM slot). Nothing renders without both the client and that placement's slot id.
+- `netlify.toml` CSP (report-only) allows the Google ad/consent hosts.
+- New `/about/privacy` (6 languages: analytics, AdSense cookies + opt-outs, EEA consent, affiliate links, rights, retention, contact) — required for AdSense approval — and `/advertise` (media kit: markets, languages, audience, growth, formats, rules, contact). Both in footer + sitemap.
+- Owner steps in `sadeqblocker.md` §2. Verified with two builds: no env → zero ad markup; test env → loader, consent, 2 units on price pages, ads.txt.
+
 ## Outstanding (from `sadeqblocker.md`)
 
 1. **Rotate exposed API keys** — `GOLDAPI_KEY` and `NEWSDATA_KEY` (deferred by user)

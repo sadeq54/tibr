@@ -39,6 +39,8 @@ const EDITORIAL: Array<{ href: string; label: LocaleText }> = [
   { href: "/about/disclaimer", label: { en: "Disclaimer", ar: "إخلاء المسؤولية", fr: "Avertissement", tr: "Sorumluluk reddi", ur: "دستبرداری", hi: "अस्वीकरण" } },
   { href: "/methodology", label: { en: "Methodology", ar: "المنهجية", fr: "Méthodologie", tr: "Metodoloji", ur: "طریقۂ کار", hi: "कार्यप्रणाली" } },
   { href: "/editorial-standards", label: { en: "Editorial standards", ar: "معايير التحرير", fr: "Charte éditoriale", tr: "Editoryal standartlar", ur: "ادارتی معیارات", hi: "संपादकीय मानक" } },
+  { href: "/about/privacy", label: { en: "Privacy", ar: "الخصوصية", fr: "Confidentialité", tr: "Gizlilik", ur: "رازداری", hi: "गोपनीयता" } },
+  { href: "/advertise", label: { en: "Advertise", ar: "أعلن معنا", fr: "Publicité", tr: "Reklam verin", ur: "اشتہار دیں", hi: "विज्ञापन दें" } },
 ];
 
 function FooterColumn({ title, links }: { title: string; links: LinkItem[] }) {

@@ -56,7 +56,6 @@ export default async function HistoricalPage({
   setRequestLocale(locale);
 
   const t = yearPageText(locale, year);
-  const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
   // Recent years come from the 5y feed; older years from the full series (GC=F since 2000).
   const histPromise = getCachedAllHistory(yearNum >= CURRENT_YEAR - 4 ? "5y" : "max");
@@ -146,7 +145,7 @@ export default async function HistoricalPage({
             <StoresMarquee />
             <Faq />
           </section>
-          <Sidebar adClient={adsClient} />
+          <Sidebar />
         </div>
       </main>
     </>

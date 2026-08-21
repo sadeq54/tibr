@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 
+import { AdSensePlacement } from "@/components/AdSensePlacement";
 import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { CountryGoldPriceHeader } from "@/components/CountryGoldPriceHeader";
 import { countryPageText } from "@/components/CountryGoldPriceHeader.i18n";
@@ -170,7 +171,6 @@ export default async function CountryKaratPage({
   const fxPromise = fetchFxRates();
   const historyPromise = fetchAllHistory("1y");
 
-  const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
   const pageUrl = canonicalPath(locale, `/${slug}/gold-price/${karat}`);
 
@@ -245,6 +245,7 @@ export default async function CountryKaratPage({
                 countryName={name}
               />
             </Suspense>
+            <AdSensePlacement name="inContent" />
             <ChartImage
               currency={country.currency}
               locale={locale}
@@ -322,7 +323,7 @@ export default async function CountryKaratPage({
               ]}
             />
           </section>
-          <Sidebar adClient={adsClient} />
+          <Sidebar />
         </div>
       </main>
     </>

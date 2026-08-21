@@ -54,7 +54,6 @@ export default async function NewsArticlePage({
   setRequestLocale(locale);
 
   const t = await getTranslations({ locale, namespace: "SubPage" });
-  const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
   // Article bodies exist in ar/en only; other locales read the English text.
   const title = pick(locale, { en: article.title_en, ar: article.title_ar });
@@ -270,7 +269,7 @@ export default async function NewsArticlePage({
               </ul>
             </section>
           </article>
-          <Sidebar adClient={adsClient} />
+          <Sidebar />
         </div>
       </main>
     </>

@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 
+import { AdSensePlacement } from "@/components/AdSensePlacement";
 import { AdSlot } from "@/components/AdSlot";
 import { Link } from "@/i18n/navigation";
 
@@ -16,7 +17,11 @@ const COUNTRY_LINKS = [
   { href: "/egypt/gold-price/21k", key: "linkEgypt" as const },
 ];
 
-export function Sidebar({ adClient: _adClient }: { adClient?: string }) {
+/**
+ * Right column: one XM affiliate slot on top, quick links, and (desktop only)
+ * the tall AdSense unit — rendered only once the publisher id + slot id exist.
+ */
+export function Sidebar() {
   const t = useTranslations("Sidebar");
 
   return (
@@ -50,9 +55,7 @@ export function Sidebar({ adClient: _adClient }: { adClient?: string }) {
         </nav>
       </div>
 
-      <div className="hidden lg:block">
-        <AdSlot slot={1} label={t("adBottom")} />
-      </div>
+      <AdSensePlacement name="sidebar" />
     </aside>
   );
 }

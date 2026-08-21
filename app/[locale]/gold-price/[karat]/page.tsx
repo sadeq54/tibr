@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { AdSensePlacement } from "@/components/AdSensePlacement";
 import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { BidAskGauge } from "@/components/BidAskGauge";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -193,7 +194,6 @@ export default async function KaratPage({
   const fxPromise = fetchFxRates();
   const historyPromise = fetchAllHistory("1y");
 
-  const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
   const pageUrl = canonicalPath(locale, `/gold-price/${karat}`);
   const purity = KARAT_PURITY[upper] ?? "";
@@ -267,6 +267,7 @@ export default async function KaratPage({
                 karat={karat}
               />
             </Suspense>
+            <AdSensePlacement name="inContent" />
             <ChartImage currency="USD" locale={locale} pagePath={`/gold-price/${karat}`} range="1y" />
             <Suspense fallback={null}>
               <CurrencyTableSection promise={spotPromise} fxPromise={fxPromise} locale={locale} />
@@ -291,7 +292,7 @@ export default async function KaratPage({
 
             <RelatedLinks heading={pick(locale, RELATED_HEADING)} items={relatedLinks(locale)} />
           </section>
-          <Sidebar adClient={adsClient} />
+          <Sidebar />
         </div>
       </main>
     </>

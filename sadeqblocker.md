@@ -21,15 +21,20 @@ The layout already reads these env vars (`app/[locale]/layout.tsx` lines 152-159
 
 ---
 
-## 2. AdSense publisher ID
+## 2. AdSense — switch on display ads (integration is built, dormant until you add the id)
 
-Replace the placeholder `ca-pub-XXXX` in Netlify env:
+The code is complete and safe: with no publisher id there is no script, no ad unit and `/ads.txt` returns 404. Steps, in order:
 
-```
-NEXT_PUBLIC_ADSENSE_CLIENT = ca-pub-XXXXXXXXXXXXXXXX
-```
+1. **Apply**: adsense.google.com → sign in with the Google account that owns Search Console → "Sites" → add `goldpricesarabia.com`. Enter payee name/address yourself in AdSense (never share bank/tax details with anyone, including tooling).
+2. **Copy the publisher id** (`ca-pub-` + 16 digits) → Netlify → Site settings → Environment variables:
+   `NEXT_PUBLIC_ADSENSE_CLIENT = ca-pub-XXXXXXXXXXXXXXXX` → trigger a deploy. That alone publishes the loader, the `google-adsense-account` meta tag and `/ads.txt` — everything Google checks for approval.
+3. **Wait for approval** (2–14 days). Meanwhile in AdSense → Privacy & messaging → create the **GDPR message** (EU/UK consent banner) and turn it on; the site already ships Consent Mode v2 defaults that it plugs into.
+4. **After approval**: AdSense → Ads → By site → turn **Auto ads ON** with *Anchor ads* and *In-article* enabled (that is the mobile money). Optionally create two manual units ("in-content", "sidebar"), copy their numeric slot ids into
+   `NEXT_PUBLIC_ADSENSE_SLOT_INCONTENT` and `NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR` → redeploy. Units appear under the price tables (home, karat and all country pages) and in the desktop sidebar.
+5. **Link AdSense ↔ GA4** (AdSense → Account → Access and authorization → Google Analytics integration) to see earnings per page and per country.
+6. Payment: AdSense pays monthly once the balance passes **$100**; the first payment needs the PIN letter (posted, ~2–4 weeks) and your bank details entered in AdSense.
 
-Get the value from your AdSense dashboard → Sites → Verification code → copy the `data-ad-client` value.
+Never click your own ads and never ask anyone to — permanent ban.
 
 ---
 

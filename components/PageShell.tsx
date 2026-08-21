@@ -57,7 +57,6 @@ export function PageShell(props: PageShellProps) {
     showChart = true,
     chartCurrency,
   } = props;
-  const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
   return (
     <>
       <Header />
@@ -97,7 +96,7 @@ export function PageShell(props: PageShellProps) {
             <StoresMarquee />
             {showFaq ? <Faq /> : null}
           </section>
-          <Sidebar adClient={adsClient} />
+          <Sidebar />
         </div>
       </main>
     </>

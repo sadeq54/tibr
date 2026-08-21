@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type React from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { AdSensePlacement } from "@/components/AdSensePlacement";
 import { AffiliateBanner } from "@/components/AffiliateBanner";
 import { BidAskGauge } from "@/components/BidAskGauge";
 import { Calculator } from "@/components/Calculator";
@@ -182,7 +183,6 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const historyPromise = getCachedAllHistory("1y");
   const researchPromise = getCachedResearch();
 
-  const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX";
 
   const countries = [
     { c: t("country.jordan"), url: "/jordan/gold-price/21k", note: t("country.jordanNote") },
@@ -239,6 +239,8 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             <Suspense fallback={null}>
               <CurrencyTableSection mPromise={metalsPromise} fxPromise={fxPromise} locale={locale} />
             </Suspense>
+
+            <AdSensePlacement name="inContent" />
 
             <LazyMount minHeight={400} fallback={<CalculatorSkeleton />}>
               <Suspense fallback={<CalculatorSkeleton />}>
@@ -396,7 +398,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           </section>
 
           <LazyMount minHeight={300} className="hidden lg:block">
-            <Sidebar adClient={adsClient} />
+            <Sidebar />
           </LazyMount>
         </div>
       </main>

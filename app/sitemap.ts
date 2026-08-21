@@ -180,6 +180,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   out.push(...dual("about/disclaimer", "monthly", 0.5));
   out.push(...dual("methodology", "monthly", 0.55));
   out.push(...dual("editorial-standards", "monthly", 0.5));
+  out.push(...dual("about/privacy", "monthly", 0.4));
+  out.push(...dual("advertise", "monthly", 0.4));
 
   // Live-price routes change materially every day (tables, titles, prices),
   // so their lastmod is the current UTC day — accurate and verifiable, which

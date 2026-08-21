@@ -7,6 +7,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { AdSenseScript } from "@/components/AdSenseScript";
 import { AutoTheme } from "@/components/AutoTheme";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
@@ -16,6 +17,7 @@ import { PwaRegister } from "@/components/PwaRegister";
 import { ReduxProvider } from "@/components/ReduxProvider";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { localeMeta, routing, STATIC_LOCALES } from "@/i18n/routing";
+import { ADSENSE_CLIENT } from "@/lib/ads";
 import { fontVariables } from "@/lib/fonts";
 import { SITE_URL } from "@/lib/metadata";
 
@@ -465,8 +467,7 @@ export const metadata: Metadata = {
     },
   },
   other: {
-    "google-adsense-account":
-      process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXX",
+    ...(ADSENSE_CLIENT ? { "google-adsense-account": ADSENSE_CLIENT } : {}),
     "msapplication-TileColor": "#0b0a08",
     "msapplication-TileImage": "/appIcone.png",
   },
@@ -568,6 +569,14 @@ async function AnalyticsGate() {
   return null;
 }
 
+/** AdSense loader + consent defaults, skipped inside `/embed/*` like analytics. */
+async function AdsGate() {
+  const h = await headers();
+  const path = h.get("x-pathname") ?? "";
+  if (EMBED_PATH.test(path)) return null;
+  return <AdSenseScript />;
+}
+
 /**
  * Site-wide structured data. Emits Org + WebSite + Service + Breadcrumb +
  * WebPage + FAQ on every route. Page-level live-price schema (Product /
@@ -633,6 +642,9 @@ export default async function LocaleLayout({
         */}
         <Suspense fallback={null}>
           <AnalyticsGate />
+        </Suspense>
+        <Suspense fallback={null}>
+          <AdsGate />
         </Suspense>
         <Suspense fallback={null}>
           <SiteJsonLd locale={locale} />
