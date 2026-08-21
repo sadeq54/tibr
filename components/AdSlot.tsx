@@ -8,6 +8,7 @@ import { usePathname } from "@/i18n/navigation";
 import { COUNTRY_XM_LANG } from "@/lib/countries";
 import {
   bannersFor,
+  xmAllowed,
   xmClickUrl,
   xmImageUrl,
   type XmBanner,
@@ -31,14 +32,15 @@ export function AdSlot({ slot = 0, label }: { slot?: number; label?: string }) {
   const locale = useLocale();
   const pathname = usePathname();
 
-  // 300x250 banners for this country's language (English fallback).
+  // 300x250 banners for this country's language (English fallback). The
+  // country slug may sit after a locale prefix ("/en/jordan/...").
+  const country = pathname.split("/").filter(Boolean).slice(0, 2).find((p) => p in COUNTRY_XM_LANG);
   const banners = useMemo<XmBanner[]>(() => {
-    const country = pathname.split("/").filter(Boolean)[0] ?? "";
-    const lang = (COUNTRY_XM_LANG[country] ??
-      localeToXmLang(locale)) as XmLang;
+    // Creative language = the reader's language (page locale), never the country's.
+    const lang = localeToXmLang(locale);
     const set = bannersFor(lang, 300, 250);
     return set.length > 0 ? set : bannersFor("en", 300, 250);
-  }, [pathname, locale]);
+  }, [locale]);
 
   const [step, setStep] = useState(0);
   // Reset rotation when the banner set changes (locale/country navigation).
@@ -50,7 +52,8 @@ export function AdSlot({ slot = 0, label }: { slot?: number; label?: string }) {
     return () => clearInterval(id);
   }, [banners.length]);
 
-  if (banners.length === 0) return null;
+  // XM does not onboard some countries — an XM creative there is a wasted slot.
+  if (banners.length === 0 || !xmAllowed(country)) return null;
   const current = banners[(slot + step) % banners.length];
 
   return (
@@ -58,7 +61,7 @@ export function AdSlot({ slot = 0, label }: { slot?: number; label?: string }) {
       <AnimatePresence mode="wait">
         <motion.a
           key={current.id}
-          href={xmClickUrl(current.id, current.lang)}
+          href={xmClickUrl(current.id, current.lang, `${pathname}-side${slot}`)}
           target="_blank"
           rel="sponsored noopener noreferrer"
           referrerPolicy="no-referrer-when-downgrade"

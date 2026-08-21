@@ -35,10 +35,29 @@ export interface XmBanner {
  * lands the visitor on the matching localized registration page; without it
  * pipaffiliates falls back to the campaign default language.
  */
-export function xmClickUrl(id: number, lang?: XmLang): string {
-  const base = `https://clicks.pipaffiliates.com/c?m=${id}&c=${XM_CAMPAIGN_ID}`;
-  return lang ? `${base}&l=${lang}` : base;
+export function xmClickUrl(id: number, lang?: XmLang, tag?: string): string {
+  let url = `https://clicks.pipaffiliates.com/c?m=${id}&c=${XM_CAMPAIGN_ID}`;
+  if (lang) url += `&l=${lang}`;
+  const t = xmTag(tag);
+  if (t) url += `&t=${t}`;
+  return url;
 }
+
+/**
+ * Sub-ID for the partner dashboard (pipaffiliates `t` param): which page sent
+ * the click. Derived from the pathname, so "/jordan/gold-price/21k" → "jordan-21k",
+ * "/en/gold-price/24k" → "en-24k", "/" → "home". Lower-case [a-z0-9-], ≤40 chars.
+ */
+export function xmTag(input?: string): string {
+  if (!input) return "";
+  const parts = input.split("?")[0].split("/").filter(Boolean).filter((p) => p !== "gold-price");
+  const slug = (parts.length ? parts.join("-") : "home").toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  return slug.slice(0, 40);
+}
+
+/** Countries XM does not onboard (per partners.xm.com restricted regions) — never show XM creatives or CTAs there. */
+export const XM_BLOCKED_COUNTRIES: ReadonlySet<string> = new Set(["usa", "canada", "argentina"]);
+export const xmAllowed = (countrySlug?: string) => !countrySlug || !XM_BLOCKED_COUNTRIES.has(countrySlug);
 
 /** Resolved (tracked) image URL for a banner id. */
 export function xmImageUrl(id: number): string {

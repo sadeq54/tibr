@@ -22,6 +22,7 @@ import { PriceChart } from "@/components/PriceChart";
 import { ResearchTeaser } from "@/components/ResearchTeaser";
 import { Sidebar } from "@/components/Sidebar";
 import { StoresMarquee } from "@/components/StoresMarquee";
+import { TradeGoldCta } from "@/components/TradeGoldCta";
 
 // Heavy / below-the-fold widgets — defer JS to improve LCP/FCP/TTI.
 // Wrapped in <LazyMount> below for IntersectionObserver-gated client mount.
@@ -228,6 +229,8 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 <BidAskSection promise={metalsPromise} />
               </Suspense>
             </LazyMount>
+
+            <TradeGoldCta locale={locale} tag={`${locale}-home`} />
 
             <Suspense fallback={<KaratGridSkeleton />}>
               <KaratGridSection mPromise={metalsPromise} fxPromise={fxPromise} />

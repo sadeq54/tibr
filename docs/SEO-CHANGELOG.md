@@ -737,6 +737,15 @@ Closes the gaps left after the goldprice.org parity batch (languages, apps, auth
 
 Verified locally (`next start`): every new-locale route 200, `<html lang dir>` correct (ur = rtl), 7 hreflang entries, native titles, OG/chart PNGs inspected for ar/ur/hi/fr/tr. Build 877 pages, lint 0 errors.
 
+## 2026-08-21 — XM affiliate: attribution, contextual CTA, geo eligibility
+
+Monetization today is XM affiliate only (AdSense is not integrated). Three fixes so the partner dashboard can actually show what earns:
+
+- `lib/xm-banners.ts`: `xmClickUrl(id, lang, tag)` now appends the pipaffiliates sub-ID `t=` (e.g. `t=jordan-21k-leader`, `t=ar-jordan-21k`, `t=en-home`), derived from the page; `XM_BLOCKED_COUNTRIES` (usa, canada, argentina — XM's published restricted regions) + `xmAllowed()`.
+- `components/TradeGoldCta.tsx` (new): text CTA "Trade gold (XAUUSD) with XM" in 6 languages with a visible risk warning and "Sponsored" label, placed right after the bid/ask gauge on the homepage, karat pages and every country page; `rel="sponsored nofollow"`; hidden in blocked countries.
+- `AdSlot` / `AffiliateBanner`: creative language now follows the reader's locale (was the country's — Arabic readers on /india got Hindi creatives); country slug detected after locale prefixes; both hidden in blocked countries instead of burning the slot.
+- Also this day: `KaratGrid` card redesigned for the 5-column width (round badge, single-line title, glued unit, one-currency-per-row list).
+
 ## Outstanding (from `sadeqblocker.md`)
 
 1. **Rotate exposed API keys** — `GOLDAPI_KEY` and `NEWSDATA_KEY` (deferred by user)

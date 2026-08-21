@@ -19,6 +19,7 @@ import { PriceChart } from "@/components/PriceChart";
 import { PriceTable } from "@/components/PriceTable";
 import { RecentPricesTable } from "@/components/RecentPricesTable";
 import { StoresMarquee } from "@/components/StoresMarquee";
+import { TradeGoldCta } from "@/components/TradeGoldCta";
 import { TradingViewChart } from "@/components/TradingViewChart";
 import {
   BidAskGaugeSkeleton,
@@ -280,6 +281,7 @@ export default async function KaratPage({
             <Suspense fallback={<BidAskGaugeSkeleton />}>
               <BidAskSection promise={spotPromise} />
             </Suspense>
+            <TradeGoldCta locale={locale} tag={`${locale}-${karat}`} />
             <TradingViewChart />
             <Suspense fallback={<CalculatorSkeleton />}>
               <CalculatorSection sPromise={spotPromise} fxPromise={fxPromise} />

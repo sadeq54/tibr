@@ -14,6 +14,7 @@ import { KaratSwitcher } from "@/components/KaratSwitcher";
 import { RelatedLinks } from "@/components/RelatedLinks";
 import { Sidebar } from "@/components/Sidebar";
 import { StoresMarquee } from "@/components/StoresMarquee";
+import { TradeGoldCta } from "@/components/TradeGoldCta";
 import { TradingViewChart } from "@/components/TradingViewChart";
 import {
   BidAskGaugeSkeleton,
@@ -288,6 +289,7 @@ export default async function CountryKaratPage({
                 displayCurrency={country.currency}
               />
             </Suspense>
+            <TradeGoldCta locale={locale} countrySlug={slug} tag={`${locale}-${slug}-${karat}`} />
             <TradingViewChart currency={country.currency} />
             <Suspense fallback={<CalculatorSkeleton />}>
               <CalculatorSection

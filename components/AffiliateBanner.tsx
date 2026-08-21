@@ -8,6 +8,7 @@ import { usePathname } from "@/i18n/navigation";
 import { COUNTRY_XM_LANG } from "@/lib/countries";
 import {
   bannersFor,
+  xmAllowed,
   xmClickUrl,
   xmImageUrl,
   type XmBanner,
@@ -30,12 +31,14 @@ export function AffiliateBanner() {
   // 600x90 leaderboard banners. On a /[country]/... page the banner follows
   // the country's language; elsewhere it follows the site locale. English
   // fallback when a language has no 600x90 banner.
+  // The country slug may sit after a locale prefix ("/en/jordan/...").
+  const slug = pathname.split("/").filter(Boolean).slice(0, 2).find((p) => p in COUNTRY_XM_LANG);
   const banners = useMemo<XmBanner[]>(() => {
-    const slug = pathname.split("/").filter(Boolean)[0] ?? "";
-    const lang = (COUNTRY_XM_LANG[slug] ?? localeToXmLang(locale)) as XmLang;
+    // Creative language = the reader's language (page locale), never the country's.
+    const lang = localeToXmLang(locale);
     const set = bannersFor(lang, 600, 90);
     return set.length > 0 ? set : bannersFor("en", 600, 90);
-  }, [pathname, locale]);
+  }, [locale]);
 
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -52,7 +55,8 @@ export function AffiliateBanner() {
     return () => clearInterval(id);
   }, [paused, banners.length]);
 
-  if (banners.length === 0) return null;
+  // XM does not onboard some countries — an XM creative there is a wasted slot.
+  if (banners.length === 0 || !xmAllowed(slug)) return null;
   const current = banners[i % banners.length];
 
   return (
@@ -77,7 +81,7 @@ export function AffiliateBanner() {
         <AnimatePresence mode="wait">
           <motion.a
             key={current.id}
-            href={xmClickUrl(current.id, current.lang)}
+            href={xmClickUrl(current.id, current.lang, `${pathname}-leader`)}
             target="_blank"
             rel="sponsored noopener noreferrer"
             referrerPolicy="no-referrer-when-downgrade"
