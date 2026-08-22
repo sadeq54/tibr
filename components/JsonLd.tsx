@@ -1,4 +1,5 @@
 import { routing } from "@/i18n/routing";
+import { SOCIAL_URLS } from "@/lib/social";
 import type { GoldApiResponse } from "@/lib/goldapi";
 
 /** Every site language, for `inLanguage` / `availableLanguage` lists. */
@@ -117,7 +118,7 @@ export function JsonLd({
         availableLanguage: SITE_LANGS,
       },
     ],
-    sameAs: ["https://www.linkedin.com/in/sadeq-sayed-ahmad-309101233/"],
+    sameAs: ["https://www.linkedin.com/in/sadeq-sayed-ahmad-309101233/", ...SOCIAL_URLS],
     founder: {
       "@type": "Person",
       "@id": `${siteUrl}/#person-sadeq`,

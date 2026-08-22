@@ -6,6 +6,7 @@ import { InstallAppButton } from "@/components/InstallAppButton";
 import { Link } from "@/i18n/navigation";
 import { countryName, sortedCountries } from "@/lib/countries";
 import { pick, type LocaleText } from "@/lib/i18n-text";
+import { SOCIAL_PROFILES } from "@/lib/social";
 
 // Hardcoded copyright year — using `new Date().getFullYear()` would require
 // either `connection()` (which forces the layout dynamic and poisons PPR
@@ -247,6 +248,20 @@ export async function Footer() {
             >
               {pick(locale, l.label)}
             </Link>
+          ))}
+          {/* `rel="me"` ties the profile back to this domain — the same identity
+              signal the founder's LinkedIn link uses, and it mirrors the
+              Organization `sameAs` (both read from lib/social.ts). */}
+          {SOCIAL_PROFILES.map((s) => (
+            <a
+              key={s.url}
+              href={s.url}
+              target="_blank"
+              rel="me noopener noreferrer"
+              className="transition-colors hover:text-[var(--color-gold)]"
+            >
+              {s.name}
+            </a>
           ))}
           <InstallAppButton locale={locale} />
         </nav>
