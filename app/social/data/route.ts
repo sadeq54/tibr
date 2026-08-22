@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
 import { getCachedAllHistory, getCachedFxRates, getCachedSpot } from "@/lib/cached-fetchers";
 import { COUNTRY_BY_SLUG } from "@/lib/countries";
+import { SITE_URL } from "@/lib/metadata";
 import { gramUsd } from "@/lib/seo";
 import { buildAltText, buildCaption, type MarketPrice } from "@/lib/social-caption";
 import { resolveMarkets } from "@/lib/social-markets";
@@ -59,7 +60,9 @@ export async function GET(req: NextRequest) {
     gram: Number.isFinite(m.grams["21k"]) ? m.grams["21k"] : null,
     currency: m.currency,
   }));
-  const captionInput = { locale, when, ounceUsd, changePct, markets: captionMarkets, siteUrl: req.nextUrl.origin };
+  // SITE_URL, never req.nextUrl.origin: on Netlify the request origin is the
+  // deploy URL (master--tibers.netlify.app), which would print in the caption.
+  const captionInput = { locale, when, ounceUsd, changePct, markets: captionMarkets, siteUrl: SITE_URL };
 
   return NextResponse.json(
     {
