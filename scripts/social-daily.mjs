@@ -16,8 +16,9 @@
  *     stories/2026-08-22/01-cover.png … 20-australia.png
  *
  * Files are zero-padded so the folder sorts in swipe order — select all in the
- * Instagram uploader and the carousel comes out right. Images are rendered by
- * the live site, so they always match the pages they link to.
+ * Instagram uploader and the carousel comes out right. Images and caption both
+ * come from the live site (`/social/...` and `/social/data`), so the numbers in
+ * the text always match the numbers in the pictures.
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -42,30 +43,6 @@ const MARKETS = flag(
   .filter(Boolean)
   .slice(0, 19);
 
-const NAME_AR = {
-  "saudi-arabia": "السعودية", uae: "الإمارات", egypt: "مصر", jordan: "الأردن",
-  kuwait: "الكويت", qatar: "قطر", bahrain: "البحرين", lebanon: "لبنان",
-  morocco: "المغرب", libya: "ليبيا", turkey: "تركيا", india: "الهند",
-  pakistan: "باكستان", malaysia: "ماليزيا", usa: "أمريكا", uk: "بريطانيا",
-  europe: "أوروبا", canada: "كندا", australia: "أستراليا", oman: "عُمان",
-  qatar_: "قطر",
-};
-
-const TAGS = {
-  "saudi-arabia": "#الذهب_في_السعودية #الرياض #جدة",
-  uae: "#الذهب_في_الامارات #دبي #ابوظبي",
-  egypt: "#الذهب_في_مصر #القاهرة #جنيه_ذهب",
-  jordan: "#الذهب_في_الاردن #عمان",
-  kuwait: "#الذهب_في_الكويت",
-  qatar: "#الذهب_في_قطر #الدوحة",
-  bahrain: "#الذهب_في_البحرين #المنامة",
-  lebanon: "#الذهب_في_لبنان #بيروت",
-  morocco: "#الذهب_في_المغرب",
-  libya: "#الذهب_في_ليبيا",
-  turkey: "#الذهب_في_تركيا",
-  india: "#gold_india", pakistan: "#gold_pakistan", malaysia: "#gold_malaysia",
-};
-
 const today = new Date().toISOString().slice(0, 10);
 const root = join(process.cwd(), "social-out");
 
@@ -75,6 +52,32 @@ async function fetchImage(url) {
   const res = await fetch(url, { headers: { "user-agent": "goldarabia-social-daily/1.0" } });
   if (!res.ok) throw new Error(`${res.status}`);
   return Buffer.from(await res.arrayBuffer());
+}
+
+/**
+ * Caption, alt text and the day's tag block, built server-side from the same
+ * cached prices the cards render from (`lib/social-caption.ts`).
+ */
+async function fetchCaption() {
+  const url = `${BASE}/social/data?lang=${LANG}&countries=${MARKETS.join(",")}`;
+  const res = await fetch(url, { headers: { "user-agent": "goldarabia-social-daily/1.0" } });
+  if (!res.ok) throw new Error(`${res.status} from /social/data`);
+  return await res.json();
+}
+
+/**
+ * captions.txt is what gets pasted into Instagram: the caption first, then the
+ * per-slide alt text in swipe order (Instagram sets alt text one image at a
+ * time, under Advanced settings).
+ */
+function captionFile(data, files) {
+  const lines = [data.caption, "", "", "— — — — — — — — — —", "ALT TEXT (per slide, optional but worth it)", ""];
+  data.alts.forEach((alt, i) => {
+    lines.push(`${files[i] ?? pad(i + 1)}`);
+    lines.push(alt);
+    lines.push("");
+  });
+  return lines.join("\n");
 }
 
 /** One folder per kind per day: social-out/{posts|stories}/YYYY-MM-DD/ */
@@ -105,26 +108,23 @@ async function build(kind) {
     await new Promise((r) => setTimeout(r, 250)); // one host, stay polite
   }
 
-  if (kind === "posts") await writeFile(join(dir, "captions.txt"), caption(), "utf8");
+  if (kind === "posts") {
+    try {
+      const data = await fetchCaption();
+      await writeFile(
+        join(dir, "captions.txt"),
+        captionFile(data, slides.map((s) => s.file)),
+        "utf8",
+      );
+      console.log(`  ok    captions.txt  (${data.caption.split("\n").pop().split(" ").length} tags)`);
+    } catch (e) {
+      // Never lose a day's images over the caption — the pictures are the work.
+      console.error(`  fail  captions.txt: ${e.message}`);
+    }
+  }
+
   console.log(`  → ${ok}/${slides.length} slides in social-out/${kind}/${today}/`);
   return ok;
-}
-
-/** One caption for the whole carousel, plus a per-market line for stories. */
-function caption() {
-  const list = MARKETS.map((s) => NAME_AR[s] ?? s).join(" · ");
-  const tags = MARKETS.map((s) => TAGS[s]).filter(Boolean).join(" ");
-  return [
-    `أسعار الذهب اليوم — ${today}`,
-    "",
-    `الأسعار لكل عيار بالجرام في: ${list}`,
-    "اسحب ← للوصول إلى دولتك.",
-    "",
-    `كل الدول والعملات والعيارات على الموقع: ${BASE}`,
-    "الرابط في البايو 🔗",
-    "",
-    `#سعر_الذهب_اليوم #اسعار_الذهب #ذهب #عيار21 #عيار22 ${tags}`,
-  ].join("\n");
 }
 
 async function main() {

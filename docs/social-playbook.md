@@ -59,56 +59,108 @@ Cadence, mirroring what works in this niche (the Bahrain leader: 2,148 posts,
 - **1-2 stories/day** — the cover as a morning story, plus a country card when
   gold moves more than 1%.
 
-## 3. Bio
+## 3. Profile assets
 
-Instagram gives you a 150-character bio, a searchable Name field, and one link.
-Use all three.
-
-**Name field** (this is what Instagram search matches — not the handle):
-```
-أسعار الذهب اليوم | Gold Prices Arabia
+```bash
+node scripts/brand-assets.mjs      # only when the brand changes
 ```
 
-**Bio** (Arabic-first, benefit per line):
+| File | Size | Use |
+|---|---|---|
+| `public/brand/instagram-avatar.png` | 1080×1080 | profile picture |
+| `public/brand/highlight-prices.png` | 1080×1920 | highlight cover — **أسعار اليوم** |
+| `public/brand/highlight-countries.png` | 1080×1920 | highlight cover — **الدول** |
+| `public/brand/highlight-karats.png` | 1080×1920 | highlight cover — **العيارات** |
+| `public/brand/highlight-chart.png` | 1080×1920 | highlight cover — **الرسم البياني** |
+| `public/brand/highlight-change.png` | 1080×1920 | highlight cover — **التغير اليومي** |
+
+The avatar is **the mark, not the wordmark**. Instagram draws the profile
+picture at 32 px in the feed, where "GOLD PRICES ARABIA" is an unreadable grey
+smear. `public/logosvg.svg` already contains the right shape — the circular G
+built from a rising bar chart — so `public/brand/mark-gold.png` is that shape
+cut out of the logo, recoloured to `#e2b54e` and squared. The logo itself is
+untouched.
+
+Highlight covers carry an icon only: Instagram prints the highlight's name
+underneath the circle, so Arabic inside the circle just repeats it smaller.
+
+## 4. Bio
+
+Instagram gives three separate fields. Only two of them are searchable, and the
+bio is not one of them — **Instagram search matches the username and the Name
+field, never the bio text**. That makes the Name field the most valuable 30
+characters on the account.
+
+**Name field** (30-character limit — this is the searchable one):
 ```
-🟡 أسعار الذهب اليوم في الخليج ومصر والأردن
-📊 عيار 24 و22 و21 و18 بالجرام — تحديث يومي
-📉 أعلى وأدنى سعر + الرسم البياني لـ30 يوم
-🔗 كل الدول والعملات على الموقع 👇
+أسعار الذهب اليوم | 46 دولة
+```
+27 characters. It leads with the highest-volume query in the niche and follows
+with the one thing no competitor in this space has: every market, not one. The
+brand lives in the handle, `@goldpricearabia`, so it does not need to be here.
+
+**Bio** (150-character limit, 120 used):
+```
+🌍 أسعار الذهب اليوم في 46 دولة
+💰 عيار 24 · 22 · 21 · 18 بالجرام
+📊 التغير اليومي + رسم بياني 30 يوم
+🔗 كل الدول والعملات 👇
 ```
 
 **Link:** `https://goldpricesarabia.com` — this is also what confirms the
 `sameAs` relationship in the site's Organization schema (`lib/social.ts`).
 
-**Category:** Product/service. **Contact:** the support email.
+**Category:** Product/service. **Account type:** Business, so Insights are
+available — without them there is no way to tell whether any of this works.
 
-## 4. Highlights to create
+## 5. Caption and hashtags
 
-- **الأسعار** — pin the daily cards.
-- **عيار 21 / عيار 22** — the two karats people ask for most.
-- **السجل** — screenshots of the year pages (`/historical-gold-prices/2024`),
-  which are the site's strongest-ranking pages.
-- **عن المنصة** — how prices are sourced (`/methodology`).
+`scripts/social-daily.mjs` writes `captions.txt` next to the day's images:
+the caption first, then per-slide alt text in swipe order. Both come from
+`/social/data`, which reads the same cached prices the cards are rendered from,
+so the caption can never quote a number its own carousel contradicts.
 
-## 5. Caption template
+The caption is ordered by what survives truncation — Instagram hides everything
+after roughly 125 characters behind "… more":
 
-```
-أسعار الذهب اليوم في {الدولة} — {التاريخ}
+1. **the move** — "gold is up 0.30%", not a date. A date is not a reason to tap.
+2. date + what the post contains, worded the way people search.
+3. **per-gram prices as text** for the day's lead markets. This matters more
+   than any hashtag: Instagram search reads caption text, so writing
+   "سعر الذهب اليوم في السعودية" in prose beats tagging it. It also makes the
+   post useful to someone who never swipes.
+4. the remaining markets, so a follower spots their country and swipes.
+5. one question, to earn comments.
+6. the link, then the tag block.
 
-الأسعار في الصورة لكل عيار بالجرام، محدثة من السوق العالمي.
-التفاصيل الكاملة وكل العيارات والعملات: goldpricesarabia.com/{slug}/gold-price/21k
+**Hashtags** (`lib/social-tags.ts`) rotate on a day index:
 
-الرابط في البايو 🔗
+- Four core tags plus one rotating spelling variant. Instagram does not fold the
+  hamza or the underscore — `#أسعار_الذهب`, `#اسعار_الذهب` and `#اسعارالذهب`
+  are three separate feeds, all in use.
+- The three anchor markets (Saudi, UAE, Egypt) always ship their lead tag,
+  because the caption always quotes their prices.
+- Four rotating focus markets contribute three tags each, walking the full
+  19-market list in five days.
+- Then region, karat, buyer-community and English tags, each rotating.
 
-#سعر_الذهب_اليوم #الذهب_في_{الدولة} #ذهب #عيار21
-```
+Result: 23–28 tags a day, never the same block twice, every market covered
+inside a week. Posting one identical 29-tag block every day — which is what this
+replaced — is the clearest automated-account signal Instagram has.
 
-`scripts/social-daily.mjs` already writes this per market.
+Local-language tags where the market is local-language: `#altınfiyatları`,
+`#hargaemas`, `#sonachandi`. The `#gold_india` style tags these replaced had
+almost no posts behind them.
+
+**Do not over-invest here.** Hashtags are a minor reach lever on Instagram now.
+Consistency, the Name field, caption keywords and comments do more.
 
 ## 6. Rules
 
-- Never post a price the site does not show — the images come from the same
-  cached feed, so just don't hand-edit them.
+- Never post a price the site does not show — the images and the caption come
+  from the same cached feed, so just don't hand-edit either.
 - Keep the domain on every image; screenshots get reposted without credit.
 - No trading advice or predictions — the site is a YMYL price reference and the
   disclaimer at `/about/disclaimer` is part of its credibility.
+- Reply to every comment naming a country with that country's price. It is the
+  cheapest engagement this account will ever get, and the caption asks for it.
