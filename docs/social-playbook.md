@@ -110,11 +110,26 @@ brand lives in the handle, `@goldpricearabia`, so it does not need to be here.
 🌍 أسعار الذهب اليوم في 46 دولة
 💰 عيار 24 · 22 · 21 · 18 بالجرام
 📊 التغير اليومي + رسم بياني 30 يوم
-🔗 كل الدول والعملات 👇
+🔗 goldpricesarabia.com
 ```
 
 **Link:** `https://goldpricesarabia.com` — this is also what confirms the
 `sameAs` relationship in the site's Organization schema (`lib/social.ts`).
+
+**The link field can only be set from the phone.** On web the Website input is
+served `disabled` and the form explains why: *"Editing your links is only
+available on mobile."* Until someone opens the app and fills it in,
+`external_url` stays null and the profile has no tappable link — which is why
+the last bio line spells the domain out as text. Text in the bio is not
+clickable, so this is a stopgap, not the fix.
+
+Check it from the console on the profile page:
+
+```js
+fetch('/api/v1/users/web_profile_info/?username=goldpricearabia',
+  { headers: { 'x-ig-app-id': '936619743392459' } })
+  .then(r => r.json()).then(d => d.data.user.external_url)
+```
 
 **Category:** Product/service. **Account type:** Business, so Insights are
 available — without them there is no way to tell whether any of this works.
