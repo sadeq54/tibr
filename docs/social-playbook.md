@@ -74,12 +74,18 @@ node scripts/brand-assets.mjs      # only when the brand changes
 | `public/brand/highlight-chart.png` | 1080×1920 | highlight cover — **الرسم البياني** |
 | `public/brand/highlight-change.png` | 1080×1920 | highlight cover — **التغير اليومي** |
 
-The avatar is **the mark, not the wordmark**. Instagram draws the profile
-picture at 32 px in the feed, where "GOLD PRICES ARABIA" is an unreadable grey
-smear. `public/logosvg.svg` already contains the right shape — the circular G
-built from a rising bar chart — so `public/brand/mark-gold.png` is that shape
-cut out of the logo, recoloured to `#e2b54e` and squared. The logo itself is
-untouched.
+The avatar is **`public/appIcone.png`** — the site's own PWA icon and favicon —
+cropped to its artwork and squared into `public/brand/mark.png`. Nothing is
+recoloured or redrawn.
+
+This is the rule, not a detail: the brand already has a small-size identity, and
+the Instagram avatar has to be the *same image* people see on the browser tab
+and their home screen. Anything else, however close, splits the identity in two.
+The wordmark cannot serve here either — Instagram draws the profile picture at
+32 px in the feed, where "GOLD PRICES ARABIA" is an unreadable grey smear.
+
+No ring or badge around it: the mark is already a circle, and a second one reads
+as a badge rather than a logo.
 
 Highlight covers carry an icon only: Instagram prints the highlight's name
 underneath the circle, so Arabic inside the circle just repeats it smaller.

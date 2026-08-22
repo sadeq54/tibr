@@ -8,10 +8,12 @@
  *   public/brand/instagram-avatar.png   1080×1080  profile picture
  *   public/brand/highlight-*.png        1080×1920  highlight covers (crop to a circle)
  *
- * The mark is `public/brand/mark-gold.png`: the circular G-with-rising-chart
- * lifted out of `public/logosvg.svg`. The wordmark cannot be the profile
- * picture — Instagram renders it at 32 px in the feed, where the words vanish
- * and only a shape survives. The logo already contained the right shape.
+ * The mark is `public/brand/mark.png`: `public/appIcone.png` — the site's own
+ * PWA icon and favicon — cropped to its artwork and squared. Nothing is
+ * recoloured or redrawn. This is already the brand's small-size identity, so
+ * the Instagram avatar has to be the same image people see on the browser tab
+ * and the home screen. The wordmark cannot be the profile picture: Instagram
+ * renders it at 32 px in the feed, where the words vanish.
  *
  * Highlight covers are icon-only on purpose: Instagram prints the highlight
  * name underneath, so putting Arabic in the circle only duplicates it smaller.
@@ -36,7 +38,7 @@ const h = (type, props, ...children) => ({
 });
 
 const font = toArrayBuffer(await readFile(join(process.cwd(), "public/fonts/ArabicSemiBold.ttf")));
-const markData = `data:image/png;base64,${(await readFile(join(process.cwd(), "public/brand/mark-gold.png"))).toString("base64")}`;
+const markData = `data:image/png;base64,${(await readFile(join(process.cwd(), "public/brand/mark.png"))).toString("base64")}`;
 
 async function render(el, width, height, file) {
   const res = new ImageResponse(el, {
@@ -71,27 +73,11 @@ const frame = (children, extra = {}) =>
   );
 
 /* ── Profile picture ────────────────────────────────────────────────────── */
+// No ring: the mark is already a circle, and a second one around it reads as
+// a badge rather than a logo. Size is held back from the edge so Instagram's
+// circular crop never clips the G.
 await render(
-  frame(
-    h(
-      "div",
-      {
-        style: {
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: 940,
-          height: 940,
-          borderRadius: 999,
-          // Inset so the ring survives Instagram's circular crop instead of
-          // being shaved off at the edge.
-          border: `10px solid ${GOLD}`,
-          background: "rgba(0,0,0,0.35)",
-        },
-      },
-      h("img", { src: markData, width: 560, height: 560, alt: "" }),
-    ),
-  ),
+  frame(h("img", { src: markData, width: 820, height: 820, alt: "" })),
   1080,
   1080,
   "instagram-avatar.png",
