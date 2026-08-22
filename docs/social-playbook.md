@@ -7,38 +7,57 @@ live site, so a post can never disagree with the page it links to.
 
 | Route | Size | Use |
 |---|---|---|
-| `/social/{country}/post?lang=ar` | 1080×1080 | feed post |
-| `/social/{country}/story?lang=ar` | 1080×1920 | story (safe-area aware) |
+| `/social/cover/post` | 1080×1080 | carousel slide 1 (cover) |
+| `/social/{country}/post` | 1080×1080 | carousel slides 2-20 |
+| `/social/cover/story`, `/social/{country}/story` | 1080×1920 | stories (safe-area aware) |
 
-Params: `lang=ar\|en\|fr\|tr\|ur\|hi`, `theme=0-6` (accent; defaults to a
-per-day rotation so the profile grid becomes a colour mosaic).
+Params: `lang=ar|en|fr|tr|ur|hi`, `theme=0-6` (accent; defaults to a per-day
+rotation so the profile grid becomes a colour mosaic), and on the cover
+`countries=slug,slug,…`.
 
-Each card carries: the country as the hero, the date with weekday, 24/22/21/18K
-**per gram in local currency**, the USD ounce with **daily change**, a **30-day
-sparkline**, and the handle + domain. The change chip and the sparkline are the
-two things the category leader's cards do not show.
+**Country card:** country as the hero, date with weekday, 24/22/21/18K **per
+gram in local currency**, USD ounce with **daily change**, a **30-day
+sparkline**, handle + domain. The change chip and the sparkline are what the
+category leader's cards do not have.
 
-Examples:
-- `https://goldpricesarabia.com/social/saudi-arabia/post?lang=ar`
-- `https://goldpricesarabia.com/social/uae/story?lang=ar`
+**Cover:** today's date, the headline ounce price and move, **every market in
+the carousel as a chip** (so a follower sees their country and swipes), four
+feature chips (46 countries · all karats · 30-day chart · live), and a swipe
+hint.
 
 ## 2. Daily routine (2 minutes)
 
 ```bash
-node scripts/social-daily.mjs --story
+node scripts/social-daily.mjs                # posts + stories
+node scripts/social-daily.mjs --only posts   # carousel only
+node scripts/social-daily.mjs --only stories # stories only
 ```
 
-Writes `social-out/YYYY-MM-DD/{country}-post.png`, `-story.png` and
-`captions.txt` (one ready-to-paste Arabic caption + hashtags per market).
-Defaults to saudi-arabia, uae, egypt, jordan, kuwait, qatar, bahrain.
+Output — one folder per kind per day:
+
+```
+social-out/
+  posts/2026-08-22/     01-cover.png … 20-australia.png  + captions.txt
+  stories/2026-08-22/   01-cover.png … 20-australia.png
+```
+
+Files are zero-padded so the folder **sorts in swipe order** — select all in the
+Instagram uploader and the carousel comes out right. Instagram allows 20 slides:
+1 cover + 19 markets.
+
+The 19 markets (`lib/social-markets.ts`, mirrored in the script): Saudi Arabia,
+UAE, Egypt, Jordan, Kuwait, Qatar, Bahrain, Lebanon, Morocco, Libya, Turkey,
+India, Pakistan, Malaysia, USA, UK, Europe, Canada, Australia. Malaysia is in
+because Search Console already shows it ranking for us (~190 impressions/28d at
+position 9.1).
 
 Options: `--countries saudi-arabia,uae` · `--lang en` · `--base http://localhost:3000`.
 
-Suggested cadence, mirroring what works in this niche (the Bahrain leader has
-2,148 posts / 66.5K followers — one dated card a day, for years):
-- **1 feed post/day** — rotate the market, or post a carousel of all 7 Gulf+MENA cards.
-- **1–2 stories/day** — morning price, and an evening one when the move is > 1%.
-- Post at **09:00 local** (souk opening) and again if gold moves sharply.
+Cadence, mirroring what works in this niche (the Bahrain leader: 2,148 posts,
+66.5K followers, one dated card a day for years):
+- **1 carousel/day** — cover + 19 markets, posted ~09:00 local (souk opening).
+- **1-2 stories/day** — the cover as a morning story, plus a country card when
+  gold moves more than 1%.
 
 ## 3. Bio
 
