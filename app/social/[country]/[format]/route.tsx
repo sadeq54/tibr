@@ -49,6 +49,29 @@ const LAST_30: LocaleText = {
 
 const CARD_KARATS = ["24k", "22k", "21k", "18k"] as const;
 
+/**
+ * Weak currencies price a gram in the millions (LBP is ~89,000 to the dollar),
+ * where two decimal places are noise — nobody quotes gold to the piastre at
+ * 11.8 million. Dropping them is what a Lebanese jeweller's board does too.
+ */
+function priceText(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return "—";
+  if (value >= 10_000) return fmtNum(value, 0);
+  if (value >= 1_000) return fmtNum(value, 1);
+  return fmtNum(value, 2);
+}
+
+/**
+ * Shrink the price to fit its tile. Satori does not clip overflow, so a long
+ * number simply runs under the karat badge next to it — which is exactly what
+ * "11,823,482.97" did on the Lebanon card.
+ */
+function priceSize(text: string, scale: number): number {
+  const n = text.length;
+  const base = n <= 8 ? 54 : n <= 10 ? 46 : n <= 12 ? 40 : 34;
+  return base * scale;
+}
+
 function sparkPath(values: number[], w: number, h: number): string {
   if (values.length < 2) return "";
   const min = Math.min(...values);
@@ -101,7 +124,7 @@ export async function GET(
 
   const rows = CARD_KARATS.map((key) => {
     const def = KARAT_DEFS.find((k) => k.key === key)!;
-    return { label: def.label.replace("K", ""), price: fmtNum(gramUsd(spot, key) * rate, 2) };
+    return { label: def.label.replace("K", ""), price: priceText(gramUsd(spot, key) * rate) };
   });
 
   const isStory = format === "story";
@@ -187,12 +210,17 @@ export async function GET(
                         color: "#1a1209",
                         fontSize: 30 * scale,
                         fontWeight: 700,
+                        // Satori drops `gap` here, so the clearance between the
+                        // badge and the number has to be a margin.
+                        ...(rtl ? { marginLeft: 18 } : { marginRight: 18 }),
                       }}
                     >
                       {r.label}
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: rtl ? "flex-start" : "flex-end" }}>
-                      <div style={{ display: "flex", fontSize: 54 * scale, fontWeight: 700, lineHeight: 1 }}>{r.price}</div>
+                      <div style={{ display: "flex", fontSize: priceSize(r.price, scale), fontWeight: 700, lineHeight: 1 }}>
+                        {r.price}
+                      </div>
                       <div style={{ display: "flex", marginTop: 8 }}>
                         <Words text={unitLine} rtl={rtl} size={22 * scale} color={CARD_DIM} />
                       </div>
