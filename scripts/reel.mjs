@@ -8,6 +8,7 @@
  *
  *   --clip        backdrop from Flow (any aspect; it gets cropped to 9:16)
  *   --countries   comma list, default the nine markets in the daily carousel
+ *                 (WIDER_MARKETS below adds the next eleven by GSC clicks)
  *   --country     shorthand for a one-country reel
  *   --per         seconds each country holds on screen, default 1.5
  *   --cover       seconds the cover card holds first, default 2 (0 disables)
@@ -38,23 +39,22 @@ const flag = (name, fallback) => {
   return i !== -1 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : fallback;
 };
 
+/** The nine markets in the web-sized carousel (lib/social-markets.ts). */
+const DEFAULT_MARKETS =
+  "saudi-arabia,uae,egypt,jordan,kuwait,qatar,bahrain,lebanon,morocco";
+
 /**
- * The nine markets in the web-sized carousel (lib/social-markets.ts), then the
- * eleven that follow them in Search Console clicks over the last 28 days.
+ * The eleven markets that follow the nine in Search Console clicks over 28 days,
+ * for a wider reel: --countries "$DEFAULT_MARKETS,$WIDER".
  *
- * Sweden and Denmark are not a mistake: this is where people searching
- * in Arabic actually are. Syria is the site's number one country by clicks and
- * is absent only because there is no /syria page yet — same for Yemen, Iraq,
- * Algeria, Tunisia and Palestine. Add those pages and they belong here.
+ * Sweden and Denmark are not a mistake — that is where people searching in
+ * Arabic actually are. Syria is the site's number one country by clicks (33
+ * clicks, 2,983 impressions) and is absent only because there is no /syria page;
+ * same for Yemen, Iraq, Algeria, Tunisia and Palestine. Add those routes and
+ * they belong at the front of this list.
  */
-const DEFAULT_MARKETS = [
-  // fixed, in carousel order
-  "saudi-arabia", "uae", "egypt", "jordan", "kuwait", "qatar", "bahrain",
-  "lebanon", "morocco",
-  // by GSC clicks, 28 days
-  "usa", "uk", "europe", "turkey", "sweden", "denmark", "canada", "libya",
-  "pakistan", "india", "malaysia",
-].join(",");
+export const WIDER_MARKETS =
+  "usa,uk,europe,turkey,sweden,denmark,canada,libya,pakistan,india,malaysia";
 
 const CLIP = flag("clip", "");
 const COUNTRIES = flag("country", flag("countries", DEFAULT_MARKETS))
