@@ -27,5 +27,5 @@ Vertical macro cinematography of two gold chains of identical link pattern lying
 ## Negative
 
 ```
-text, numbers, letters, Arabic script, karat stamps, hallmarks, engraved numerals, price tags, captions, watermarks, logos, people, hands, fingers, faces, models wearing jewellery, shop displays, velvet boxes, certificates, scales, magnifying glasses, charts, arrows, tick marks, cross marks, green and red colour coding, fast motion, cuts, transitions, lens flares, oversaturated yellow, plastic gold, CGI look, asymmetric composition, unequal lighting between halves
+text, numbers, letters, Arabic script, karat stamps, hallmarks, engraved numerals, price tags, captions, watermarks, logos, people, hands, fingers, faces, models wearing jewellery, shop displays, velvet boxes, certificates, scales, magnifying glasses, charts, arrows, tick marks, cross marks, green and red colour coding, fast motion, cuts, transitions, lens flares, oversaturated yellow, plastic gold, CGI look, asymmetric composition, unequal lighting between halves, assay stamps, purity marks, serial numbers, mint marks, denominations, minted dates, weight markings, embossed digits, stamped text of any kind
 ```
