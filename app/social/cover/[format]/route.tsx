@@ -73,8 +73,22 @@ const SWIPE: LocaleText = {
 function gridColumns(count: number): number {
   if (count <= 4) return 2;
   if (count <= 9) return 3;
-  if (count <= 16) return 4;
-  return 5;
+  // Never five: at 1080 wide that leaves ~175px a cell, and "الولايات المتحدة"
+  // then spilled straight out of its pill.
+  return 4;
+}
+
+/**
+ * One chip size for the whole grid, driven by the longest name in it. Sizing
+ * each chip independently would fit the text but make the row look ragged;
+ * a single size keeps the grid reading as a grid.
+ */
+function chipFontSize(names: string[]): number {
+  const longest = names.reduce((m, n) => Math.max(m, n.length), 0);
+  if (longest <= 8) return 28;
+  if (longest <= 12) return 25;
+  if (longest <= 16) return 21;
+  return 19;
 }
 
 function chunk<T>(items: T[], size: number): T[][] {
@@ -131,6 +145,7 @@ export async function GET(
   const CHIP_GAP = 12;
   const cols = gridColumns(names.length);
   const cellW = Math.floor(contentW / cols) - CHIP_GAP;
+  const chipSize = chipFontSize(names);
   const accent = pickAccent(when, Number(req.nextUrl.searchParams.get("theme")));
   const handle = SOCIAL_PROFILES[0]?.handle ?? "goldpricearabia";
   const fonts = await loadFontsFor(lang);
@@ -229,7 +244,7 @@ export async function GET(
                     border: "1px solid rgba(226,181,78,0.25)",
                   }}
                 >
-                  <Words text={n} rtl={rtl} size={28 * scale} weight={600} color={CARD_TEXT} />
+                  <Words text={n} rtl={rtl} size={chipSize * scale} weight={600} color={CARD_TEXT} />
                 </div>
               ))}
             </div>
