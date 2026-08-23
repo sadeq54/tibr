@@ -15,3 +15,12 @@ vertical clip. Prices are overlaid afterwards from `social-out/stories/`.
 
 **Never** let Flow render text, numbers or Arabic — it invents prices and mangles
 Arabic letter joining.
+
+Once a clip is downloaded, build the reel:
+
+```bash
+node scripts/reel.mjs --clip "path/to/clip.mp4" --country saudi-arabia
+```
+
+It crops to 9:16, blurs and darkens the backdrop, lays today's live card over it
+and strips Flow's audio. Output: `social-out/reels/YYYY-MM-DD/<country>.mp4`.

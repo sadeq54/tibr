@@ -129,6 +129,10 @@ export async function GET(
 
   const isStory = format === "story";
   const scale = isStory ? 1.08 : 1;
+  // `?overlay=1` drops the background so the card can sit on top of video in a
+  // reel. Everything else is identical, so the numbers on a reel and the numbers
+  // on the carousel come from the same render.
+  const overlay = req.nextUrl.searchParams.get("overlay") === "1";
   const handle = SOCIAL_PROFILES[0]?.handle ?? "goldpricearabia";
   const fonts = await loadFontsFor(lang);
   const sparkW = w - 160;
@@ -146,8 +150,12 @@ export async function GET(
           flexDirection: "column",
           justifyContent: "space-between",
           alignItems: "center",
-          background: CARD_BG,
-          backgroundImage: `radial-gradient(circle at 50% 0%, ${accent.glow} 0%, ${CARD_BG} 62%)`,
+          ...(overlay
+            ? {}
+            : {
+                background: CARD_BG,
+                backgroundImage: `radial-gradient(circle at 50% 0%, ${accent.glow} 0%, ${CARD_BG} 62%)`,
+              }),
           color: CARD_TEXT,
           fontFamily: OG_FONT_FAMILY,
           // Story safe area: Instagram overlays the top ~14% and bottom ~20%.
