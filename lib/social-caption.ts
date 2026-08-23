@@ -43,7 +43,7 @@ const T = {
   },
   subline: {
     en: "gold price today, 24K/22K/21K/18K per gram in {n} countries",
-    ar: "سعر الذهب اليوم عيار 24 و22 و21 و18 بالجرام في {n} دولة",
+    ar: "سعر الذهب اليوم عيار 24 و22 و21 و18 بالجرام في {n} {دولة}",
     fr: "prix de l'or aujourd'hui, 24/22/21/18 carats le gramme dans {n} pays",
     tr: "bugün altın fiyatı, gram başına 24/22/21/18 ayar, {n} ülkede",
     ur: "آج سونے کی قیمت، 24/22/21/18 قیراط فی گرام، {n} ممالک میں",
@@ -106,6 +106,19 @@ export type CaptionInput = {
   markets: MarketPrice[];
   siteUrl: string;
 };
+
+/**
+ * Arabic counted-noun agreement (التمييز). 3–10 take the plural in the
+ * genitive — "9 دول" — while 11–99 take the singular — "19 دولة". Getting this
+ * wrong is the kind of thing a native reader spots instantly, and the carousel
+ * length changes with the upload target, so it cannot be hard-coded.
+ */
+function countryNoun(n: number): string {
+  if (n === 1) return "دولة واحدة";
+  if (n === 2) return "دولتان";
+  if (n >= 3 && n <= 10) return "دول";
+  return "دولة";
+}
 
 /** "412.35 ر.س." — the market's own symbol, Latin digits (see `localeMeta.intl`). */
 export function money(locale: string, value: number, currency: string): string {
@@ -173,7 +186,11 @@ export function buildCaption(input: CaptionInput): string {
 
   const lines = [
     `🟡 ${pick(locale, T.headline)} $${usd}${move}`,
-    `📅 ${dateLabel(locale, when, true)} — ${pick(locale, T.subline).replace("{n}", String(markets.length))}`,
+    `📅 ${dateLabel(locale, when, true)} — ${pick(locale, T.subline)
+      .replace("{n}", markets.length === 1 || markets.length === 2 ? "" : String(markets.length))
+      .replace("{دولة}", countryNoun(markets.length))
+      .replace(/\s+/g, " ")
+      .trim()}`,
     "",
     ...priceLines,
     "",
