@@ -1,19 +1,23 @@
 #!/usr/bin/env node
 /**
- * Build a ready-to-post reel from a Google Flow backdrop and a live price card.
+ * Build a ready-to-post reel from a Google Flow backdrop and live price cards.
  *
- *   node scripts/reel.mjs --clip "C:/path/Gold_bar.mp4" --country saudi-arabia
+ *   node scripts/reel.mjs --clip "C:/path/Gold_bar.mp4"
+ *   node scripts/reel.mjs --clip clip.mp4 --countries saudi-arabia,uae,egypt
+ *   node scripts/reel.mjs --clip clip.mp4 --country saudi-arabia   # single card
  *
- *   --clip      backdrop from Flow (any aspect; it gets cropped to 9:16)
- *   --country   market slug, default saudi-arabia
- *   --lang      default ar
- *   --out       output path, default social-out/reels/YYYY-MM-DD/<country>.mp4
- *   --base      site to render the card from, default production
- *   --scrim     opacity of the dark layer between video and card, default 0.62
- *   --blur      backdrop blur sigma, default 10
+ *   --clip        backdrop from Flow (any aspect; it gets cropped to 9:16)
+ *   --countries   comma list, default the nine markets in the daily carousel
+ *   --country     shorthand for a one-country reel
+ *   --per         seconds each country holds on screen, default 1.5
+ *   --lang        default ar
+ *   --out         default social-out/reels/YYYY-MM-DD/<name>.mp4
+ *   --base        site to render cards from, default production
+ *   --scrim       opacity of the dark layer between video and cards, default 0.62
+ *   --blur        backdrop blur sigma, default 10
  *
- * The card is fetched from `/social/{country}/story?overlay=1` — the same route
- * that renders the carousel, minus its background — so a reel can never quote a
+ * Cards come from `/social/{country}/story?overlay=1` — the same route that
+ * renders the carousel, minus its background — so a reel can never quote a
  * price the carousel contradicts.
  *
  * Flow's audio is discarded on purpose. The reel's sound has to be a trending
@@ -21,7 +25,7 @@
  * documented ranking signals, and a generated soundtrack wastes them.
  */
 import { execFile } from "node:child_process";
-import { mkdir, writeFile, stat } from "node:fs/promises";
+import { mkdir, writeFile, stat, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 
@@ -33,8 +37,16 @@ const flag = (name, fallback) => {
   return i !== -1 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : fallback;
 };
 
+/** The nine markets in the web-sized carousel (lib/social-markets.ts). */
+const DEFAULT_MARKETS =
+  "saudi-arabia,uae,egypt,jordan,kuwait,qatar,bahrain,lebanon,morocco";
+
 const CLIP = flag("clip", "");
-const COUNTRY = flag("country", "saudi-arabia");
+const COUNTRIES = flag("country", flag("countries", DEFAULT_MARKETS))
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+const PER = Math.max(0.6, Number(flag("per", "1.5")));
 const LANG = flag("lang", "ar");
 const BASE = flag("base", "https://goldpricesarabia.com").replace(/\/+$/, "");
 const SCRIM = Math.min(1, Math.max(0, Number(flag("scrim", "0.62"))));
@@ -64,51 +76,69 @@ async function main() {
   await stat(CLIP); // fail early and clearly if the path is wrong
 
   const src = await ffprobe(CLIP);
+  const total = +(COUNTRIES.length * PER).toFixed(2);
   console.log(`clip     ${src.width}×${src.height}  ${src.duration.toFixed(1)}s`);
   if (src.width / src.height > 1) {
     console.log("         landscape source — cropping to 9:16 loses the sides.");
-    console.log("         Render at 9:16 in Flow next time for a sharper result.");
+  }
+  if (total > src.duration) {
+    console.log(`         backdrop loops to cover ${total}s`);
   }
 
-  const cardUrl = `${BASE}/social/${COUNTRY}/story?lang=${LANG}&overlay=1`;
-  const res = await fetch(cardUrl, { headers: { "user-agent": "goldarabia-reel/1.0" } });
-  if (!res.ok) throw new Error(`${res.status} fetching ${cardUrl}`);
-  const card = Buffer.from(await res.arrayBuffer());
-  console.log(`card     ${(card.length / 1024).toFixed(0)} KB  ${COUNTRY}`);
-
   const today = new Date().toISOString().slice(0, 10);
-  const out = flag("out", join(process.cwd(), "social-out", "reels", today, `${COUNTRY}.mp4`));
-  await mkdir(dirname(out), { recursive: true });
+  const name = COUNTRIES.length === 1 ? COUNTRIES[0] : `${COUNTRIES.length}-countries`;
+  const out = flag("out", join(process.cwd(), "social-out", "reels", today, `${name}.mp4`));
+  const work = join(dirname(out), ".cards");
+  await mkdir(work, { recursive: true });
 
-  const cardPath = join(dirname(out), `${COUNTRY}-overlay.png`);
-  await writeFile(cardPath, card);
+  const cards = [];
+  for (const slug of COUNTRIES) {
+    const url = `${BASE}/social/${slug}/story?lang=${LANG}&overlay=1`;
+    const res = await fetch(url, { headers: { "user-agent": "goldarabia-reel/1.0" } });
+    if (!res.ok) throw new Error(`${res.status} fetching ${url}`);
+    const buf = Buffer.from(await res.arrayBuffer());
+    const p = join(work, `${slug}.png`);
+    await writeFile(p, buf);
+    cards.push(p);
+    process.stdout.write(`card     ${slug.padEnd(14)} ${(buf.length / 1024).toFixed(0)} KB\n`);
+  }
 
-  // scale=…:increase then crop fills 9:16 from any source aspect without
-  // letterboxing.
-  //
   // The blur and the scrim are not decoration. A gold backdrop is mostly bright
   // specular highlight, and white text over a blown-out highlight is unreadable
-  // — simply lowering overall brightness does not fix it, because the highlight
-  // stays the brightest thing in frame. Blurring spreads it out, and a flat dark
-  // layer at a fixed opacity guarantees the same contrast under the card no
-  // matter how bright the clip is. Blur also hides the upscale a landscape
-  // source needs.
-  const filter = [
+  // — lowering overall brightness does not fix it, because the highlight stays
+  // the brightest thing in frame. Blurring spreads it out, and a flat dark layer
+  // at fixed opacity guarantees the same contrast under every card whatever the
+  // clip is doing. Blur also hides the upscale a landscape source needs.
+  const chain = [
     `[0:v]scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H},` +
       (BLUR > 0 ? `gblur=sigma=${BLUR},` : "") +
       `eq=saturation=0.85,` +
       `drawbox=x=0:y=0:w=iw:h=ih:color=0x0b0a08@${SCRIM}:t=fill,setsar=1[bg]`,
-    `[1:v]scale=${W}:${H}[fg]`,
-    `[bg][fg]overlay=0:0:format=auto[v]`,
-  ].join(";");
+  ];
 
-  console.log("ffmpeg   compositing…");
+  // One overlay per country, each gated to its own slice of the timeline.
+  // Hard cuts, not crossfades: a viewer is scanning for their own country, and
+  // a dissolve makes two country names legible at once, which reads as a smear.
+  let prev = "bg";
+  cards.forEach((_, i) => {
+    const from = +(i * PER).toFixed(3);
+    const to = +((i + 1) * PER).toFixed(3);
+    const label = i === cards.length - 1 ? "v" : `v${i}`;
+    chain.push(`[${i + 1}:v]scale=${W}:${H}[c${i}]`);
+    chain.push(`[${prev}][c${i}]overlay=0:0:format=auto:enable='between(t,${from},${to})'[${label}]`);
+    prev = label;
+  });
+
+  const inputs = ["-stream_loop", "-1", "-i", CLIP];
+  for (const c of cards) inputs.push("-i", c);
+
+  console.log(`ffmpeg   ${cards.length} card(s) × ${PER}s = ${total}s`);
   await run("ffmpeg", [
     "-y",
-    "-i", CLIP,
-    "-i", cardPath,
-    "-filter_complex", filter,
+    ...inputs,
+    "-filter_complex", chain.join(";"),
     "-map", "[v]",
+    "-t", String(total),
     "-an",                       // Flow's audio is discarded, see header
     "-c:v", "libx264",
     "-profile:v", "high",
@@ -118,6 +148,8 @@ async function main() {
     "-movflags", "+faststart",
     out,
   ]);
+
+  await rm(work, { recursive: true, force: true });
 
   const final = await ffprobe(out);
   const size = (await stat(out)).size;
