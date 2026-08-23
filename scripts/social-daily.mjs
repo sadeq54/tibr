@@ -6,6 +6,7 @@
  *   node scripts/social-daily.mjs --only posts    # carousel only
  *   node scripts/social-daily.mjs --only stories  # stories only
  *   node scripts/social-daily.mjs --lang en
+ *   node scripts/social-daily.mjs --slides 10       # web-sized carousel
  *   node scripts/social-daily.mjs --countries saudi-arabia,uae
  *   node scripts/social-daily.mjs --base http://localhost:3000
  *
@@ -33,6 +34,10 @@ const flag = (name, fallback) => {
 const BASE = flag("base", "https://goldpricesarabia.com").replace(/\/+$/, "");
 const LANG = flag("lang", "ar");
 const ONLY = flag("only", "all"); // posts | stories | all
+// Instagram web caps a carousel at 10; only the app takes 20 (lib/social-markets.ts).
+// The cover and the caption both read this number, so they can never advertise a
+// country the carousel does not contain.
+const SLIDES = Math.max(2, Math.min(20, Number(flag("slides", "20")) || 20));
 
 /** Mirror of lib/social-markets.ts — 19 markets, cover makes 20 slides. */
 const MARKETS = flag(
@@ -42,7 +47,7 @@ const MARKETS = flag(
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean)
-  .slice(0, 19);
+  .slice(0, SLIDES - 1);
 
 const today = new Date().toISOString().slice(0, 10);
 const root = join(process.cwd(), "social-out");

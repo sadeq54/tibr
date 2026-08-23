@@ -26,13 +26,23 @@ import { dateLabel, fmtNum, spotDate } from "@/lib/seo";
 const SIZES = { post: { w: 1080, h: 1080 }, story: { w: 1080, h: 1920 } } as const;
 type Format = keyof typeof SIZES;
 
+/**
+ * "اليوم" lives on the date line, not in the headline. Final ب in "الذهب"
+ * carries a wide left bearing inside its own glyph advance, so "الذهب اليوم"
+ * always showed a hole between the two words — at margin 0.38em and at margin
+ * 0 alike. Moving the word is the only fix, and it reads better anyway:
+ * "أسعار الذهب" / "اليوم الأحد، 23 أغسطس 2026".
+ */
 const HEADLINE: LocaleText = {
-  en: "Gold price today",
-  ar: "أسعار الذهب اليوم",
-  fr: "Prix de l'or aujourd'hui",
-  tr: "Bugün altın fiyatı",
-  ur: "آج سونے کی قیمت",
-  hi: "आज सोने का भाव",
+  en: "Gold price",
+  ar: "أسعار الذهب",
+  fr: "Prix de l'or",
+  tr: "Altın fiyatı",
+  ur: "سونے کی قیمت",
+  hi: "सोने का भाव",
+};
+const TODAY: LocaleText = {
+  en: "Today", ar: "اليوم", fr: "Aujourd'hui", tr: "Bugün", ur: "آج", hi: "आज",
 };
 const OUNCE: LocaleText = {
   en: "Ounce (USD)", ar: "الأونصة بالدولار", fr: "L'once (USD)", tr: "Ons (USD)", ur: "اونس (ڈالر)", hi: "औंस (USD)",
@@ -53,6 +63,25 @@ const SWIPE: LocaleText = {
   ur: "اپنے ملک کے لیے سوائپ کریں",
   hi: "अपने देश के लिए स्वाइप करें",
 };
+
+/**
+ * Country chips are laid out as a fixed grid, not a wrapping flex row.
+ * Wrapping packs by pixel width, so the rows came out 7/6/5/1 with a single
+ * orphan chip on the last line — the layout read as an accident. A grid with
+ * one cell width gives straight columns and an even last row.
+ */
+function gridColumns(count: number): number {
+  if (count <= 4) return 2;
+  if (count <= 9) return 3;
+  if (count <= 16) return 4;
+  return 5;
+}
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const rows: T[][] = [];
+  for (let i = 0; i < items.length; i += size) rows.push(items.slice(i, i + size));
+  return rows;
+}
 
 /** What we offer that a single-country account cannot. Dots, not connectors:
  *  word-level layout keeps them evenly spaced at any size. */
@@ -97,6 +126,11 @@ export async function GET(
   const { w, h } = SIZES[format];
   const isStory = format === "story";
   const scale = isStory ? 1.06 : 1;
+  const padX = isStory ? 72 : 64;
+  const contentW = w - padX * 2;
+  const CHIP_GAP = 12;
+  const cols = gridColumns(names.length);
+  const cellW = Math.floor(contentW / cols) - CHIP_GAP;
   const accent = pickAccent(when, Number(req.nextUrl.searchParams.get("theme")));
   const handle = SOCIAL_PROFILES[0]?.handle ?? "goldpricearabia";
   const fonts = await loadFontsFor(lang);
@@ -125,7 +159,12 @@ export async function GET(
             <Words text={pick(lang, HEADLINE)} rtl={rtl} size={68 * scale} weight={700} />
           </div>
           <div style={{ display: "flex", marginTop: 14 }}>
-            <Words text={dateLabel(lang, when, true)} rtl={rtl} size={30 * scale} color={CARD_DIM} />
+            <Words
+              text={`${pick(lang, TODAY)} ${dateLabel(lang, when, true)}`}
+              rtl={rtl}
+              size={30 * scale}
+              color={CARD_DIM}
+            />
           </div>
         </div>
 
@@ -160,44 +199,50 @@ export async function GET(
           <div style={{ display: "flex", marginBottom: 16 }}>
             <Words text={pick(lang, IN_MARKETS)} rtl={rtl} size={24 * scale} color={CARD_DIM} />
           </div>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              flexDirection: rtl ? "row-reverse" : "row",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            {names.map((n) => (
-              <div
-                key={n}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "10px 18px",
-                  margin: 6,
-                  borderRadius: 999,
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(226,181,78,0.25)",
-                }}
-              >
-                <Words text={n} rtl={rtl} size={24 * scale} color={CARD_TEXT} />
-              </div>
-            ))}
-          </div>
+          {chunk(names, cols).map((row, r) => (
+            <div
+              key={r}
+              style={{
+                display: "flex",
+                flexDirection: rtl ? "row-reverse" : "row",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+              }}
+            >
+              {row.map((n) => (
+                <div
+                  key={n}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    // One width for every cell — this is what makes the columns
+                    // line up instead of stepping in and out per row.
+                    width: cellW,
+                    height: 62 * scale,
+                    marginLeft: CHIP_GAP / 2,
+                    marginRight: CHIP_GAP / 2,
+                    marginBottom: CHIP_GAP,
+                    borderRadius: 999,
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(226,181,78,0.25)",
+                  }}
+                >
+                  <Words text={n} rtl={rtl} size={28 * scale} weight={600} color={CARD_TEXT} />
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
 
         {/* Feature chips */}
         <div
           style={{
             display: "flex",
-            flexWrap: "wrap",
             flexDirection: rtl ? "row-reverse" : "row",
             justifyContent: "center",
-            alignItems: "center",
+            alignItems: "stretch",
             width: "100%",
           }}
         >
@@ -208,13 +253,18 @@ export async function GET(
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                padding: "12px 20px",
-                margin: 6,
-                borderRadius: 14,
+                // Equal cells again: four chips of different text lengths
+                // wrapping at their natural widths is what made this row look
+                // improvised.
+                width: Math.floor(contentW / FEATURES.length) - CHIP_GAP,
+                height: 66 * scale,
+                marginLeft: CHIP_GAP / 2,
+                marginRight: CHIP_GAP / 2,
+                borderRadius: 16,
                 background: `${accent.chip}1f`,
               }}
             >
-              <Words text={pick(lang, f)} rtl={rtl} size={24 * scale} color={accent.chip} />
+              <Words text={pick(lang, f)} rtl={rtl} size={21 * scale} color={accent.chip} />
             </div>
           ))}
         </div>
