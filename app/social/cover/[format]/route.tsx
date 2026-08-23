@@ -147,6 +147,9 @@ export async function GET(
   const cellW = Math.floor(contentW / cols) - CHIP_GAP;
   const chipSize = chipFontSize(names);
   const accent = pickAccent(when, Number(req.nextUrl.searchParams.get("theme")));
+  // `?overlay=1` drops the background so the cover can sit on video in a reel,
+  // matching `/social/{country}/{format}`.
+  const overlay = req.nextUrl.searchParams.get("overlay") === "1";
   const handle = SOCIAL_PROFILES[0]?.handle ?? "goldpricearabia";
   const fonts = await loadFontsFor(lang);
 
@@ -160,8 +163,12 @@ export async function GET(
           flexDirection: "column",
           justifyContent: "space-between",
           alignItems: "center",
-          background: CARD_BG,
-          backgroundImage: `radial-gradient(circle at 50% 0%, ${accent.glow} 0%, ${CARD_BG} 62%)`,
+          ...(overlay
+            ? {}
+            : {
+                background: CARD_BG,
+                backgroundImage: `radial-gradient(circle at 50% 0%, ${accent.glow} 0%, ${CARD_BG} 62%)`,
+              }),
           color: CARD_TEXT,
           fontFamily: OG_FONT_FAMILY,
           padding: isStory ? "230px 72px 330px" : "72px 64px",

@@ -10,6 +10,7 @@
  *   --countries   comma list, default the nine markets in the daily carousel
  *   --country     shorthand for a one-country reel
  *   --per         seconds each country holds on screen, default 1.5
+ *   --cover       seconds the cover card holds first, default 2 (0 disables)
  *   --lang        default ar
  *   --out         default social-out/reels/YYYY-MM-DD/<name>.mp4
  *   --base        site to render cards from, default production
@@ -37,9 +38,23 @@ const flag = (name, fallback) => {
   return i !== -1 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : fallback;
 };
 
-/** The nine markets in the web-sized carousel (lib/social-markets.ts). */
-const DEFAULT_MARKETS =
-  "saudi-arabia,uae,egypt,jordan,kuwait,qatar,bahrain,lebanon,morocco";
+/**
+ * The nine markets in the web-sized carousel (lib/social-markets.ts), then the
+ * eleven that follow them in Search Console clicks over the last 28 days.
+ *
+ * Sweden and Denmark are not a mistake: this is where people searching
+ * in Arabic actually are. Syria is the site's number one country by clicks and
+ * is absent only because there is no /syria page yet — same for Yemen, Iraq,
+ * Algeria, Tunisia and Palestine. Add those pages and they belong here.
+ */
+const DEFAULT_MARKETS = [
+  // fixed, in carousel order
+  "saudi-arabia", "uae", "egypt", "jordan", "kuwait", "qatar", "bahrain",
+  "lebanon", "morocco",
+  // by GSC clicks, 28 days
+  "usa", "uk", "europe", "turkey", "sweden", "denmark", "canada", "libya",
+  "pakistan", "india", "malaysia",
+].join(",");
 
 const CLIP = flag("clip", "");
 const COUNTRIES = flag("country", flag("countries", DEFAULT_MARKETS))
@@ -47,6 +62,7 @@ const COUNTRIES = flag("country", flag("countries", DEFAULT_MARKETS))
   .map((s) => s.trim())
   .filter(Boolean);
 const PER = Math.max(0.6, Number(flag("per", "1.5")));
+const COVER = Math.max(0, Number(flag("cover", "2")));
 const LANG = flag("lang", "ar");
 const BASE = flag("base", "https://goldpricesarabia.com").replace(/\/+$/, "");
 const SCRIM = Math.min(1, Math.max(0, Number(flag("scrim", "0.62"))));
@@ -76,7 +92,7 @@ async function main() {
   await stat(CLIP); // fail early and clearly if the path is wrong
 
   const src = await ffprobe(CLIP);
-  const total = +(COUNTRIES.length * PER).toFixed(2);
+  const total = +(COVER + COUNTRIES.length * PER).toFixed(2);
   console.log(`clip     ${src.width}×${src.height}  ${src.duration.toFixed(1)}s`);
   if (src.width / src.height > 1) {
     console.log("         landscape source — cropping to 9:16 loses the sides.");
@@ -92,8 +108,12 @@ async function main() {
   await mkdir(work, { recursive: true });
 
   const cards = [];
-  for (const slug of COUNTRIES) {
-    const url = `${BASE}/social/${slug}/story?lang=${LANG}&overlay=1`;
+  const slugs = COVER > 0 ? ["cover", ...COUNTRIES] : [...COUNTRIES];
+  for (const slug of slugs) {
+    const url =
+      slug === "cover"
+        ? `${BASE}/social/cover/story?lang=${LANG}&overlay=1&countries=${COUNTRIES.join(",")}`
+        : `${BASE}/social/${slug}/story?lang=${LANG}&overlay=1`;
     const res = await fetch(url, { headers: { "user-agent": "goldarabia-reel/1.0" } });
     if (!res.ok) throw new Error(`${res.status} fetching ${url}`);
     const buf = Buffer.from(await res.arrayBuffer());
@@ -120,9 +140,12 @@ async function main() {
   // Hard cuts, not crossfades: a viewer is scanning for their own country, and
   // a dissolve makes two country names legible at once, which reads as a smear.
   let prev = "bg";
+  let cursor = 0;
   cards.forEach((_, i) => {
-    const from = +(i * PER).toFixed(3);
-    const to = +((i + 1) * PER).toFixed(3);
+    const hold = COVER > 0 && i === 0 ? COVER : PER;
+    const from = +cursor.toFixed(3);
+    const to = +(cursor + hold).toFixed(3);
+    cursor += hold;
     const label = i === cards.length - 1 ? "v" : `v${i}`;
     chain.push(`[${i + 1}:v]scale=${W}:${H}[c${i}]`);
     chain.push(`[${prev}][c${i}]overlay=0:0:format=auto:enable='between(t,${from},${to})'[${label}]`);
@@ -132,7 +155,7 @@ async function main() {
   const inputs = ["-stream_loop", "-1", "-i", CLIP];
   for (const c of cards) inputs.push("-i", c);
 
-  console.log(`ffmpeg   ${cards.length} card(s) × ${PER}s = ${total}s`);
+  console.log(`ffmpeg   ${COVER > 0 ? `cover ${COVER}s + ` : ""}${COUNTRIES.length} × ${PER}s = ${total}s`);
   await run("ffmpeg", [
     "-y",
     ...inputs,
@@ -147,6 +170,16 @@ async function main() {
     "-b:v", "6M",
     "-movflags", "+faststart",
     out,
+  ]);
+
+  const thumb = out.replace(/\.mp4$/, "-cover.jpg");
+  await run("ffmpeg", [
+    "-y", "-v", "error",
+    "-ss", COVER > 0 ? "0.4" : "0.2",
+    "-i", out,
+    "-frames:v", "1",
+    "-q:v", "2",
+    thumb,
   ]);
 
   await rm(work, { recursive: true, force: true });
