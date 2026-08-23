@@ -9,7 +9,8 @@
  *   node scripts/social-daily.mjs --countries saudi-arabia,uae
  *   node scripts/social-daily.mjs --base http://localhost:3000
  *
- * Layout (Instagram allows 20 slides, so it is 1 cover + 19 markets):
+ * Layout (the Instagram app allows 20 slides, so it is 1 cover + 19 markets;
+ * Instagram web only accepts 10, so a full carousel is posted from the phone):
  *
  *   social-out/
  *     posts/2026-08-22/01-cover.png … 20-australia.png  + captions.txt

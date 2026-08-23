@@ -42,8 +42,16 @@ social-out/
 ```
 
 Files are zero-padded so the folder **sorts in swipe order** — select all in the
-Instagram uploader and the carousel comes out right. Instagram allows 20 slides:
+Instagram uploader and the carousel comes out right. The app allows 20 slides:
 1 cover + 19 markets.
+
+> **A 20-slide carousel must be posted from the phone.** Instagram *web* caps a
+> carousel at **10** — hand its uploader 20 files and it keeps the first 10 and
+> discards the rest with no error at all, and once 10 are loaded the composer
+> stops offering any add-more control (verified in the DOM, 2026-08-23). Post
+> from web only if you are happy with 10, and regenerate the cover and caption
+> for that count first, or the cover will advertise countries the carousel does
+> not contain.
 
 The 19 markets (`lib/social-markets.ts`, mirrored in the script): Saudi Arabia,
 UAE, Egypt, Jordan, Kuwait, Qatar, Bahrain, Lebanon, Morocco, Libya, Turkey,
@@ -97,13 +105,18 @@ bio is not one of them — **Instagram search matches the username and the Name
 field, never the bio text**. That makes the Name field the most valuable 30
 characters on the account.
 
-**Name field** (30-character limit — this is the searchable one):
+**Name field** (30-character limit — this is the searchable one), as set:
 ```
-أسعار الذهب اليوم | 46 دولة
+أسعار الذهب اليوم في 46 دولة
 ```
-27 characters. It leads with the highest-volume query in the niche and follows
-with the one thing no competitor in this space has: every market, not one. The
-brand lives in the handle, `@goldpricearabia`, so it does not need to be here.
+28 characters. It leads with the highest-volume query in the niche and follows
+with the one thing no competitor in this space has: every market, not one. It
+reads as one Arabic phrase rather than a `|`-separated pair, which avoids a
+bidi separator sitting between Arabic text and a Latin numeral. The brand lives
+in the handle, `@goldpricearabia`, so it does not need to be here.
+
+**Instagram allows only two name changes per 14 days**, so get it right rather
+than iterating. One was used on 2026-08-22.
 
 **Bio** (150-character limit, 120 used):
 ```
