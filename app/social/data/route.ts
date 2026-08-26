@@ -74,6 +74,11 @@ export async function GET(req: NextRequest) {
       caption: buildCaption(captionInput),
       alts: buildAltText(captionInput),
     },
-    { headers: { "Cache-Control": "public, max-age=300, s-maxage=900, stale-while-revalidate=3600" } },
+    // No CDN caching. Netlify's edge cached this route without varying on the
+    // query string, so a request for nine markets was answered from a cached
+    // nineteen-market response and the caption advertised countries the
+    // carousel did not contain. The prices behind this are already cached
+    // server-side (getCachedSpot / getCachedFxRates), so recomputing is cheap.
+    { headers: { "Cache-Control": "no-store" } },
   );
 }
