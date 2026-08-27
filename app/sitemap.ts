@@ -183,6 +183,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   out.push(...dual("methodology", "monthly", 0.55));
   out.push(...dual("editorial-standards", "monthly", 0.5));
   out.push(...dual("about/privacy", "monthly", 0.4));
+  // Contact ranks above the other policy pages on purpose: a reachable
+  // publisher is what both readers and ad-network reviewers look for first.
+  out.push(...dual("contact", "monthly", 0.55));
+  out.push(...dual("terms", "monthly", 0.4));
   out.push(...dual("advertise", "monthly", 0.4));
 
   // Live-price routes change materially every day (tables, titles, prices),

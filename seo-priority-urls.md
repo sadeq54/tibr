@@ -178,6 +178,17 @@ If quota hit: "Quota exceeded" message. Retry tomorrow.
 -  https://goldpricesarabia.com/editorial-standards
 -  https://goldpricesarabia.com/en/editorial-standards
 
+**Priority 0.55 — Publisher identity (added 2026-08-27 for the AdSense resubmission)**
+
+Submit these before resubmitting to AdSense. The reviewer opens the site cold and
+looks for a reachable publisher and stated terms; both were missing when the
+first application was rejected.
+
+-  https://goldpricesarabia.com/contact
+-  https://goldpricesarabia.com/en/contact
+-  https://goldpricesarabia.com/terms
+-  https://goldpricesarabia.com/en/terms
+
 **Buy gold pages**
 -  https://goldpricesarabia.com/buy-gold/usa
 -  https://goldpricesarabia.com/buy-gold/uk

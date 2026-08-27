@@ -70,8 +70,10 @@ Public, free-to-cite data. Attribution: "Gold Prices Arabia (${SITE_URL})". Pric
 
 ## Contact
 
+- Contact page (who runs the site, reply times): \`${SITE_URL}/contact\`
 - General: support@goldpricesarabia.com
 - Advertising: ads@goldpricesarabia.com
+- Terms of use: \`${SITE_URL}/terms\`
 `;
 
 export function GET() {

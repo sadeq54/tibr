@@ -41,6 +41,8 @@ const EDITORIAL: Array<{ href: string; label: LocaleText }> = [
   { href: "/methodology", label: { en: "Methodology", ar: "المنهجية", fr: "Méthodologie", tr: "Metodoloji", ur: "طریقۂ کار", hi: "कार्यप्रणाली" } },
   { href: "/editorial-standards", label: { en: "Editorial standards", ar: "معايير التحرير", fr: "Charte éditoriale", tr: "Editoryal standartlar", ur: "ادارتی معیارات", hi: "संपादकीय मानक" } },
   { href: "/about/privacy", label: { en: "Privacy", ar: "الخصوصية", fr: "Confidentialité", tr: "Gizlilik", ur: "رازداری", hi: "गोपनीयता" } },
+  { href: "/terms", label: { en: "Terms of use", ar: "شروط الاستخدام", fr: "Conditions d'utilisation", tr: "Kullanım şartları", ur: "شرائطِ استعمال", hi: "उपयोग की शर्तें" } },
+  { href: "/contact", label: { en: "Contact", ar: "تواصل معنا", fr: "Contact", tr: "İletişim", ur: "رابطہ", hi: "संपर्क" } },
   { href: "/advertise", label: { en: "Advertise", ar: "أعلن معنا", fr: "Publicité", tr: "Reklam verin", ur: "اشتہار دیں", hi: "विज्ञापन दें" } },
 ];
 

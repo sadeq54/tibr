@@ -49,7 +49,7 @@ export function JsonLd({
    *  no change. */
   locale?: string;
   breadcrumb?: BreadcrumbItem[];
-  pageType?: "WebPage" | "CollectionPage" | "ItemPage" | "FAQPage";
+  pageType?: "WebPage" | "CollectionPage" | "ItemPage" | "FAQPage" | "ContactPage" | "AboutPage";
   pageUrl?: string;
   pageName?: string;
   /** When true, skip global schemas (Organization, WebSite, Service, FAQ) — use on pages where layout already emits them. Still emits WebPage, BreadcrumbList, and live-price schemas (Product/FinancialProduct). */
