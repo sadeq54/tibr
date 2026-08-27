@@ -78,8 +78,27 @@ export function xmTag(input?: string): string {
   return slug.slice(0, 40);
 }
 
-/** Countries XM does not onboard (per partners.xm.com restricted regions) — never show XM creatives or CTAs there. */
-export const XM_BLOCKED_COUNTRIES: ReadonlySet<string> = new Set(["usa", "canada", "argentina"]);
+/**
+ * Countries XM does not onboard (per partners.xm.com restricted regions) —
+ * never show XM creatives or CTAs there.
+ *
+ * Syria, Yemen and Iraq are added on top of XM's commercial list because they
+ * sit under sanctions regimes no retail broker onboards through: a CTA there
+ * cannot convert, and inviting a sanctioned-jurisdiction reader to open a
+ * trading account is not a link we should be paid for. Palestine is included
+ * for the same reason — banking access is the binding constraint, whatever
+ * XM's own list says. If XM later confirms any of these in writing, remove
+ * them; erring toward not showing costs nothing.
+ */
+export const XM_BLOCKED_COUNTRIES: ReadonlySet<string> = new Set([
+  "usa",
+  "canada",
+  "argentina",
+  "syria",
+  "yemen",
+  "iraq",
+  "palestine",
+]);
 export const xmAllowed = (countrySlug?: string) => !countrySlug || !XM_BLOCKED_COUNTRIES.has(countrySlug);
 
 /** Resolved (tracked) image URL for a banner id. */

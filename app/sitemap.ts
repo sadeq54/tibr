@@ -66,6 +66,16 @@ const TIER1_COUNTRIES = new Set([
   "qatar",
   "kuwait",
   "bahrain",
+  // Added 2026-08-27. These are not speculative long-tail: Search Console
+  // already ranks the site for them on generic pages, Syria at 33 clicks and
+  // 2,983 impressions over 28 days with no page of its own. Tier 1 from the
+  // day they ship, because the demand predates the page.
+  "syria",
+  "iraq",
+  "yemen",
+  "palestine",
+  "algeria",
+  "tunisia",
   "usa",
   "uk",
 ]);

@@ -24,7 +24,9 @@ export const COUNTRIES: Country[] = [
   { slug: "croatia", cc: "HR", name_en: "Croatia", name_ar: "كرواتيا", currency: "EUR", flag: "🇭🇷" },
   { slug: "denmark", cc: "DK", name_en: "Denmark", name_ar: "الدنمارك", currency: "DKK", flag: "🇩🇰" },
   { slug: "egypt", cc: "EG", name_en: "Egypt", name_ar: "مصر", currency: "EGP", flag: "🇪🇬" },
+  { slug: "algeria", cc: "DZ", name_en: "Algeria", name_ar: "الجزائر", currency: "DZD", flag: "🇩🇿" },
   { slug: "hong-kong", cc: "HK", name_en: "Hong Kong", name_ar: "هونغ كونغ", currency: "HKD", flag: "🇭🇰" },
+  { slug: "iraq", cc: "IQ", name_en: "Iraq", name_ar: "العراق", currency: "IQD", flag: "🇮🇶" },
   { slug: "hungary", cc: "HU", name_en: "Hungary", name_ar: "المجر", currency: "HUF", flag: "🇭🇺" },
   { slug: "india", cc: "IN", name_en: "India", name_ar: "الهند", currency: "INR", flag: "🇮🇳" },
   { slug: "indonesia", cc: "ID", name_en: "Indonesia", name_ar: "إندونيسيا", currency: "IDR", flag: "🇮🇩" },
@@ -43,6 +45,9 @@ export const COUNTRIES: Country[] = [
   { slug: "north-macedonia", cc: "MK", name_en: "North Macedonia", name_ar: "مقدونيا الشمالية", currency: "MKD", flag: "🇲🇰" },
   { slug: "norway", cc: "NO", name_en: "Norway", name_ar: "النرويج", currency: "NOK", flag: "🇳🇴" },
   { slug: "pakistan", cc: "PK", name_en: "Pakistan", name_ar: "باكستان", currency: "PKR", flag: "🇵🇰" },
+  // The West Bank and Gaza use the Israeli shekel as their circulating
+  // currency alongside JOD and EGP; ILS is what jewellers actually quote.
+  { slug: "palestine", cc: "PS", name_en: "Palestine", name_ar: "فلسطين", currency: "ILS", flag: "🇵🇸" },
   { slug: "philippines", cc: "PH", name_en: "Philippines", name_ar: "الفلبين", currency: "PHP", flag: "🇵🇭" },
   { slug: "qatar", cc: "QA", name_en: "Qatar", name_ar: "قطر", currency: "QAR", flag: "🇶🇦" },
   { slug: "russia", cc: "RU", name_en: "Russia", name_ar: "روسيا", currency: "RUB", flag: "🇷🇺" },
@@ -53,12 +58,15 @@ export const COUNTRIES: Country[] = [
   { slug: "south-korea", cc: "KR", name_en: "South Korea", name_ar: "كوريا الجنوبية", currency: "KRW", flag: "🇰🇷" },
   { slug: "sweden", cc: "SE", name_en: "Sweden", name_ar: "السويد", currency: "SEK", flag: "🇸🇪" },
   { slug: "switzerland", cc: "CH", name_en: "Switzerland", name_ar: "سويسرا", currency: "CHF", flag: "🇨🇭" },
+  { slug: "syria", cc: "SY", name_en: "Syria", name_ar: "سوريا", currency: "SYP", flag: "🇸🇾" },
   { slug: "taiwan", cc: "TW", name_en: "Taiwan", name_ar: "تايوان", currency: "TWD", flag: "🇹🇼" },
   { slug: "thailand", cc: "TH", name_en: "Thailand", name_ar: "تايلاند", currency: "THB", flag: "🇹🇭" },
+  { slug: "tunisia", cc: "TN", name_en: "Tunisia", name_ar: "تونس", currency: "TND", flag: "🇹🇳" },
   { slug: "turkey", cc: "TR", name_en: "Turkey", name_ar: "تركيا", currency: "TRY", flag: "🇹🇷" },
   { slug: "uk", cc: "GB", name_en: "United Kingdom", name_ar: "المملكة المتحدة", currency: "GBP", flag: "🇬🇧" },
   { slug: "uae", cc: "AE", name_en: "United Arab Emirates", name_ar: "الإمارات", currency: "AED", flag: "🇦🇪" },
   { slug: "vietnam", cc: "VN", name_en: "Vietnam", name_ar: "فيتنام", currency: "VND", flag: "🇻🇳" },
+  { slug: "yemen", cc: "YE", name_en: "Yemen", name_ar: "اليمن", currency: "YER", flag: "🇾🇪" },
 ];
 
 export const COUNTRY_BY_SLUG: Record<string, Country> = Object.fromEntries(
@@ -75,9 +83,15 @@ export const COUNTRY_BY_CC: Record<string, Country> = Object.fromEntries(
  * back to English. Language codes match XmLang in lib/xm-banners.ts.
  */
 export const COUNTRY_XM_LANG: Record<string, string> = {
+  algeria: "ar",
   argentina: "es",
   australia: "en",
   bahrain: "ar",
+  iraq: "ar",
+  palestine: "ar",
+  syria: "ar",
+  tunisia: "ar",
+  yemen: "ar",
   brazil: "pt",
   canada: "en",
   china: "zh-hans",
@@ -170,6 +184,36 @@ export function sortedCountries(locale: string): Country[] {
 export type CountryNote = { en: string; ar: string };
 
 export const COUNTRY_NOTES: Record<string, CountryNote> = {
+  // Syria, Iraq, Yemen and Palestine are the site's largest Search Console
+  // markets that had no page at all — Syria alone was 33 clicks and 2,983
+  // impressions over 28 days, ranking on generic pages. What these readers
+  // need is not another karat table: it is the gap between an official rate
+  // and the rate a jeweller actually uses, because in each of these markets
+  // that gap is the price.
+  syria: {
+    en: "Syria's gold market runs on 21K jewellery, sold through the souks of Damascus, Aleppo and Homs. The Syrian Pound has lost most of its value since 2011 and the official rate has long diverged from the parallel one jewellers actually price against — so a gram quoted in SYP can differ sharply from a conversion at the central-bank rate. Many transactions are settled in US dollars or by weight rather than by a stated pound figure. The Damascus Chamber of Industry's gold division publishes a daily 21K reference, but in practice each souk carries its own premium, and gold here functions less as jewellery than as the household savings account.",
+    ar: "يقوم سوق الذهب في سوريا على مجوهرات عيار 21، وتُباع عبر أسواق دمشق وحلب وحمص. فقدت الليرة السورية معظم قيمتها منذ 2011، وتباعد السعر الرسمي طويلًا عن السعر الموازي الذي يسعّر به الصاغة فعليًا — لذا قد يختلف الجرام المسعَّر بالليرة اختلافًا حادًا عن التحويل بسعر المصرف المركزي. تُسوّى كثير من المعاملات بالدولار الأمريكي أو بالوزن بدلًا من رقم محدد بالليرة. تنشر شعبة الذهب في غرفة صناعة دمشق سعرًا مرجعيًا يوميًا لعيار 21، لكن لكل سوق عمليًا علاوته الخاصة، والذهب هنا أقرب إلى حساب ادخار الأسرة منه إلى الحلي.",
+  },
+  iraq: {
+    en: "Iraq buys gold at 21K in the Gulf style, with 18K common in Baghdad's newer retail and 22K favoured in the Kurdistan region. The dinar is managed against the dollar by the Central Bank of Iraq, but the daily rate at Baghdad's exchange shops has traded above the official one, so a gram priced in IQD reflects whichever rate the shop uses. Gold is a standard part of the mahr, and the Shorja and Nahr markets in Baghdad set prices the rest of the country tracks. Making charges are quoted per gram and negotiated, and there is no VAT on jewellery.",
+    ar: "يشتري العراق الذهب بعيار 21 على النمط الخليجي، مع شيوع عيار 18 في متاجر بغداد الحديثة وتفضيل عيار 22 في إقليم كردستان. يدير البنك المركزي العراقي الدينار مقابل الدولار، لكن السعر اليومي في مكاتب الصرافة ببغداد تداول فوق السعر الرسمي، لذا يعكس الجرام المسعَّر بالدينار السعر الذي يعتمده المتجر. الذهب جزء أساسي من المهر، وتحدد أسواق الشورجة والنهر في بغداد الأسعار التي تتبعها بقية البلاد. تُحدَّد أجرة الصياغة لكل جرام وتخضع للتفاوض، ولا توجد ضريبة قيمة مضافة على المجوهرات.",
+  },
+  yemen: {
+    en: "Yemen's retail gold is overwhelmingly 21K, sold in the old souks of Sana'a, Aden and Taiz. The rial trades at two very different rates — Aden and Sana'a have operated separate exchange regimes since 2016 — so the same gram can carry two prices in the same country on the same day, and the figure below is a conversion at the market rate, not a quote from either city. Gold retains its traditional role in the mahr and as portable savings through displacement, and jewellers commonly buy back at the day's rate less a fixed workmanship deduction.",
+    ar: "الذهب بالتجزئة في اليمن عيار 21 في معظمه، ويُباع في أسواق صنعاء وعدن وتعز القديمة. يُتداول الريال بسعرين مختلفين تمامًا — إذ تعمل عدن وصنعاء بنظامَي صرف منفصلين منذ 2016 — لذا قد يحمل الجرام ذاته سعرين في البلد نفسه واليوم نفسه، والرقم أدناه تحويل بسعر السوق وليس عرضًا من أي من المدينتين. يحتفظ الذهب بدوره التقليدي في المهر وكمدخرات محمولة أثناء النزوح، ويشتريه الصاغة عادة بسعر اليوم مطروحًا منه خصم صياغة ثابت.",
+  },
+  palestine: {
+    en: "Gold in the West Bank and Gaza is bought at 21K, and jewellers quote in shekels because the shekel is what circulates, though Jordanian dinars and dollars are accepted in Hebron and Nablus. Prices track Amman closely — much of the stock arrives through Jordanian wholesalers — so the Palestinian gram usually sits within a narrow band of the Jordanian one once converted. Gold is central to the mahr and remains the most liquid household asset available, which is why demand holds up when other spending stops. Making charges are negotiated per gram and there is no separate jewellery tax.",
+    ar: "يُشترى الذهب في الضفة الغربية وغزة بعيار 21، ويسعّر الصاغة بالشيكل لأنه العملة المتداولة، وإن كان الدينار الأردني والدولار مقبولين في الخليل ونابلس. تتبع الأسعار عمّان عن كثب — إذ يصل كثير من البضاعة عبر تجار الجملة الأردنيين — لذا يقع الجرام الفلسطيني عادة ضمن نطاق ضيق من نظيره الأردني بعد التحويل. الذهب محوري في المهر ويبقى أكثر أصول الأسرة سيولة، ولهذا يصمد الطلب عليه حين يتوقف الإنفاق الآخر. تُتفاوض أجرة الصياغة لكل جرام ولا توجد ضريبة منفصلة على المجوهرات.",
+  },
+  algeria: {
+    en: "Algeria's jewellery trade is built on 18K, unlike the 21K Gulf norm, and Algiers, Constantine and Tlemcen each have long-established goldsmith quarters. Strict currency controls mean the dinar has an official rate and a widely used parallel one at Square Port Saïd in Algiers, and the gap between them shows up directly in what a gram costs. Imports of gold are tightly restricted, so much of the retail supply is recycled domestic stock, and jewellers price workmanship as a large share of the final bill. Every piece carries a state hallmark applied by the Garantie office.",
+    ar: "تقوم تجارة المجوهرات في الجزائر على عيار 18 خلافًا لعرف الخليج عند 21، ولكلٍّ من الجزائر العاصمة وقسنطينة وتلمسان أحياء صياغة عريقة. تعني الرقابة الصارمة على الصرف أن للدينار سعرًا رسميًا وآخر موازيًا واسع الاستخدام في ساحة بورسعيد بالعاصمة، والفجوة بينهما تظهر مباشرة في كلفة الجرام. واردات الذهب مقيَّدة بشدة، لذا فمعظم المعروض بالتجزئة مخزون محلي معاد تدويره، ويحتسب الصاغة أجرة الصياغة كحصة كبيرة من الفاتورة النهائية. تحمل كل قطعة دمغة رسمية يضعها مكتب الضمان.",
+  },
+  tunisia: {
+    en: "Tunisia splits between 18K, the legal jewellery standard, and 21K bought by families for savings, with the trade concentrated in the Tunis medina's Souk El Berka. The dinar is not freely convertible and cannot legally be taken abroad, which keeps gold demand domestic and steady. Every piece must be assayed and struck at a state hallmark office — the ram's head for 18K — and that stamp is what resale value depends on locally. A 19% VAT applies to the making charge; the metal content itself is taxed separately at a low fixed rate per gram.",
+    ar: "تنقسم تونس بين عيار 18، وهو المعيار القانوني للمجوهرات، وعيار 21 الذي تشتريه الأسر للادخار، وتتركز التجارة في سوق البركة بمدينة تونس العتيقة. الدينار غير قابل للتحويل بحرية ولا يجوز قانونًا إخراجه من البلاد، ما يبقي الطلب على الذهب محليًا ومستقرًا. يجب فحص كل قطعة ودمغها في مكتب دمغ حكومي — رأس الكبش لعيار 18 — وعلى تلك الدمغة تتوقف قيمة إعادة البيع محليًا. تُطبَّق ضريبة قيمة مضافة 19% على أجرة الصياغة، بينما يُفرض على المعدن نفسه رسم ثابت منخفض لكل جرام.",
+  },
   "saudi-arabia": {
     en: "Saudi Arabia is the largest retail gold market in the Gulf. The dominant karat is 21K (87.5% purity), followed by 18K for jewellery and 24K for investment bars. Spot prices are typically quoted per gram in Saudi Riyal (SAR). A 15% Value Added Tax (VAT) applies to gold-jewellery making charges but NOT to investment-grade bullion (≥99.5% purity). Most jewellery is sold by weight at the day's spot plus a making-charge premium of 5–30 SAR per gram depending on craftsmanship.",
     ar: "المملكة العربية السعودية هي أكبر سوق ذهب للتجزئة في الخليج. العيار السائد هو 21 قيراطًا (نقاء 87.5%)، يليه 18 قيراطًا للمجوهرات و24 قيراطًا للسبائك الاستثمارية. تُسعَّر الأسعار الفورية عادة لكل جرام بالريال السعودي. تُطبَّق ضريبة القيمة المضافة 15% على رسوم تصنيع المجوهرات الذهبية ولكن ليس على السبائك ذات الجودة الاستثمارية (نقاء ≥ 99.5%). تُباع معظم المجوهرات بالوزن وفق سعر اليوم الفوري مضافًا إليه علاوة تصنيع تتراوح من 5 إلى 30 ريالاً لكل جرام حسب الحرفية.",
@@ -250,6 +294,48 @@ export type CountryFacts = {
 };
 
 export const COUNTRY_FACTS: Record<string, CountryFacts> = {
+  syria: {
+    karat: "21K",
+    note: {
+      en: "The pound's official and parallel rates have diverged for years, so the souk price and any central-bank conversion rarely agree.",
+      ar: "تباعد السعران الرسمي والموازي لليرة لسنوات، لذا نادرًا ما يتطابق سعر السوق مع أي تحويل بسعر المصرف المركزي.",
+    },
+  },
+  iraq: {
+    karat: "21K",
+    note: {
+      en: "Baghdad's Shorja and Nahr markets set the reference the rest of the country follows, with 22K preferred in Kurdistan.",
+      ar: "تحدد أسواق الشورجة والنهر في بغداد السعر المرجعي الذي تتبعه بقية البلاد، مع تفضيل عيار 22 في كردستان.",
+    },
+  },
+  yemen: {
+    karat: "21K",
+    note: {
+      en: "Aden and Sana'a have run separate exchange regimes since 2016, so one gram can carry two national prices on the same day.",
+      ar: "تعمل عدن وصنعاء بنظامَي صرف منفصلين منذ 2016، لذا قد يحمل الجرام الواحد سعرين وطنيين في اليوم ذاته.",
+    },
+  },
+  palestine: {
+    karat: "21K",
+    note: {
+      en: "Jewellers quote in shekels but stock arrives through Jordanian wholesalers, so prices track Amman within a narrow band.",
+      ar: "يسعّر الصاغة بالشيكل لكن البضاعة تصل عبر تجار الجملة الأردنيين، لذا تتبع الأسعار عمّان ضمن نطاق ضيق.",
+    },
+  },
+  algeria: {
+    karat: "18K",
+    note: {
+      en: "Currency controls sustain a parallel dinar rate at Algiers' Square Port Saïd, and import limits keep supply largely recycled.",
+      ar: "تُبقي الرقابة على الصرف سعرًا موازيًا للدينار في ساحة بورسعيد بالجزائر، وتجعل قيود الاستيراد المعروض معادَ التدوير غالبًا.",
+    },
+  },
+  tunisia: {
+    karat: "18K",
+    note: {
+      en: "Every piece is struck at a state hallmark office — the ram's head marks 18K — and that stamp carries the local resale value.",
+      ar: "تُدمغ كل قطعة في مكتب دمغ حكومي — ورأس الكبش علامة عيار 18 — وعلى تلك الدمغة تقوم قيمة إعادة البيع محليًا.",
+    },
+  },
   europe: {
     karat: "18K",
     note: {
@@ -586,7 +672,9 @@ export type RegionMeta = { id: Region; en: string; ar: string };
 
 /** Hub display order — MENA-first to match the site's primary audience. */
 export const REGIONS: RegionMeta[] = [
-  { id: "gcc", en: "Gulf (GCC)", ar: "دول الخليج" },
+  // Not "GCC": Yemen is on the Arabian Peninsula but not in the bloc, and a
+  // label that says GCC while listing Yemen is simply wrong.
+  { id: "gcc", en: "Gulf & Arabian Peninsula", ar: "الخليج وشبه الجزيرة العربية" },
   { id: "levant", en: "Levant", ar: "بلاد الشام" },
   { id: "north-africa", en: "North Africa", ar: "شمال أفريقيا" },
   { id: "africa", en: "Sub-Saharan Africa", ar: "أفريقيا جنوب الصحراء" },
@@ -603,11 +691,20 @@ export const COUNTRY_REGION: Record<string, Region> = {
   qatar: "gcc",
   kuwait: "gcc",
   bahrain: "gcc",
+  // Yemen sits in the Gulf bucket for the Arabian Peninsula, not for GCC
+  // membership — hence the region's wider label. Iraq groups with the Levant:
+  // it borders Syria and Jordan and its trade follows them, not the Gulf.
+  yemen: "gcc",
+  iraq: "levant",
   jordan: "levant",
   lebanon: "levant",
+  syria: "levant",
+  palestine: "levant",
   egypt: "north-africa",
   libya: "north-africa",
   morocco: "north-africa",
+  algeria: "north-africa",
+  tunisia: "north-africa",
   nigeria: "africa",
   "south-africa": "africa",
   china: "asia",

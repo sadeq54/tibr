@@ -178,6 +178,20 @@ If quota hit: "Quota exceeded" message. Retry tomorrow.
 -  https://goldpricesarabia.com/editorial-standards
 -  https://goldpricesarabia.com/en/editorial-standards
 
+**Priority 0.9 — New MENA markets (added 2026-08-27) — SUBMIT THESE FIRST**
+
+Six countries the site already ranks for on generic pages but had no page of
+its own. Syria led Search Console at 33 clicks / 2,983 impressions over 28 days
+with nothing to land on. Submit the 21K page (18K for Algeria and Tunisia,
+which is their legal jewellery standard) before the karat variants.
+
+-  https://goldpricesarabia.com/syria/gold-price/21k
+-  https://goldpricesarabia.com/iraq/gold-price/21k
+-  https://goldpricesarabia.com/yemen/gold-price/21k
+-  https://goldpricesarabia.com/palestine/gold-price/21k
+-  https://goldpricesarabia.com/algeria/gold-price/18k
+-  https://goldpricesarabia.com/tunisia/gold-price/18k
+
 **Priority 0.55 — Publisher identity (added 2026-08-27 for the AdSense resubmission)**
 
 Submit these before resubmitting to AdSense. The reviewer opens the site cold and
