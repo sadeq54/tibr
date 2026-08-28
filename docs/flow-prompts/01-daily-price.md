@@ -1,5 +1,16 @@
 # 01 · Daily price — rotating gold bar
 
+**Video:** A single blank gold bar turning almost imperceptibly on dark fabric, lit so one highlight travels slowly along its face.
+
+**Use:** Daily price reel — the everyday backdrop.
+
+**Assets:** none — text-to-video. Do not attach a reference image.
+
+**Voiceover:** none. `reel.mjs` strips Flow's audio; the track is chosen in the
+Instagram app.
+
+**Settings:** Veo 3.1 Quality · 9:16 · 8s · x1
+
 ## Main
 
 ```

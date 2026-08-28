@@ -1,5 +1,16 @@
 # 05 · Five years ago — overhead still life
 
+**Video:** An overhead still life of blank gold on dark stone, the camera creeping down as light rakes across.
+
+**Use:** What one gram bought then. NOT BUILDABLE YET — no route draws the returns maths.
+
+**Assets:** none — text-to-video. Do not attach a reference image.
+
+**Voiceover:** none. `reel.mjs` strips Flow's audio; the track is chosen in the
+Instagram app.
+
+**Settings:** Veo 3.1 Quality · 9:16 · 8s · x1
+
 ## Main · Calibration weights
 
 ```

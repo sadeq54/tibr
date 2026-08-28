@@ -157,6 +157,13 @@ async function main() {
   // One overlay per country, each gated to its own slice of the timeline.
   // Hard cuts, not crossfades: a viewer is scanning for their own country, and
   // a dissolve makes two country names legible at once, which reads as a smear.
+  //
+  // The gate is `gte(t,from)*lt(t,to)`, half-open, and that matters. `between`
+  // is inclusive at BOTH ends, so a card ending at t=5 and the next starting at
+  // t=5 were both enabled on the frame that lands exactly on 5 — ffmpeg drew
+  // one over the other and the frame showed two countries' prices ghosted
+  // together. At 30fps every boundary landed on a real frame, so every reel
+  // shipped with a doubled frame at each of the nine cuts.
   let prev = "bg";
   let cursor = 0;
   cards.forEach((_, i) => {
@@ -165,8 +172,13 @@ async function main() {
     const to = +(cursor + hold).toFixed(3);
     cursor += hold;
     const label = i === cards.length - 1 ? "v" : `v${i}`;
+    // The last card keeps an inclusive end so the final frame is not empty.
+    const gate =
+      i === cards.length - 1
+        ? `gte(t,${from})`
+        : `gte(t,${from})*lt(t,${to})`;
     chain.push(`[${i + 1}:v]scale=${W}:${H}[c${i}]`);
-    chain.push(`[${prev}][c${i}]overlay=0:0:format=auto:enable='between(t,${from},${to})'[${label}]`);
+    chain.push(`[${prev}][c${i}]overlay=0:0:format=auto:enable='${gate}'[${label}]`);
     prev = label;
   });
 

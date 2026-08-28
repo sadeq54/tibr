@@ -1,5 +1,16 @@
 # 04 · Country vs country — symmetrical split
 
+**Video:** A symmetrical split frame with matching gold on each side, lit identically so neither half dominates.
+
+**Use:** Country vs country. NOT BUILDABLE YET — no route draws the split card.
+
+**Assets:** none — text-to-video. Do not attach a reference image.
+
+**Voiceover:** none. `reel.mjs` strips Flow's audio; the track is chosen in the
+Instagram app.
+
+**Settings:** Veo 3.1 Quality · 9:16 · 8s · x1
+
 ## Main · Bar and chain
 
 ```

@@ -1,5 +1,16 @@
 # 02 · Then and now
 
+**Video:** Two identical gold bars side by side while the light hands over from one to the other, standing in for then and now.
+
+**Use:** Then vs now. NOT BUILDABLE YET — no route draws the historical comparison.
+
+**Assets:** none — text-to-video. Do not attach a reference image.
+
+**Voiceover:** none. `reel.mjs` strips Flow's audio; the track is chosen in the
+Instagram app.
+
+**Settings:** Veo 3.1 Quality · 9:16 · 8s · x1
+
 ## Main · Two bars, light travelling
 
 ```

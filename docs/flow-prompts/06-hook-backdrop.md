@@ -1,5 +1,19 @@
 # 06 · Hook backdrop — clear centre
 
+**Video:** Two blank gold bars cropped hard against the top and bottom edges
+while the middle of the frame stays black fabric, one highlight crawling from
+the lower bar to the upper one.
+
+**Use:** The reel's opening frame, where the price and the daily move sit in the
+centre. Ready to post.
+
+**Assets:** none — text-to-video. Do not attach a reference image.
+
+**Voiceover:** none. `reel.mjs` strips Flow's audio; the track is chosen in the
+Instagram app.
+
+**Settings:** Veo 3.1 Quality · 9:16 · 8s · x1
+
 ## Main
 
 ```

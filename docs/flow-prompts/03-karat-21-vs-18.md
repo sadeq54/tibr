@@ -1,5 +1,16 @@
 # 03 · 21K vs 18K — two karats side by side
 
+**Video:** Two blank gold pieces of visibly different warmth resting side by side under one raking light.
+
+**Use:** 21 vs 18 karat. NOT BUILDABLE YET — no route draws the karat comparison.
+
+**Assets:** none — text-to-video. Do not attach a reference image.
+
+**Voiceover:** none. `reel.mjs` strips Flow's audio; the track is chosen in the
+Instagram app.
+
+**Settings:** Veo 3.1 Quality · 9:16 · 8s · x1
+
 ## Main · Two bangles rotating
 
 ```
