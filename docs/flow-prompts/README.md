@@ -10,6 +10,13 @@ vertical clip. Prices are overlaid afterwards from `social-out/stories/`.
 | [03-karat-21-vs-18.md](./03-karat-21-vs-18.md) | Two karats side by side |
 | [04-country-vs-country.md](./04-country-vs-country.md) | Symmetrical split |
 | [05-investment-hindsight.md](./05-investment-hindsight.md) | Overhead still life |
+| [06-hook-backdrop.md](./06-hook-backdrop.md) | Clear centre — for the reel hook frame |
+
+Clips 01–05 keep their subject in the middle and leave the **top** clear, which
+suits the carousel cover. The reel's opening frame sets its text in the
+**centre**, so it needs 06: objects pushed to the top and bottom edges and the
+middle forty percent left as unlit fabric. Using 01–05 under the hook puts a
+specular highlight straight behind the percentage.
 
 **Settings:** Veo 3.1 · 9:16 vertical · 8s · highest resolution · mute the export.
 

@@ -11,7 +11,8 @@
  *                 (WIDER_MARKETS below adds the next eleven by GSC clicks)
  *   --country     shorthand for a one-country reel
  *   --per         seconds each country holds on screen, default 1.5
- *   --cover       seconds the cover card holds first, default 2 (0 disables)
+ *   --opener      hook | cover | none — what frame one is, default hook
+ *   --cover       seconds the opening frame holds, default 2
  *   --lang        default ar
  *   --out         default social-out/reels/YYYY-MM-DD/<name>.mp4
  *   --base        site to render cards from, default production
@@ -62,6 +63,19 @@ const COUNTRIES = flag("country", flag("countries", DEFAULT_MARKETS))
   .map((s) => s.trim())
   .filter(Boolean);
 const PER = Math.max(0.6, Number(flag("per", "1.5")));
+/**
+ * What the reel opens on. Instagram decides distribution on the opening
+ * seconds, so this is the highest-leverage flag in the file.
+ *
+ *   hook  (default) — the move and a gram price, no logo. Nothing to skip past.
+ *   cover           — the carousel's branded cover card. Two seconds of brand
+ *                     before the first number, which is two seconds of nothing
+ *                     to a thumb already moving.
+ *   none            — straight into the first country.
+ */
+const OPENER = ["hook", "cover", "none"].includes(flag("opener", "hook"))
+  ? flag("opener", "hook")
+  : "hook";
 const COVER = Math.max(0, Number(flag("cover", "2")));
 const LANG = flag("lang", "ar");
 const BASE = flag("base", "https://goldpricesarabia.com").replace(/\/+$/, "");
@@ -92,7 +106,8 @@ async function main() {
   await stat(CLIP); // fail early and clearly if the path is wrong
 
   const src = await ffprobe(CLIP);
-  const total = +(COVER + COUNTRIES.length * PER).toFixed(2);
+  const openerHold = OPENER === "none" ? 0 : COVER;
+  const total = +(openerHold + COUNTRIES.length * PER).toFixed(2);
   console.log(`clip     ${src.width}×${src.height}  ${src.duration.toFixed(1)}s`);
   if (src.width / src.height > 1) {
     console.log("         landscape source — cropping to 9:16 loses the sides.");
@@ -108,10 +123,13 @@ async function main() {
   await mkdir(work, { recursive: true });
 
   const cards = [];
-  const slugs = COVER > 0 ? ["cover", ...COUNTRIES] : [...COUNTRIES];
+  const first = OPENER === "none" ? [] : [OPENER];
+  const slugs = [...first, ...COUNTRIES];
   for (const slug of slugs) {
     const url =
-      slug === "cover"
+      slug === "hook"
+        ? `${BASE}/social/hook/story?lang=${LANG}&overlay=1&countries=${COUNTRIES.join(",")}`
+        : slug === "cover"
         ? `${BASE}/social/cover/story?lang=${LANG}&overlay=1&countries=${COUNTRIES.join(",")}`
         : `${BASE}/social/${slug}/story?lang=${LANG}&overlay=1`;
     const res = await fetch(url, { headers: { "user-agent": "goldarabia-reel/1.0" } });
@@ -142,7 +160,7 @@ async function main() {
   let prev = "bg";
   let cursor = 0;
   cards.forEach((_, i) => {
-    const hold = COVER > 0 && i === 0 ? COVER : PER;
+    const hold = openerHold > 0 && i === 0 ? openerHold : PER;
     const from = +cursor.toFixed(3);
     const to = +(cursor + hold).toFixed(3);
     cursor += hold;
@@ -155,7 +173,7 @@ async function main() {
   const inputs = ["-stream_loop", "-1", "-i", CLIP];
   for (const c of cards) inputs.push("-i", c);
 
-  console.log(`ffmpeg   ${COVER > 0 ? `cover ${COVER}s + ` : ""}${COUNTRIES.length} × ${PER}s = ${total}s`);
+  console.log(`ffmpeg   ${openerHold > 0 ? `${OPENER} ${openerHold}s + ` : ""}${COUNTRIES.length} × ${PER}s = ${total}s`);
   await run("ffmpeg", [
     "-y",
     ...inputs,
@@ -175,7 +193,7 @@ async function main() {
   const thumb = out.replace(/\.mp4$/, "-cover.jpg");
   await run("ffmpeg", [
     "-y", "-v", "error",
-    "-ss", COVER > 0 ? "0.4" : "0.2",
+    "-ss", openerHold > 0 ? "0.4" : "0.2",
     "-i", out,
     "-frames:v", "1",
     "-q:v", "2",
