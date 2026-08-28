@@ -2,11 +2,12 @@
 /**
  * Build a ready-to-post reel from a Google Flow backdrop and live price cards.
  *
- *   node scripts/reel.mjs --clip "C:/path/Gold_bar.mp4"
- *   node scripts/reel.mjs --clip clip.mp4 --countries saudi-arabia,uae,egypt
- *   node scripts/reel.mjs --clip clip.mp4 --country saudi-arabia   # single card
+ *   node scripts/reel.mjs                              # today's reel
+ *   node scripts/reel.mjs --countries saudi-arabia,uae,egypt
+ *   node scripts/reel.mjs --country saudi-arabia       # single card
+ *   node scripts/reel.mjs --clip "C:/path/other.mp4"   # different backdrop
  *
- *   --clip        backdrop from Flow (any aspect; it gets cropped to 9:16)
+ *   --clip        backdrop, default assets/backdrops/06-hook-gold-bars.mp4
  *   --countries   comma list, default the nine markets in the daily carousel
  *                 (WIDER_MARKETS below adds the next eleven by GSC clicks)
  *   --country     shorthand for a one-country reel
@@ -16,8 +17,8 @@
  *   --lang        default ar
  *   --out         default social-out/reels/YYYY-MM-DD/<name>.mp4
  *   --base        site to render cards from, default production
- *   --scrim       opacity of the dark layer between video and cards, default 0.62
- *   --blur        backdrop blur sigma, default 10
+ *   --scrim       opacity of the dark layer between video and cards, default 0.30
+ *   --blur        backdrop blur sigma, default 3
  *
  * Cards come from `/social/{country}/story?overlay=1` — the same route that
  * renders the carousel, minus its background — so a reel can never quote a
@@ -28,6 +29,7 @@
  * documented ranking signals, and a generated soundtrack wastes them.
  */
 import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, writeFile, stat, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
@@ -57,7 +59,15 @@ const DEFAULT_MARKETS =
 export const WIDER_MARKETS =
   "usa,uk,europe,turkey,sweden,denmark,canada,libya,pakistan,india,malaysia";
 
-const CLIP = flag("clip", "");
+/**
+ * The daily backdrop. Committed at assets/backdrops/ because it is a reusable
+ * input, not output: silent, text-free and dateless, so the same file works
+ * every day while only the prices drawn over it change. Pass --clip to use a
+ * different one (a seasonal backdrop, say); there is no reason to pass it for
+ * an ordinary day.
+ */
+const DEFAULT_CLIP = join(process.cwd(), "assets", "backdrops", "06-hook-gold-bars.mp4");
+const CLIP = flag("clip", DEFAULT_CLIP);
 const COUNTRIES = flag("country", flag("countries", DEFAULT_MARKETS))
   .split(",")
   .map((s) => s.trim())
@@ -79,14 +89,29 @@ const OPENER = ["hook", "cover", "none"].includes(flag("opener", "hook"))
 const COVER = Math.max(0, Number(flag("cover", "2")));
 const LANG = flag("lang", "ar");
 const BASE = flag("base", "https://goldpricesarabia.com").replace(/\/+$/, "");
-const SCRIM = Math.min(1, Math.max(0, Number(flag("scrim", "0.62"))));
-const BLUR = Math.max(0, Number(flag("blur", "10")));
+/**
+ * Scrim and blur are tuned to the default backdrop, whose centre is already
+ * unlit. The old defaults (0.62 / 10) existed to beat down clips that put a
+ * blown-out specular highlight right where the text sits; against a backdrop
+ * built with a dark middle they only drained the gold out of the frame and the
+ * result read as grey monochrome. Raise them again for a brighter clip.
+ */
+const SCRIM = Math.min(1, Math.max(0, Number(flag("scrim", "0.30"))));
+const BLUR = Math.max(0, Number(flag("blur", "3")));
 
 const W = 1080;
 const H = 1920;
 
 if (!CLIP) {
   console.error("--clip is required: the .mp4 you downloaded from Flow");
+  process.exit(1);
+}
+
+if (!existsSync(CLIP)) {
+  console.error(`clip not found: ${CLIP}`);
+  if (CLIP === DEFAULT_CLIP) {
+    console.error("run this from the goldarabia/ directory, or pass --clip");
+  }
   process.exit(1);
 }
 
