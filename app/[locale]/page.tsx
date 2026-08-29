@@ -22,6 +22,7 @@ import { MetalsStrip } from "@/components/MetalsStrip";
 import { PriceChart } from "@/components/PriceChart";
 import { ResearchTeaser } from "@/components/ResearchTeaser";
 import { Sidebar } from "@/components/Sidebar";
+import { FollowCta } from "@/components/FollowCta";
 import { StoresMarquee } from "@/components/StoresMarquee";
 import { TradeGoldCta } from "@/components/TradeGoldCta";
 
@@ -328,6 +329,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 ))}
               </div>
             </section>
+
+            {/* The reader has their answer; give them a reason to come back
+                daily rather than re-search each morning. */}
+            <FollowCta locale={locale} />
 
             <Faq />
 

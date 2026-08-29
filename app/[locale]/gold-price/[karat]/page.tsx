@@ -20,6 +20,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { PriceChart } from "@/components/PriceChart";
 import { PriceTable } from "@/components/PriceTable";
 import { RecentPricesTable } from "@/components/RecentPricesTable";
+import { FollowCta } from "@/components/FollowCta";
 import { StoresMarquee } from "@/components/StoresMarquee";
 import { TradeGoldCta } from "@/components/TradeGoldCta";
 import { TradingViewChart } from "@/components/TradingViewChart";
@@ -289,6 +290,9 @@ export default async function KaratPage({
               <CalculatorSection sPromise={spotPromise} fxPromise={fxPromise} />
             </Suspense>
             <StoresMarquee />
+
+            <FollowCta locale={locale} />
+
             <Faq />
 
             <RelatedLinks heading={pick(locale, RELATED_HEADING)} items={relatedLinks(locale)} />

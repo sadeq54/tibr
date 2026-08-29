@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 
 import { AdSensePlacement } from "@/components/AdSensePlacement";
 import { AffiliateBanner } from "@/components/AffiliateBanner";
+import { FollowCta } from "@/components/FollowCta";
 import { CountryGoldPriceHeader } from "@/components/CountryGoldPriceHeader";
 import { countryPageText } from "@/components/CountryGoldPriceHeader.i18n";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -307,6 +308,11 @@ export default async function CountryKaratPage({
             <CountryGoldPriceHeader locale={locale} slug={slug} karat={karat} part="content" />
 
             <StoresMarquee />
+
+            {/* After the price, before the FAQ: the reader has their answer and
+                is deciding whether to leave. */}
+            <FollowCta locale={locale} countrySlug={slug} />
+
             <Faq />
 
             <RelatedLinks heading={related.heading} items={related.items} />
