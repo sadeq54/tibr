@@ -59,6 +59,20 @@ const KARAT_LINE: LocaleText = {
   en: "21K · per gram", ar: "عيار 21 · للجرام", fr: "18K · par gramme", tr: "21 ayar · gram", ur: "21 قیراط · فی گرام", hi: "21K · प्रति ग्राम",
 };
 
+/**
+ * Arabic counted-noun agreement (التمييز): 3-10 take the plural in the
+ * genitive — "9 دول" — while 11-99 take the singular — "19 دولة". Same rule as
+ * lib/social-caption.ts; the reel and its caption have to agree or a native
+ * reader spots it instantly.
+ */
+function countryNoun(locale: string, n: number): string {
+  if (locale !== "ar") return n === 1 ? "country" : "countries";
+  if (n === 1) return "دولة واحدة";
+  if (n === 2) return "دولتان";
+  if (n >= 3 && n <= 10) return "دول";
+  return "دولة";
+}
+
 export async function GET(
   req: NextRequest,
   ctx: { params: Promise<{ format: string }> },
@@ -86,14 +100,29 @@ export async function GET(
 
   const when = spotDate(spot) ?? new Date();
 
-  // The first market of the carousel doubles as the teaser price: it is the
-  // one the largest share of this audience is actually looking for.
   const markets = resolveMarkets(req.nextUrl.searchParams.get("countries"));
-  const lead = COUNTRY_BY_SLUG[markets[0] ?? "saudi-arabia"];
+
+  /**
+   * The teaser price under the headline.
+   *
+   * By default it is the gram in **dollars**, because the daily reel is not
+   * about any one country. Showing Saudi riyals to an Egyptian viewer in the
+   * first second is arbitrary — the reel covers nine markets and the opening
+   * frame should belong to all of them. The dollar gram is the number every
+   * local price is derived from, so it is both global and the one figure that
+   * makes the country cards that follow make sense.
+   *
+   * `?lead=egypt` switches it to that market's own currency, for a reel built
+   * to rank for a single country.
+   */
+  const leadParam = req.nextUrl.searchParams.get("lead");
+  const lead = leadParam ? COUNTRY_BY_SLUG[leadParam] : undefined;
   const rawRate = lead && lead.currency !== "USD" ? (fx[lead.currency] as number | undefined) : 1;
   const rate = typeof rawRate === "number" && Number.isFinite(rawRate) && rawRate > 0 ? rawRate : 1;
-  const leadGram = lead ? gramUsd(spot, "21k") * rate : null;
-  const leadCurrency = lead && rate === 1 && lead.currency !== "USD" ? "USD" : lead?.currency;
+  const gramInUsd = gramUsd(spot, "21k");
+  const leadGram = lead ? gramInUsd * rate : gramInUsd;
+  const leadCurrency = lead ? (rate === 1 && lead.currency !== "USD" ? "USD" : lead.currency) : "USD";
+  const countryCount = markets.length;
 
   const { w, h } = SIZES[format];
   const isStory = format === "story";
@@ -228,6 +257,21 @@ export async function GET(
         <div style={{ display: "flex", marginTop: isStory ? 56 : 34 }}>
           <Words text={pick(lang, PROMISE)} rtl={rtl} size={34 * scale} color={CARD_GOLD} />
         </div>
+
+        {/* The country count sits on its own line rather than being appended to
+            the promise. Inline it collided with its separator, and the digit
+            came out Arabic-Indic while every other number on the frame is
+            Latin — fmtNum keeps it consistent. */}
+        {!lead && (
+          <div style={{ display: "flex", marginTop: 14 }}>
+            <Words
+              text={`${fmtNum(countryCount, 0)} ${countryNoun(lang, countryCount)}`}
+              rtl={rtl}
+              size={30 * scale}
+              color={CARD_MUTED}
+            />
+          </div>
+        )}
 
         <div style={{ display: "flex", marginTop: 18 }}>
           <Words text={dateLabel(lang, when, true)} rtl={rtl} size={24 * scale} color={CARD_DIM} />
