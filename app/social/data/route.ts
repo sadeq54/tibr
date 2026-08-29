@@ -62,7 +62,11 @@ export async function GET(req: NextRequest) {
   }));
   // SITE_URL, never req.nextUrl.origin: on Netlify the request origin is the
   // deploy URL (master--tibers.netlify.app), which would print in the caption.
-  const captionInput = { locale, when, ounceUsd, changePct, markets: captionMarkets, siteUrl: SITE_URL };
+  // `?lead=syria` pins one market to the front of the caption and its hashtags,
+  // for a single-country reel. Ignored unless the market is actually present.
+  const leadParam = req.nextUrl.searchParams.get("lead") ?? undefined;
+  const lead = leadParam && slugs.includes(leadParam) ? leadParam : undefined;
+  const captionInput = { locale, when, ounceUsd, changePct, markets: captionMarkets, siteUrl: SITE_URL, lead };
 
   return NextResponse.json(
     {

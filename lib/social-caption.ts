@@ -105,6 +105,15 @@ export type CaptionInput = {
   changePct: number | null;
   markets: MarketPrice[];
   siteUrl: string;
+  /**
+   * Pin one market to the front of the price lines and the hashtags.
+   *
+   * The daily carousel wants the anchors first and a rotation behind them, so
+   * it leaves this unset. A single-country reel is the opposite: it exists to
+   * rank for one market, and a Syria reel whose caption never says Syria — the
+   * first version of this did exactly that — competes for nothing.
+   */
+  lead?: string;
 };
 
 /**
@@ -134,10 +143,11 @@ export function money(locale: string, value: number, currency: string): string {
   }
 }
 
-/** Order the price lines: the three anchors first, then today's rotation. */
-function leadMarkets(when: Date, markets: MarketPrice[]): MarketPrice[] {
+/** Order the price lines: a pinned lead, then the anchors, then the rotation. */
+function leadMarkets(when: Date, markets: MarketPrice[], pinned?: string): MarketPrice[] {
   const bySlug = new Map(markets.map((m) => [m.slug, m]));
   const order = [
+    ...(pinned ? [pinned] : []),
     ...ANCHOR_MARKETS,
     ...focusMarkets(when, markets.map((m) => m.slug)),
   ];
@@ -154,7 +164,7 @@ function leadMarkets(when: Date, markets: MarketPrice[]): MarketPrice[] {
 }
 
 export function buildCaption(input: CaptionInput): string {
-  const { locale, when, ounceUsd, changePct, markets, siteUrl } = input;
+  const { locale, when, ounceUsd, changePct, markets, siteUrl, lead: pinned } = input;
   // Always two decimals: a price that renders "$4,530" one day and "$4,530.18"
   // the next reads like two different feeds.
   const usd = ounceUsd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -163,7 +173,7 @@ export function buildCaption(input: CaptionInput): string {
       ? ""
       : ` ${changePct >= 0 ? "▲" : "▼"} ${changePct >= 0 ? "+" : "−"}${Math.abs(changePct).toFixed(2)}%`;
 
-  const lead = leadMarkets(when, markets);
+  const lead = leadMarkets(when, markets, pinned);
   const leadSlugs = new Set(lead.map((m) => m.slug));
   const karat = karatLabel(locale, CAPTION_KARAT);
 
@@ -200,7 +210,7 @@ export function buildCaption(input: CaptionInput): string {
     `🔗 ${pick(locale, T.link)} ${domain} — ${pick(locale, T.inBio)}`,
     `📲 @${handle}`,
     "",
-    dailyTags(when, markets.map((m) => m.slug)).join(" "),
+    dailyTags(when, markets.map((m) => m.slug), pinned).join(" "),
   ];
   return lines.join("\n");
 }

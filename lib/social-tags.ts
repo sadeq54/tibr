@@ -60,6 +60,15 @@ export const COUNTRY_TAGS: Record<string, readonly string[]> = {
   lebanon: ["#الذهب_في_لبنان", "#لبنان", "#بيروت"],
   morocco: ["#الذهب_في_المغرب", "#المغرب", "#الدار_البيضاء"],
   libya: ["#الذهب_في_ليبيا", "#ليبيا", "#طرابلس"],
+  // The six markets added 2026-08-27. Without an entry here a reel made to rank
+  // for Syria carries no Syrian tag at all — the caption named the country and
+  // the hashtags did not, which is how the first per-country reel shipped.
+  syria: ["#الذهب_في_سوريا", "#سوريا", "#دمشق", "#حلب", "#سوق_الذهب_دمشق"],
+  iraq: ["#الذهب_في_العراق", "#العراق", "#بغداد", "#اربيل", "#البصرة"],
+  yemen: ["#الذهب_في_اليمن", "#اليمن", "#صنعاء", "#عدن", "#تعز"],
+  palestine: ["#الذهب_في_فلسطين", "#فلسطين", "#غزة", "#الخليل", "#نابلس"],
+  algeria: ["#الذهب_في_الجزائر", "#الجزائر", "#وهران", "#قسنطينة"],
+  tunisia: ["#الذهب_في_تونس", "#تونس", "#صفاقس", "#سوسة"],
   turkey: ["#altınfiyatları", "#gramaltın", "#çeyrekaltın", "#altin"],
   india: ["#goldrate", "#goldratetoday", "#sonachandi", "#goldrateindia"],
   pakistan: ["#goldrateinpakistan", "#goldpricepakistan", "#sonachandi"],
@@ -157,11 +166,15 @@ export function focusMarkets(when: Date, markets: readonly string[], count = 4):
  * Today's tag block. Deterministic for a given day, so re-running the generator
  * reproduces the same post rather than a different one.
  */
-export function dailyTags(when: Date, markets: readonly string[]): string[] {
+export function dailyTags(when: Date, markets: readonly string[], pinned?: string): string[] {
   const d = dayIndex(when);
   const out: string[] = [
     ...CORE_TAGS,
     ...rotate(VARIANT_TAGS, d, 1),
+    // A pinned market takes every tag it has, ahead of the anchors. A reel made
+    // to rank for Syria has to carry #الذهب_في_سوريا; the rotation alone would
+    // drop it on most days.
+    ...(pinned && markets.includes(pinned) ? (COUNTRY_TAGS[pinned] ?? []) : []),
     ...ANCHOR_MARKETS.filter((m) => markets.includes(m)).map((m) => COUNTRY_TAGS[m][0]),
     ...focusMarkets(when, markets).flatMap((m) => rotate(COUNTRY_TAGS[m] ?? [], d, 3)),
     ...rotate(REGION_TAGS, d, 2),
