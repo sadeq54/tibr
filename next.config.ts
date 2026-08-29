@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
   // from a stray shell or editor) can't block a verification build:
   //   NEXT_DIST_DIR=.next-check npm run build && NEXT_DIST_DIR=.next-check npx next start
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  // Self-host (Docker/Coolify): emit .next/standalone with a traced server.js
+  // so the runtime image ships without full node_modules. Netlify's runtime
+  // forces standalone internally anyway, so this is a no-op there.
+  output: "standalone",
   // Next 16 PPR + dynamic-by-default. Required by `"use cache"` directives in
   // app/api/spot and app/api/metals. Note: the prerendered HTML shell still
   // streams dynamic content via RSC, so non-JS crawlers (some AI bots) only

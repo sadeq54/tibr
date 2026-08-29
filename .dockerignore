@@ -1,0 +1,12 @@
+node_modules
+.next
+.next-check
+.git
+.github
+social-out
+assets
+docs
+*.md
+netlify.toml
+.env*
+tsconfig.tsbuildinfo

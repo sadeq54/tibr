@@ -1,0 +1,47 @@
+# Deployed by Coolify (app "goldarabia") on arabi-prod. Coolify builds this
+# itself (no runner pre-build — single small app, cold build is fine).
+#
+# Coolify compose rules that shape this file (verified on arabi-stack,
+# canonical table in arabykids DEVOPS.md §4):
+#   - env_file: and container_name: get stripped — don't use them.
+#   - The app's WHOLE Coolify env store is injected into the container and
+#     interpolates ${VAR} refs below. PORT/HOSTNAME are pinned explicitly so
+#     an injected value can never move the listener.
+#   - Named volumes get uuid-prefixed — none used here (stateless app).
+#
+# Ingress: the arabi Caddy (separate Coolify app) proxies
+# goldpricesarabia.com → host.docker.internal:3010 → this container.
+# The 0.0.0.0 publish is required: a 127.0.0.1-bound publish is NOT
+# reachable via host.docker.internal. External access to :3010 is dropped
+# by the eth0-scoped DOCKER-USER firewall (arabi-coolify-firewall.service).
+services:
+  goldarabia:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+        NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
+        NEXT_PUBLIC_ADSENSE_CLIENT: ${NEXT_PUBLIC_ADSENSE_CLIENT:-}
+        NEXT_PUBLIC_GOOGLE_VERIFICATION: ${NEXT_PUBLIC_GOOGLE_VERIFICATION:-}
+        NEXT_PUBLIC_BING_VERIFICATION: ${NEXT_PUBLIC_BING_VERIFICATION:-}
+        NEXT_PUBLIC_YANDEX_VERIFICATION: ${NEXT_PUBLIC_YANDEX_VERIFICATION:-}
+        NEXT_PUBLIC_FACEBOOK_VERIFICATION: ${NEXT_PUBLIC_FACEBOOK_VERIFICATION:-}
+        NEXT_PUBLIC_DEPLOY_CONTEXT: ${NEXT_PUBLIC_DEPLOY_CONTEXT:-production}
+        INDEXNOW_KEY: ${INDEXNOW_KEY:-}
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      NEXT_PUBLIC_DEPLOY_CONTEXT: ${NEXT_PUBLIC_DEPLOY_CONTEXT:-production}
+      INDEXNOW_KEY: ${INDEXNOW_KEY:-}
+    ports:
+      - "3010:3000"
+    restart: unless-stopped
+    healthcheck:
+      # node:22-slim has no curl/wget; / answers 307 → any status <500 is alive.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
