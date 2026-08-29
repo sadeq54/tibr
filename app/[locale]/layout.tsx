@@ -387,16 +387,18 @@ export const metadata: Metadata = {
       "application/rss+xml": [{ url: "/rss.xml", title: "Gold market news" }],
     },
   },
+  // Every entry here declared a size and then served /appIcone.png, the
+  // 4633x4633 5 MB master. A favicon request pulled 5 MB on every page.
   icons: {
     icon: [
       { url: "/appIcone.ico", sizes: "any" },
-      { url: "/appIcone.png", sizes: "192x192", type: "image/png" },
-      { url: "/appIcone.png", sizes: "512x512", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     shortcut: ["/appIcone.ico"],
-    apple: [{ url: "/appIcone.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
     other: [
-      { rel: "apple-touch-icon-precomposed", url: "/appIcone.png" },
+      { rel: "apple-touch-icon-precomposed", url: "/apple-touch-icon.png" },
     ],
   },
   openGraph: {
@@ -415,7 +417,7 @@ export const metadata: Metadata = {
         alt: "Gold Prices Arabia — Live gold for MENA",
       },
       {
-        url: "/appIcone.png",
+        url: "/icon-512.png",
         width: 512,
         height: 512,
         alt: "Gold Prices Arabia logo",
@@ -469,7 +471,7 @@ export const metadata: Metadata = {
   other: {
     ...(ADSENSE_CLIENT ? { "google-adsense-account": ADSENSE_CLIENT } : {}),
     "msapplication-TileColor": "#0b0a08",
-    "msapplication-TileImage": "/appIcone.png",
+    "msapplication-TileImage": "/icon-192.png",
   },
 };
 

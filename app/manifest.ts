@@ -19,47 +19,51 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "ar",
     dir: "rtl",
     categories: ["finance", "business", "news"],
+    // Real files at the declared sizes. These pointed at /appIcone.png — the
+    // 4633x4633, 5 MB master — for every entry, so a browser downloaded 5 MB to
+    // draw a 96-pixel shortcut icon. It was 52% of the homepage's 9.5 MB and
+    // the largest single cause of a 38s LCP. Same artwork, resized: 8 KB.
     icons: [
-      { src: "/appIcone.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/appIcone.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/appIcone.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
       {
         name: "Live Gold Price",
         short_name: "Live",
         url: "/live-gold-price",
-        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
+        icons: [{ src: "/icon-96.png", sizes: "96x96" }],
       },
       {
         name: "Gold Calculator",
         short_name: "Calculator",
         url: "/gold-calculator",
-        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
+        icons: [{ src: "/icon-96.png", sizes: "96x96" }],
       },
       {
         name: "Saudi Arabia",
         short_name: "Saudi",
         url: "/saudi-arabia/gold-price/21k",
-        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
+        icons: [{ src: "/icon-96.png", sizes: "96x96" }],
       },
       {
         name: "UAE",
         short_name: "UAE",
         url: "/uae/gold-price/21k",
-        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
+        icons: [{ src: "/icon-96.png", sizes: "96x96" }],
       },
       {
         name: "Jordan 21K",
         short_name: "Jordan",
         url: "/jordan/gold-price/21k",
-        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
+        icons: [{ src: "/icon-96.png", sizes: "96x96" }],
       },
       {
         name: "Egypt 21K",
         short_name: "Egypt",
         url: "/egypt/gold-price/21k",
-        icons: [{ src: "/appIcone.png", sizes: "96x96" }],
+        icons: [{ src: "/icon-96.png", sizes: "96x96" }],
       },
     ],
   };

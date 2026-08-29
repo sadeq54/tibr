@@ -74,9 +74,12 @@ export function JsonLd({
     name: "Gold Prices Arabia",
     alternateName: ["GoldPricesArabia", "أسعار الذهب العربية", "GPA"],
     url: siteUrl,
+    // Declared 512x512, so serve the 512 file. This pointed at the 4633x4633
+    // master, which made the schema's own dimensions a lie and handed anything
+    // fetching the logo a 5 MB download.
     logo: {
       "@type": "ImageObject",
-      url: `${siteUrl}/appIcone.png`,
+      url: `${siteUrl}/icon-512.png`,
       width: 512,
       height: 512,
     },
