@@ -97,10 +97,22 @@ function chunk<T>(items: T[], size: number): T[][] {
   return rows;
 }
 
+/** Counted, never typed: this said 46 for the three days after the site grew to
+ *  53, and every carousel cover posted in that window carried the wrong number.
+ *  Arabic takes the singular after 11-99, so "دولة" stays right up to 99. */
+const COUNTRY_COUNT = Object.keys(COUNTRY_BY_SLUG).length;
+
 /** What we offer that a single-country account cannot. Dots, not connectors:
  *  word-level layout keeps them evenly spaced at any size. */
 const FEATURES: LocaleText[] = [
-  { en: "46 countries", ar: "46 دولة", fr: "46 pays", tr: "46 ülke", ur: "46 ممالک", hi: "46 देश" },
+  {
+    en: `${COUNTRY_COUNT} countries`,
+    ar: `${COUNTRY_COUNT} دولة`,
+    fr: `${COUNTRY_COUNT} pays`,
+    tr: `${COUNTRY_COUNT} ülke`,
+    ur: `${COUNTRY_COUNT} ممالک`,
+    hi: `${COUNTRY_COUNT} देश`,
+  },
   { en: "24 · 22 · 21 · 18K", ar: "عيار 24 · 22 · 21 · 18", fr: "24 · 22 · 21 · 18 ct", tr: "24 · 22 · 21 · 18 ayar", ur: "24 · 22 · 21 · 18 قیراط", hi: "24 · 22 · 21 · 18K" },
   { en: "30-day chart", ar: "رسم بياني 30 يوم", fr: "graphique 30 jours", tr: "30 günlük grafik", ur: "30 دن کا چارٹ", hi: "30-दिन चार्ट" },
   { en: "Updated live", ar: "تحديث لحظي", fr: "mise à jour en direct", tr: "canlı güncelleme", ur: "لائیو اپ ڈیٹ", hi: "लाइव अपडेट" },
