@@ -21,6 +21,18 @@ const METALS = new Set(["gold", "silver", "platinum", "palladium"]);
 const CRYPTO = new Set([
   "bitcoin", "ethereum", "tether", "binancecoin", "ripple", "usd-coin", "solana", "tron", "dogecoin",
 ]);
+/**
+ * Every `/news/{slug}`. Hand-maintained rather than imported from
+ * `content/news/*` on purpose: this module is bundled into the edge
+ * middleware, and importing the articles would pull every article body
+ * (~100 KB of markdown) into that bundle.
+ *
+ * ADD A SLUG HERE WHENEVER YOU ADD AN ARTICLE. Forgetting is silent and
+ * ugly: the article still renders in the /news index and still goes into
+ * the sitemap, but the middleware rejects the URL, so every link to it —
+ * internal, Google's, a reader's — returns 404. That is exactly what
+ * happened to the six guides below before this line was updated.
+ */
 const NEWS = new Set([
   "saudi-gold-21k-may-2026-overview",
   "spot-gold-vs-retail-jeweller-spread",
@@ -28,6 +40,12 @@ const NEWS = new Set([
   "egypt-18k-vs-21k-gold-shift",
   "5-home-tests-to-spot-fake-gold",
   "silver-platinum-palladium-investment-comparison",
+  "making-charges-explained",
+  "two-exchange-rates-gold-price",
+  "reading-a-gold-hallmark",
+  "selling-gold-back-what-you-actually-get",
+  "why-neighbouring-countries-differ",
+  "18k-or-21k-for-daily-wear",
 ]);
 const BUY_GOLD_COUNTRIES = new Set(["usa", "uk", "canada", "australia", "saudi-arabia", "uae", "egypt", "morocco"]);
 const BUY_GOLD_TYPES = new Set(["coins", "small-coins", "bars"]);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 
+import { PauseAdRequests } from "@/components/AdSenseScript";
 import { EmbedTicker } from "@/components/EmbedTicker";
 import { getCachedFxRates, getCachedSpot } from "@/lib/cached-fetchers";
 import { COUNTRY_BY_SLUG, countryName } from "@/lib/countries";
@@ -54,6 +55,11 @@ export default async function EmbedTickerPage({
     : pick(locale, { en: "Global", ar: "السعر العالمي", fr: "Mondial", tr: "Küresel", ur: "عالمی", hi: "वैश्विक" });
 
   return (
+    <>
+    {/* The AdSense loader is static in the layout <head> on every route (it
+        has to be, or Google's readiness check fails), so this widget opts out
+        of ad requests here instead. Keeps partner iframes ad-free. */}
+    <PauseAdRequests />
     <EmbedTicker
       locale={locale}
       theme={theme}
@@ -72,5 +78,6 @@ export default async function EmbedTickerPage({
         updatedAt: Date.now(),
       }}
     />
+    </>
   );
 }

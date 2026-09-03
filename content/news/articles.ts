@@ -13,6 +13,9 @@
  *  - All articles authored by Sadeq Sayed Ahmad unless overridden.
  */
 
+import { GUIDE_ARTICLES } from "@/content/news/guides";
+import { SELLING_ARTICLES } from "@/content/news/guides-selling";
+
 export type Article = {
   slug: string;
   publishedAt: string;
@@ -38,7 +41,7 @@ const DEFAULT_AUTHOR = {
   image: "/author/sadeq.jpeg",
 };
 
-export const ARTICLES: Article[] = [
+const NEWS_ARTICLES: Article[] = [
   {
     slug: "saudi-gold-21k-may-2026-overview",
     publishedAt: "2026-05-13T08:00:00Z",
@@ -249,7 +252,7 @@ Gold Prices Arabia هو **موقع مرجعي للأسعار**، ليس سوقا
   },
 ];
 
-ARTICLES.push(
+NEWS_ARTICLES.push(
   {
     slug: "ramadan-eid-2026-gold-demand-cycle",
     publishedAt: "2026-05-13T11:00:00Z",
@@ -765,6 +768,20 @@ Bookmark our [precious-metals hub](/precious-metals) to track all four with dail
     author: DEFAULT_AUTHOR,
   },
 );
+
+/**
+ * Every article on the site, newest first.
+ *
+ * Split across files so none exceeds the repo's size rule: the launch batch
+ * lives above, the practical buying guides in `guides.ts` and
+ * `guides-selling.ts`. Consumers (sitemap, RSS, /news, article pages) import
+ * only `ARTICLES` and are unaffected by the split.
+ */
+export const ARTICLES: Article[] = [
+  ...NEWS_ARTICLES,
+  ...GUIDE_ARTICLES,
+  ...SELLING_ARTICLES,
+].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export function getArticleBySlug(slug: string): Article | undefined {
   return ARTICLES.find((a) => a.slug === slug);

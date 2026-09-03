@@ -43,5 +43,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.next-check/
+# Verification builds. next.config.ts honours NEXT_DIST_DIR so a check build
+# can sidestep a locked .next on Windows; the glob covers whatever name that
+# build is given, so build output can never show up as untracked again.
+.next-*/
 social-out/

@@ -574,13 +574,9 @@ async function AnalyticsGate() {
   return null;
 }
 
-/** AdSense loader + consent defaults, skipped inside `/embed/*` like analytics. */
-async function AdsGate() {
-  const h = await headers();
-  const path = h.get("x-pathname") ?? "";
-  if (EMBED_PATH.test(path)) return null;
-  return <AdSenseScript />;
-}
+/* AdsGate removed: gating the loader on headers() forced it out of the static
+   <head> under PPR (see the AdSenseScript comment in <head> above). Embed
+   routes now suppress ad requests from the embed page instead. */
 
 /**
  * Site-wide structured data. Emits Org + WebSite + Service + Breadcrumb +
@@ -633,16 +629,20 @@ export default async function LocaleLayout({
         )}
         {/* Consent defaults must execute before the ad loader below. */}
         <ConsentDefaultsScript />
-        {/* AdSense loader lives HERE, inside <head>, because Google's
-            site-readiness check fails a site whose code is "not placed
-            between <head> tags". It was previously mounted in <body> on the
-            assumption React would hoist it — measured on production, it did
-            not: the loader landed at byte 13637 with </head> closing at
-            12941. Rendered inside <head> and un-Suspended so it is part of
-            the static shell rather than streamed in after the fact. */}
-        <Suspense fallback={null}>
-          <AdsGate />
-        </Suspense>
+        {/* AdSense loader, rendered SYNCHRONOUSLY here inside <head>.
+            Google's site-readiness check fails a site whose code is "not
+            placed between <head> tags", and this tag was reaching <body> on
+            every page: it used to sit in <body> behind an async gate that
+            awaited headers(), on the assumption React would hoist it.
+            Measured on production it did not, and simply moving that gate
+            into <head> did not fix it either — under cacheComponents/PPR a
+            Suspense boundary that depends on headers() is excluded from the
+            static shell and streams in, and streamed nodes land in <body>
+            wherever they arrive. Only a static, un-Suspended element is part
+            of the prerendered <head>. Embed routes stay ad-free via
+            pauseAdRequests on the embed page itself rather than by gating
+            this tag. */}
+        <AdSenseScript />
         <link rel="preconnect" href="https://stream.binance.com" />
         <link rel="preconnect" href="https://ws-feed.exchange.coinbase.com" />
         <link rel="preconnect" href="https://ws.kraken.com" />

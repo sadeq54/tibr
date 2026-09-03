@@ -28,7 +28,33 @@ export function ConsentDefaultsScript() {
   return <script id="consent-default" dangerouslySetInnerHTML={{ __html: CONSENT_DEFAULTS }} />;
 }
 
-/** The AdSense loader itself. Mounted via the layout's AdsGate → never on `/embed/*`. */
+/**
+ * Suppresses ad requests on the page that renders it. Embed routes are meant
+ * to be iframed by partners, so Auto ads must never inject into them.
+ *
+ * This replaces the old approach of withholding the loader tag on `/embed/*`:
+ * that gate had to await `headers()`, which under cacheComponents/PPR pushed
+ * the loader out of the static `<head>` and into `<body>` on EVERY page —
+ * failing Google's "code not placed between <head> tags" readiness check.
+ * The loader is now static in `<head>` sitewide, and embeds opt out here.
+ *
+ * `pauseAdRequests` is AdSense's own documented switch. It is set from an
+ * inline script, which the parser executes while the `async` cross-origin
+ * loader is still being fetched, so it is in place before any ad request.
+ */
+export function PauseAdRequests() {
+  if (!ADSENSE_CLIENT) return null;
+  return (
+    <script
+      id="adsense-pause"
+      dangerouslySetInnerHTML={{
+        __html: "(window.adsbygoogle=window.adsbygoogle||[]).pauseAdRequests=1;",
+      }}
+    />
+  );
+}
+
+/** The AdSense loader itself. Static in the layout `<head>` on every route. */
 export function AdSenseScript() {
   if (!ADSENSE_CLIENT) return null;
   return (

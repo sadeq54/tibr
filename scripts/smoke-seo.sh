@@ -20,6 +20,19 @@ for u in /fr /tr /ur /hi /tr/turkey/gold-price/22k /ur/pakistan/gold-price/24k /
   printf "%-45s %s
 " "$u" "$(code "$u")"
 done
+# Every /news/ article in the sitemap must actually resolve. Catches the
+# failure where an article is added to content/news/* but not to the NEWS set
+# in lib/valid-routes.ts: it still renders in the /news index and still enters
+# the sitemap, but the middleware rejects the URL, so every link to it — ours,
+# Google's, a reader's — returns 404. Read from the sitemap rather than a
+# hardcoded list so new articles are covered without touching this script.
+echo "--- news articles (want all 200):"
+curl -s "http://localhost:$PORT/sitemap.xml" \
+  | grep -o '<loc>https://goldpricesarabia\.com/news/[^<]*</loc>' \
+  | sed 's|<loc>https://goldpricesarabia\.com||; s|</loc>||' \
+  | sort -u \
+  | while read -r u; do printf "%-52s %s\n" "$u" "$(code "$u")"; done
+
 echo "tr title: $(curl -s "http://localhost:$PORT/tr/turkey/gold-price/22k" | grep -o '<title>[^<]*</title>' | sed 's/<[^>]*>//g')"
 echo "hreflang count (want 7): $(curl -s "http://localhost:$PORT/jordan/gold-price/21k" | grep -oi 'hreflang="[^"]*"' | wc -l)"
 echo "embed footer leak: $(curl -s "http://localhost:$PORT/embed/ticker" | grep -c '<footer')  (want 0)"
