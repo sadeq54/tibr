@@ -631,8 +631,18 @@ export default async function LocaleLayout({
             strategy="beforeInteractive"
           />
         )}
-        {/* Consent defaults must execute before the (head-hoisted) ad loader. */}
+        {/* Consent defaults must execute before the ad loader below. */}
         <ConsentDefaultsScript />
+        {/* AdSense loader lives HERE, inside <head>, because Google's
+            site-readiness check fails a site whose code is "not placed
+            between <head> tags". It was previously mounted in <body> on the
+            assumption React would hoist it — measured on production, it did
+            not: the loader landed at byte 13637 with </head> closing at
+            12941. Rendered inside <head> and un-Suspended so it is part of
+            the static shell rather than streamed in after the fact. */}
+        <Suspense fallback={null}>
+          <AdsGate />
+        </Suspense>
         <link rel="preconnect" href="https://stream.binance.com" />
         <link rel="preconnect" href="https://ws-feed.exchange.coinbase.com" />
         <link rel="preconnect" href="https://ws.kraken.com" />
@@ -649,9 +659,6 @@ export default async function LocaleLayout({
         */}
         <Suspense fallback={null}>
           <AnalyticsGate />
-        </Suspense>
-        <Suspense fallback={null}>
-          <AdsGate />
         </Suspense>
         <Suspense fallback={null}>
           <SiteJsonLd locale={locale} />
