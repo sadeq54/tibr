@@ -13,6 +13,7 @@ import { ChartImage } from "@/components/ChartImage";
 import { Faq } from "@/components/Faq";
 import { Header } from "@/components/Header";
 import { JsonLd } from "@/components/JsonLd";
+import { KaratGuide } from "@/components/KaratGuide";
 import { KaratSwitcher } from "@/components/KaratSwitcher";
 import { RelatedLinks } from "@/components/RelatedLinks";
 import { Sidebar } from "@/components/Sidebar";
@@ -269,6 +270,12 @@ export default async function CountryKaratPage({
                 displayCurrency={country.currency}
               />
             </Suspense>
+
+            {/* Directly above the karat switcher: the reader has just seen
+                every karat priced side by side and is deciding which one they
+                actually want. It is also the only section on this page whose
+                copy differs between the five karat routes. */}
+            <KaratGuide locale={locale} slug={slug} karat={karat} countryName={name} />
 
             <KaratSwitcher
               current={karat}
